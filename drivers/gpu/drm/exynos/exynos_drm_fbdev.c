@@ -25,6 +25,11 @@
 #define MAX_CONNECTOR		4
 #define PREFERRED_BPP		32
 
+#if defined(EXYNOS_MALI_INTEROP)
+#include <linux/dma-buf.h>
+#define IOCTL_GET_FB_DMA_BUF _IOWR('m', 0xF9, __u32)
+#endif
+
 #define to_exynos_fbdev(x)	container_of(x, struct exynos_drm_fbdev,\
 				drm_fb_helper)
 
@@ -60,6 +65,52 @@ static int exynos_drm_fb_mmap(struct fb_info *info,
 	return 0;
 }
 
+#if defined(EXYNOS_MALI_INTEROP)
+static u32 exynos_fb_get_dma_buf(struct fb_info *info)
+{
+    int fd = -1;
+    struct drm_fb_helper *helper = info->par;
+    struct drm_device *dev = helper->dev;
+    struct exynos_drm_fbdev *exynos_fbd = to_exynos_fbdev(helper);
+    struct exynos_drm_gem_obj *exynos_gem_obj = exynos_fbd->exynos_gem_obj;
+
+    if (dev->driver->gem_prime_export) {
+        struct dma_buf *buf = NULL;
+        buf = dev->driver->gem_prime_export(dev, &exynos_gem_obj->base, O_RDWR);
+        if (buf)
+            fd = dma_buf_fd(buf, O_RDWR);
+    }
+
+    return fd;
+}
+
+static int exynos_drm_fb_ioctl(struct fb_info *info, unsigned int cmd,
+            unsigned long arg)
+{
+    int ret;
+
+    switch (cmd) {
+    case IOCTL_GET_FB_DMA_BUF:
+    {
+        u32 __user *out_ptr = (u32 __user *)arg;
+        u32 buf_fd = exynos_fb_get_dma_buf(info);
+        if (buf_fd == -1) {
+            ret = -ENOMEM;
+            break;
+        }
+        ret = put_user(buf_fd, out_ptr);
+        break;
+    }
+    default:
+        ret = -ENOTTY;
+    }
+
+    return ret;
+}
+#else
+#define exynos_drm_fb_ioctl NULL
+#endif
+
 static struct fb_ops exynos_drm_fb_ops = {
 	.owner		= THIS_MODULE,
 	DRM_FB_HELPER_DEFAULT_OPS,
@@ -67,6 +118,7 @@ static struct fb_ops exynos_drm_fb_ops = {
 	.fb_fillrect	= drm_fb_helper_cfb_fillrect,
 	.fb_copyarea	= drm_fb_helper_cfb_copyarea,
 	.fb_imageblit	= drm_fb_helper_cfb_imageblit,
+	.fb_ioctl	= exynos_drm_fb_ioctl,
 };
 
 static int exynos_drm_fbdev_update(struct drm_fb_helper *helper,
