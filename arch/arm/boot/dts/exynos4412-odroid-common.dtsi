@@ -409,7 +409,7 @@
 			ldo20_reg: LDO20 {
 				regulator-name = "vddq_emmc_1.8V";
 				regulator-min-microvolt = <1800000>;
-				regulator-max-microvolt = <1800000>;
+				regulator-max-microvolt = <3000000>;
 			};
 
 			/* Supply for core of SDHC. */
@@ -456,15 +456,15 @@
 			buck3_reg: BUCK3 {
 				regulator-name = "vdd_int";
 				regulator-min-microvolt = <900000>;
-				regulator-max-microvolt = <1050000>;
+				regulator-max-microvolt = <1150000>;
 				regulator-always-on;
 				regulator-boot-on;
 			};
 
 			buck4_reg: BUCK4 {
 				regulator-name = "vdd_g3d";
-				regulator-min-microvolt = <900000>;
-				regulator-max-microvolt = <1100000>;
+				regulator-min-microvolt = <850000>;
+				regulator-max-microvolt = <1200000>;
 				regulator-microvolt-offset = <50000>;
 			};
 
