@@ -291,35 +291,40 @@
 
 		voltage-regulators {
 			ldo1_reg: LDO1 {
-				regulator-name = "VDD_ALIVE_1.0V";
+				regulator-name = "vdd_alive_1.0V";
 				regulator-min-microvolt = <1000000>;
 				regulator-max-microvolt = <1000000>;
 				regulator-always-on;
 			};
 
 			ldo2_reg: LDO2 {
-				regulator-name = "VDDQ_M1_2_1.8V";
+				regulator-name = "vddq_m1_m2_1.8V";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-always-on;
 			};
 
+			/* This regulator also supplies:            *
+			 * vddq_sbus, vddq_sys02, vddq_aud and more */
 			ldo3_reg: LDO3 {
-				regulator-name = "VDDQ_EXT_1.8V";
+				regulator-name = "vddq_ext_1.8V";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-always-on;
 			};
 
+			/* Supply for IO of SDHC. */
 			ldo4_reg: LDO4 {
-				regulator-name = "VDDQ_MMC2_2.8V";
+				regulator-name = "vddq_mmc2_2.8V";
 				regulator-min-microvolt = <2800000>;
 				regulator-max-microvolt = <2800000>;
 				regulator-boot-on;
 			};
 
+			/* The LDO5 regulator provides reference voltage for the whole MMC *
+			 * subsystem (both SDHC and eMMC), so leave it always enabled.     */
 			ldo5_reg: LDO5 {
-				regulator-name = "VDDQ_MMC1_3_1.8V";
+				regulator-name = "vddq_mmc1_mmc3_1.8V";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-always-on;
@@ -327,40 +332,41 @@
 			};
 
 			ldo6_reg: LDO6 {
-				regulator-name = "VDD10_MPLL_1.0V";
+				regulator-name = "vdd_mpll_1.0V";
 				regulator-min-microvolt = <1000000>;
 				regulator-max-microvolt = <1000000>;
 				regulator-always-on;
 			};
 
 			ldo7_reg: LDO7 {
-				regulator-name = "VDD10_XPLL_1.0V";
+				regulator-name = "vdd_epll_1.0V";
 				regulator-min-microvolt = <1000000>;
 				regulator-max-microvolt = <1000000>;
 				regulator-always-on;
 			};
 
 			ldo8_reg: LDO8 {
-				regulator-name = "VDD10_HDMI_1.0V";
+				regulator-name = "vdd_hdmi_1.0V";
 				regulator-min-microvolt = <1000000>;
 				regulator-max-microvolt = <1000000>;
 			};
 
+			/* This regulator also supplies the TMU block. */
 			ldo10_reg: LDO10 {
-				regulator-name = "VDDQ_MIPIHSI_1.8V";
+				regulator-name = "vddq_mipihsi_1.8V";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 			};
 
 			ldo11_reg: LDO11 {
-				regulator-name = "VDD18_ABB1_1.8V";
+				regulator-name = "vdd_abb1_1.8V";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-always-on;
 			};
 
 			ldo12_reg: LDO12 {
-				regulator-name = "VDD33_USB_3.3V";
+				regulator-name = "vdd_usb_otg_3.3V";
 				regulator-min-microvolt = <3300000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-always-on;
@@ -368,7 +374,7 @@
 			};
 
 			ldo13_reg: LDO13 {
-				regulator-name = "VDDQ_C2C_W_1.8V";
+				regulator-name = "vddq_c2c_w_1.8V";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-always-on;
@@ -376,7 +382,7 @@
 			};
 
 			ldo14_reg: LDO14 {
-				regulator-name = "VDD18_ABB0_2_1.8V";
+				regulator-name = "vdd_abb0_abb2_1.8V";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-always-on;
@@ -384,7 +390,7 @@
 			};
 
 			ldo15_reg: LDO15 {
-				regulator-name = "VDD10_HSIC_1.0V";
+				regulator-name = "vdd_otg_hsic_1.0V";
 				regulator-min-microvolt = <1000000>;
 				regulator-max-microvolt = <1000000>;
 				regulator-always-on;
@@ -392,21 +398,23 @@
 			};
 
 			ldo16_reg: LDO16 {
-				regulator-name = "VDD18_HSIC_1.8V";
+				regulator-name = "vdd_hsic_1.8V";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-always-on;
 				regulator-boot-on;
 			};
 
+			/* Supply for IO of eMMC. */
 			ldo20_reg: LDO20 {
-				regulator-name = "LDO20_1.8V";
+				regulator-name = "vddq_emmc_1.8V";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 			};
 
+			/* Supply for core of SDHC. */
 			ldo21_reg: LDO21 {
-				regulator-name = "TFLASH_2.8V";
+				regulator-name = "tflash_2.8V";
 				regulator-min-microvolt = <2800000>;
 				regulator-max-microvolt = <2800000>;
 				regulator-boot-on;
@@ -422,7 +430,7 @@
 			};
 
 			ldo25_reg: LDO25 {
-				regulator-name = "VDDQ_LCD_1.8V";
+				regulator-name = "vddq_lcd_1.8V";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-always-on;
@@ -430,7 +438,7 @@
 			};
 
 			buck1_reg: BUCK1 {
-				regulator-name = "VDD_MIF";
+				regulator-name = "vdd_mif";
 				regulator-min-microvolt = <900000>;
 				regulator-max-microvolt = <1100000>;
 				regulator-always-on;
@@ -438,7 +446,7 @@
 			};
 
 			buck2_reg: BUCK2 {
-				regulator-name = "VDD_ARM";
+				regulator-name = "vdd_arm";
 				regulator-min-microvolt = <900000>;
 				regulator-max-microvolt = <1400000>;
 				regulator-always-on;
@@ -446,7 +454,7 @@
 			};
 
 			buck3_reg: BUCK3 {
-				regulator-name = "VDD_INT";
+				regulator-name = "vdd_int";
 				regulator-min-microvolt = <900000>;
 				regulator-max-microvolt = <1050000>;
 				regulator-always-on;
@@ -454,30 +462,34 @@
 			};
 
 			buck4_reg: BUCK4 {
-				regulator-name = "VDD_G3D";
+				regulator-name = "vdd_g3d";
 				regulator-min-microvolt = <900000>;
 				regulator-max-microvolt = <1100000>;
 				regulator-microvolt-offset = <50000>;
 			};
 
+			/* This regulator also supplies:            *
+			 * vddq_ckem2, vddq_e{1,2} and vddca_e{1,2} */
 			buck5_reg: BUCK5 {
-				regulator-name = "VDDQ_CKEM1_2_1.2V";
+				regulator-name = "vddq_ckem1_1.2V";
 				regulator-min-microvolt = <1200000>;
 				regulator-max-microvolt = <1200000>;
 				regulator-always-on;
 				regulator-boot-on;
 			};
 
+			/* Input to LDO: 1, 6, 7, 8 and 15 */
 			buck6_reg: BUCK6 {
-				regulator-name = "BUCK6_1.35V";
+				regulator-name = "input_ldo_1.35V";
 				regulator-min-microvolt = <1350000>;
 				regulator-max-microvolt = <1350000>;
 				regulator-always-on;
 				regulator-boot-on;
 			};
 
+			/* Input to LDO: 3, 5, 9, 11 and 17~20 */
 			buck7_reg: BUCK7 {
-				regulator-name = "BUCK7_2.0V";
+				regulator-name = "input_ldo_2.0V";
 				regulator-min-microvolt = <2000000>;
 				regulator-max-microvolt = <2000000>;
 				regulator-always-on;

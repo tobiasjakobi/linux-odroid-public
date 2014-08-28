@@ -64,11 +64,15 @@
 	status = "okay";
 };
 
-/* VDDQ for MSHC (eMMC card) */
+/* On the Odroid-X/X2 this buck regulator supplies the core of the eMMC. */
 &buck8_reg {
-	regulator-name = "BUCK8_VDDQ_MMC4_2.8V";
+	regulator-name = "vddf_emmc_2.85V";
 	regulator-min-microvolt = <2800000>;
 	regulator-max-microvolt = <2800000>;
+};
+
+&ldo22_reg {
+	regulator-name = "unused_2.8V";
 };
 
 &ehci {
