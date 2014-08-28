@@ -69,9 +69,9 @@
 	/* Nothing connected to ADC inputs, keep it disabled */
 };
 
-/* Supply for LAN9730/SMSC95xx */
+/* On the Odroid-U2/U3 this buck regulator supplies the LAN9730 block. */
 &buck8_reg {
-	regulator-name = "BUCK8_P3V3";
+	regulator-name = "input_lan9730_3.3V";
 	regulator-min-microvolt = <3300000>;
 	regulator-max-microvolt = <3300000>;
 };
@@ -80,9 +80,9 @@
 	needs-hpd;
 };
 
-/* VDDQ for MSHC (eMMC card) */
+/* On the Odroid-U2/U3 this buck regulator supplies the core of the eMMC. */
 &ldo22_reg {
-	regulator-name = "LDO22_VDDQ_MMC4_2.8V";
+	regulator-name = "vddf_emmc_2.85V";
 	regulator-min-microvolt = <2800000>;
 	regulator-max-microvolt = <2800000>;
 };
