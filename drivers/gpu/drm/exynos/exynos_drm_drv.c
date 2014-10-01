@@ -46,6 +46,51 @@
 #define DRIVER_MAJOR	1
 #define DRIVER_MINOR	1
 
+/*
+ * Undocumented Exynos4412 QoS registers. Needed to prioritize RAM accesses
+ * from display controllers in the face of bus competition.
+ * In particular, we have seen that the GPU can easily saturate memory
+ * bandwidth and cause underflows for the display controllers (visual glitches
+ * appear at 1080p@60Hz).
+ *
+ * There is a higher-than-expected GPU performance degradation when this QoS
+ * is applied. And actually, testing at 640x480 where bus competition should
+ * be minimal, the GPU performance loss is still equal. Therefore this does
+ * not seem to be working as QoS, instead it just makes the GPU slow down to
+ * the point where it can't saturate memory bandwidth. Sigh.
+ * Anyway, it avoids the glitches.
+ *
+ * The best documentation of these registers can be found from an old Android
+ * code drop, as below:
+ *
+ * QOSAC_GDL (0x11600400)
+ * [0] Image Block: "1" Full Resource, "0" Tidemark
+ * [1] TV Block: "1" Full Resource, "0" Tidemark
+ * [2] G3D Block: "1" Full Resource, "0" Tidemark
+ * [3] MFC_L Block: "1" Full Resource, "0" Tidemark
+ *
+ * QOSAC_GDR (0x11200400)
+ * [0] CAM Block: "1" Full Resource, "0" Tidemark
+ * [1] LCD0 Block: "1" Full Resource, "0" Tidemark
+ * [2] LCD1 Block: "1" Full Resource, "0" Tidemark
+ * [3] FSYS Block: "1" Full Resource, "0" Tidemark
+ * [4] MFC_R Block: "1" Full Resource, "0" Tidemark
+ * [5] MAUDIO Block: "1" Full Resource, "0" Tidemark
+ *
+ * We have no docs for the AC registers (offset +4 from the above).
+ * We currently only write to the left bus registers.
+ */
+void exynos4412_qos(u8 tm, u8 ac)
+{
+	void __iomem *qos_gdl_base = ioremap(0x11600400, 8);
+	if (!qos_gdl_base)
+		return;
+
+	__raw_writel(tm, qos_gdl_base);
+	__raw_writel(ac, qos_gdl_base + 4);
+	iounmap(qos_gdl_base);
+}
+
 static int exynos_drm_open(struct drm_device *dev, struct drm_file *file)
 {
 	struct drm_exynos_file_private *file_priv;

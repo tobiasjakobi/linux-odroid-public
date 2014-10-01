@@ -45,6 +45,8 @@ struct exynos_drm_rect {
 	unsigned int w, h;
 };
 
+extern void exynos4412_qos(u8 tm, u8 ac);
+
 /*
  * Exynos drm plane state structure.
  *
