@@ -343,6 +343,13 @@
 				regulator-max-microvolt = <1000000>;
 			};
 
+			ldo9_reg: LDO9 {
+				regulator-name = "vt_core_1.0V";
+				regulator-min-microvolt = <1000000>;
+				regulator-max-microvolt = <1000000>;
+				regulator-always-on;
+			};
+
 			/* This regulator also supplies the TMU block. */
 			ldo10_reg: LDO10 {
 				regulator-name = "vddq_mipihsi_1.8V";
@@ -397,6 +404,25 @@
 				regulator-boot-on;
 			};
 
+			ldo17_reg: LDO17 {
+				regulator-name = "vddq_cam_1.8V";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+			};
+
+			ldo18_reg: LDO18 {
+				regulator-name = "vddq_isp_1.8V";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-always-on;
+			};
+
+			ldo19_reg: LDO19 {
+				regulator-name = "vt_cam_1.8V";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+			};
+
 			/* Supply for IO of eMMC. */
 			ldo20_reg: LDO20 {
 				regulator-name = "vddq_emmc_1.8V";
@@ -421,12 +447,30 @@
 				regulator-boot-on;
 			};
 
+			ldo23_reg: LDO23 {
+				regulator-name = "vdd_touch_2.8V";
+				regulator-min-microvolt = <2800000>;
+				regulator-max-microvolt = <2800000>;
+			};
+
+			ldo24_reg: LDO24 {
+				regulator-name = "vdd_touchled_3.3V";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+			};
+
 			ldo25_reg: LDO25 {
 				regulator-name = "vddq_lcd_1.8V";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 				regulator-always-on;
 				regulator-boot-on;
+			};
+
+			ldo26_reg: LDO26 {
+				regulator-name = "vdd_motor_3.0V";
+				regulator-min-microvolt = <3000000>;
+				regulator-max-microvolt = <3000000>;
 			};
 
 			buck1_reg: BUCK1 {
@@ -493,6 +537,13 @@
 				 * X2 and U3.
 				 */
 				regulator-name = "BUCK8_2.8V";
+			};
+
+			buck9_reg: BUCK9 {
+				regulator-name = "io_1.2V";
+				regulator-min-microvolt = <1200000>;
+				regulator-max-microvolt = <1200000>;
+				regulator-always-on;
 			};
 		};
 	};
