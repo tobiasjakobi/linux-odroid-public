@@ -10,6 +10,7 @@
 
 #include "exynos4412-odroidx.dts"
 #include "exynos4412-prime.dtsi"
+#include <dt-bindings/pwm/pwm.h>
 
 / {
 	model = "Hardkernel ODROID-X2 board based on Exynos4412";
@@ -18,5 +19,49 @@
 	memory@40000000 {
 		device_type = "memory";
 		reg = <0x40000000 0x7FF00000>;
+	};
+
+	backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm 1 1000000 PWM_POLARITY_INVERTED>;
+		pwm-names = "backlight";
+
+		brightness-levels = <0 4 8 16 32 64 128 255>;
+		default-brightness-level = <7>;
+
+		pinctrl-0 = <&pwm1_out>;
+		pinctrl-names = "default";
+	};
+};
+
+&pwm {
+	status = "okay";
+	samsung,pwm-outputs = <0>, <1>;
+};
+
+&fimd {
+	status = "okay";
+
+	pinctrl-0 = <&lcd_clk &lcd_data24 &pwm1_out>;
+	pinctrl-names = "default";
+
+	display-timings {
+		native-mode = <&timing0>;
+
+		timing0: timing {
+			clock-frequency = <500000>;
+			hactive = <1366>;
+			vactive = <768>;
+			hfront-porch = <48>;
+			hback-porch = <80>;
+			hsync-len = <32>;
+			vback-porch = <14>;
+			vfront-porch = <3>;
+			vsync-len = <5>;
+			pixelclk-active = <1>;
+			hsync-active = <1>;
+			vsync-active = <1>;
+			de-active = <0>;
+		};
 	};
 };
