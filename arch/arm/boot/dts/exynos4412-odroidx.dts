@@ -47,16 +47,6 @@
 			wakeup-source;
 		};
 	};
-
-	regulator_p3v3 {
-		compatible = "regulator-fixed";
-		regulator-name = "p3v3_en";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		gpio = <&gpa1 1 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-		regulator-always-on;
-	};
 };
 
 &adc {
