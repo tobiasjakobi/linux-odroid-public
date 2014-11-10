@@ -11,6 +11,8 @@ extern int exynos_g2d_set_cmdlist_ioctl(struct drm_device *dev, void *data,
 					struct drm_file *file_priv);
 extern int exynos_g2d_exec_ioctl(struct drm_device *dev, void *data,
 				 struct drm_file *file_priv);
+extern int exynos_g2d_userptr_ioctl(struct drm_device *dev, void *data,
+				 struct drm_file *file_priv);
 
 extern int g2d_open(struct drm_device *drm_dev, struct drm_file *file);
 extern void g2d_close(struct drm_device *drm_dev, struct drm_file *file);
@@ -29,6 +31,12 @@ static inline int exynos_g2d_set_cmdlist_ioctl(struct drm_device *dev,
 }
 
 static inline int exynos_g2d_exec_ioctl(struct drm_device *dev, void *data,
+					struct drm_file *file_priv)
+{
+	return -ENODEV;
+}
+
+static inline int exynos_g2d_userptr_ioctl(struct drm_device *dev, void *data,
 					struct drm_file *file_priv)
 {
 	return -ENODEV;
