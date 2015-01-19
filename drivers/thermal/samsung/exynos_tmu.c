@@ -1012,6 +1012,10 @@ static int exynos_tmu_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, data);
 	mutex_init(&data->lock);
 
+	ret = exynos_map_dt_data(pdev);
+	if (ret)
+		goto err_sensor;
+
 	/*
 	 * Try enabling the regulator if found
 	 * TODO: Add regulator as an SOC feature, so that regulator enable
@@ -1029,10 +1033,6 @@ static int exynos_tmu_probe(struct platform_device *pdev)
 			return -EPROBE_DEFER;
 		dev_info(&pdev->dev, "Regulator node (vtmu) not found\n");
 	}
-
-	ret = exynos_map_dt_data(pdev);
-	if (ret)
-		goto err_sensor;
 
 	INIT_WORK(&data->irq_work, exynos_tmu_work);
 
