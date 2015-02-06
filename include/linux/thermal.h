@@ -338,6 +338,7 @@ struct thermal_cooling_device *
 thermal_of_cooling_device_register(struct device_node *np,
 				   const char *type, void *devdata,
 				   const struct thermal_cooling_device_ops *);
+void thermal_cdev_update(struct thermal_cooling_device *);
 #else
 static inline struct thermal_cooling_device *
 thermal_of_cooling_device_register(struct device_node *np,
@@ -345,6 +346,9 @@ thermal_of_cooling_device_register(struct device_node *np,
 				   const struct thermal_cooling_device_ops *ops)
 {
 	return NULL;
+}
+static inline void thermal_cdev_update(struct thermal_cooling_device *cdev)
+{
 }
 #endif
 #ifdef CONFIG_THERMAL_OF
@@ -425,7 +429,6 @@ int thermal_zone_get_temp(struct thermal_zone_device *tz, int *temp);
 int thermal_zone_get_slope(struct thermal_zone_device *tz);
 int thermal_zone_get_offset(struct thermal_zone_device *tz);
 
-void thermal_cdev_update(struct thermal_cooling_device *);
 void thermal_notify_framework(struct thermal_zone_device *, int);
 #else
 static inline struct thermal_zone_device *thermal_zone_device_register(
