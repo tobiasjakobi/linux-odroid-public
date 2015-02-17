@@ -265,6 +265,12 @@
 	assigned-clock-rates = <0>, <176000000>;
 };
 
+&g2d {
+	/* Clock the engine with 400MHz. */
+	assigned-clocks = <&clock CLK_SCLK_FIMG2D>;
+	assigned-clock-rates = <400000000>;
+};
+
 &gpu {
 	mali-supply = <&buck4_reg>;
 	status = "okay";
