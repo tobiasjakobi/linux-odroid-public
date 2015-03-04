@@ -315,6 +315,7 @@ static void fimc_src_set_fmt_order(struct fimc_context *ctx, u32 fmt)
 		return;
 	case DRM_FORMAT_RGB888:
 	case DRM_FORMAT_XRGB8888:
+	case DRM_FORMAT_ARGB8888:
 		cfg |= EXYNOS_CISCCTRL_INRGB_FMT_RGB888;
 		fimc_write(ctx, cfg, EXYNOS_CISCCTRL);
 		return;
@@ -376,6 +377,7 @@ static void fimc_src_set_fmt(struct fimc_context *ctx, u32 fmt, bool tiled)
 	case DRM_FORMAT_RGB565:
 	case DRM_FORMAT_RGB888:
 	case DRM_FORMAT_XRGB8888:
+	case DRM_FORMAT_ARGB8888:
 		cfg |= EXYNOS_MSCTRL_INFORMAT_RGB;
 		break;
 	case DRM_FORMAT_YUV444:
@@ -578,6 +580,7 @@ static void fimc_dst_set_fmt_order(struct fimc_context *ctx, u32 fmt)
 		fimc_write(ctx, cfg, EXYNOS_CISCCTRL);
 		return;
 	case DRM_FORMAT_XRGB8888:
+	case DRM_FORMAT_ARGB8888:
 		cfg |= (EXYNOS_CISCCTRL_OUTRGB_FMT_RGB888 |
 			EXYNOS_CISCCTRL_EXTRGB_EXTENSION);
 		fimc_write(ctx, cfg, EXYNOS_CISCCTRL);
@@ -595,6 +598,7 @@ static void fimc_dst_set_fmt_order(struct fimc_context *ctx, u32 fmt)
 
 	switch (fmt) {
 	case DRM_FORMAT_XRGB8888:
+	case DRM_FORMAT_ARGB8888:
 		cfg |= EXYNOS_CIOCTRL_ALPHA_OUT;
 		break;
 	case DRM_FORMAT_YUYV:
@@ -651,6 +655,7 @@ static void fimc_dst_set_fmt(struct fimc_context *ctx, u32 fmt, bool tiled)
 		case DRM_FORMAT_RGB565:
 		case DRM_FORMAT_RGB888:
 		case DRM_FORMAT_XRGB8888:
+		case DRM_FORMAT_ARGB8888:
 			cfg |= EXYNOS_CITRGFMT_OUTFORMAT_RGB;
 			break;
 		case DRM_FORMAT_YUYV:
