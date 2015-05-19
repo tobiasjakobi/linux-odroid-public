@@ -247,6 +247,7 @@
 	pinctrl-0 = <&lcd_clk>, <&lcd_data24>;
 	pinctrl-names = "default";
 	status = "okay";
+	iommu-reserved-mapping = <0x40000000 0x40000000 0x20000000>;
 	samsung,invert-vden;
 	samsung,invert-vclk;
 	#address-cells = <1>;

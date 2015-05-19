@@ -84,6 +84,7 @@
 
 &fimd {
 	status = "okay";
+	iommu-reserved-mapping = <0x40000000 0x40000000 0x80000000>;
 	samsung,invert-vclk;
 };
 
