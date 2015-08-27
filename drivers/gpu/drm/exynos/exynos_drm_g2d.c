@@ -274,6 +274,34 @@ static inline void g2d_hw_reset(struct g2d_data *g2d)
 	clear_bit(G2D_BIT_ENGINE_BUSY, &g2d->flags);
 }
 
+static void g2d_set_max_burst_length(struct g2d_data *g2d, unsigned len)
+{
+	u32 axi_mode;
+	u32 burst;
+
+	switch (len) {
+	case 2:
+	case 4:
+	case 8:
+	case 16:
+		break;
+	default:
+		return;
+	}
+
+	/* The default max burst length is two (no bits set). */
+	burst = len >> 2;
+
+	axi_mode = readl_relaxed(g2d->regs + G2D_AXI_MODE);
+
+	if ((axi_mode & G2D_MAX_BURST_LEN_MASK) == burst)
+		return;
+
+	axi_mode &= ~G2D_MAX_BURST_LEN_MASK;
+	axi_mode |= burst;
+	writel_relaxed(axi_mode, g2d->regs + G2D_AXI_MODE);
+}
+
 static int g2d_init_cmdlist(struct g2d_data *g2d)
 {
 	struct device *dev = g2d->dev;
