@@ -302,6 +302,24 @@ static void g2d_set_max_burst_length(struct g2d_data *g2d, unsigned len)
 	writel_relaxed(axi_mode, g2d->regs + G2D_AXI_MODE);
 }
 
+static void g2d_set_axi_mode(struct g2d_data *g2d, unsigned arcache,
+	unsigned awcache, unsigned arusers, unsigned awusers)
+{
+	u32 axi_mode;
+
+	axi_mode = readl_relaxed(g2d->regs + G2D_AXI_MODE);
+
+	axi_mode &= ~0x1F1FFF;
+
+	axi_mode |= ((arcache & 0xF) << G2D_AXI_ARCACHE_SHIFT);
+	axi_mode |= ((awcache & 0xF) << G2D_AXI_AWCACHE_SHIFT);
+
+	axi_mode |= ((arusers & 0x1F) << G2D_AXI_ARUSERS_SHIFT);
+	axi_mode |= ((awusers & 0x1F) << G2D_AXI_AWUSERS_SHIFT);
+
+	writel_relaxed(axi_mode, g2d->regs + G2D_AXI_MODE);
+}
+
 static int g2d_init_cmdlist(struct g2d_data *g2d)
 {
 	struct device *dev = g2d->dev;
