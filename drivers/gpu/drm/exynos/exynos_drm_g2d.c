@@ -861,6 +861,8 @@ static void g2d_dma_start(struct g2d_data *g2d,
 	struct g2d_cmdlist_node *node =
 				list_first_entry(&runqueue_node->run_cmdlist,
 						struct g2d_cmdlist_node, list);
+	/* This should enable cache-coherent read/write operations. */
+	g2d_set_axi_mode(g2d, 0x2, 0x2, 0x1, 0x1);
 
 	set_bit(G2D_BIT_ENGINE_BUSY, &g2d->flags);
 	writel_relaxed(node->dma_addr, g2d->regs + G2D_DMA_SFR_BASE_ADDR);
