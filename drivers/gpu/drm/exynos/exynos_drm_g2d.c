@@ -320,6 +320,21 @@ static void g2d_set_axi_mode(struct g2d_data *g2d, unsigned arcache,
 	writel_relaxed(axi_mode, g2d->regs + G2D_AXI_MODE);
 }
 
+static void g2d_dump_axi_mode_reg(struct g2d_data *g2d)
+{
+	struct device *dev = g2d->dev;
+	u32 axi_mode;
+
+	axi_mode = readl_relaxed(g2d->regs + G2D_AXI_MODE);
+
+	dev_info(dev, "AxCACHE = {0x%x, 0x%x}\n",
+		(axi_mode >> G2D_AXI_ARCACHE_SHIFT) & 0xF,
+		(axi_mode >> G2D_AXI_AWCACHE_SHIFT) & 0xF);
+	dev_info(dev, "AxUSERS = {0x%x, 0x%x}\n",
+		(axi_mode >> G2D_AXI_ARUSERS_SHIFT) & 0x1F,
+		(axi_mode >> G2D_AXI_AWUSERS_SHIFT) & 0x1F);
+}
+
 static int g2d_init_cmdlist(struct g2d_data *g2d)
 {
 	struct device *dev = g2d->dev;
