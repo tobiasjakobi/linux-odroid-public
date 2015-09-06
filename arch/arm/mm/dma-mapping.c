@@ -1863,6 +1863,42 @@ void arm_iommu_sync_sg_for_device(struct device *dev, struct scatterlist *sg,
 	struct scatterlist *s;
 	int i;
 
+/* Deactivated since it lockups the system in SMP mode. */
+#if 0
+	struct page *p;
+	phys_addr_t paddr, paddr_min, paddr_max;
+
+	/*
+	 * Iterating over a large amount of scatterlist entries and individually
+	 * calling clean_range() on them is very slow.
+	 * Just call clean_all() when a certain treshold is reached.
+	 */
+	if (nents > 16 && dir != DMA_FROM_DEVICE) {
+		paddr_max = 0;
+		paddr_min = (phys_addr_t)~0;
+
+		for_each_sg(sg, s, nents, i) {
+			p = sg_page(s);
+			paddr = page_to_phys(p) + s->offset;
+
+			if (paddr < paddr_min)
+				paddr_min = paddr;
+
+			if (paddr + s->length > paddr_max)
+				paddr_max = paddr + s->length;
+
+			dma_cache_maint_page(p, s->offset, s->length, dir, dmac_map_area);
+		}
+
+		if (dir == DMA_FROM_DEVICE)
+			outer_inv_all();
+		else
+			outer_clean_all();
+
+		return;
+	}
+#endif
+
 	for_each_sg(sg, s, nents, i)
 		__dma_page_cpu_to_dev(sg_page(s), s->offset, s->length, dir);
 }
