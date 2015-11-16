@@ -55,8 +55,8 @@ struct mali_scheduler_job_queue job_queue_gp;
 /* Queue of PP jobs */
 struct mali_scheduler_job_queue job_queue_pp;
 
-_mali_osk_atomic_t mali_job_id_autonumber;
-_mali_osk_atomic_t mali_job_cache_order_autonumber;
+atomic_t mali_job_id_autonumber;
+atomic_t mali_job_cache_order_autonumber;
 /*
  * ---------- static variables ----------
  */
@@ -106,8 +106,8 @@ static void mali_scheduler_do_pp_job_queue(void *arg);
 
 _mali_osk_errcode_t mali_scheduler_initialize(void)
 {
-	_mali_osk_atomic_init(&mali_job_id_autonumber, 0);
-	_mali_osk_atomic_init(&mali_job_cache_order_autonumber, 0);
+	atomic_set(&mali_job_id_autonumber, 0);
+	atomic_set(&mali_job_cache_order_autonumber, 0);
 
 	_MALI_OSK_INIT_LIST_HEAD(&job_queue_gp.normal_pri);
 	_MALI_OSK_INIT_LIST_HEAD(&job_queue_gp.high_pri);
@@ -191,9 +191,6 @@ void mali_scheduler_terminate(void)
 		_mali_osk_spinlock_irq_term(mali_scheduler_lock_obj);
 		mali_scheduler_lock_obj = NULL;
 	}
-
-	_mali_osk_atomic_term(&mali_job_cache_order_autonumber);
-	_mali_osk_atomic_term(&mali_job_id_autonumber);
 }
 
 u32 mali_scheduler_job_physical_head_count(void)

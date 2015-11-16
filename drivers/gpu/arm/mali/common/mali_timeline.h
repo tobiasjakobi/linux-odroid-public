@@ -199,9 +199,9 @@ struct mali_timeline_tracker {
 	mali_bool                     timer_active;
 };
 
-extern _mali_osk_atomic_t gp_tracker_count;
-extern _mali_osk_atomic_t phy_pp_tracker_count;
-extern _mali_osk_atomic_t virt_pp_tracker_count;
+extern atomic_t gp_tracker_count;
+extern atomic_t phy_pp_tracker_count;
+extern atomic_t virt_pp_tracker_count;
 
 /**
  * What follows is a set of functions to check the state of a timeline and to determine where on a
@@ -465,17 +465,17 @@ void mali_timeline_terminate(void);
 
 MALI_STATIC_INLINE mali_bool mali_timeline_has_gp_job(void)
 {
-	return 0 < _mali_osk_atomic_read(&gp_tracker_count);
+	return 0 < atomic_read(&gp_tracker_count);
 }
 
 MALI_STATIC_INLINE mali_bool mali_timeline_has_physical_pp_job(void)
 {
-	return 0 < _mali_osk_atomic_read(&phy_pp_tracker_count);
+	return 0 < atomic_read(&phy_pp_tracker_count);
 }
 
 MALI_STATIC_INLINE mali_bool mali_timeline_has_virtual_pp_job(void)
 {
-	return 0 < _mali_osk_atomic_read(&virt_pp_tracker_count);
+	return 0 < atomic_read(&virt_pp_tracker_count);
 }
 
 #if defined(DEBUG)

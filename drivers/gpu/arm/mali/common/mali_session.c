@@ -75,7 +75,7 @@ u32 mali_session_max_window_num(void)
 	mali_session_lock();
 
 	MALI_SESSION_FOREACH(session, tmp, link) {
-		tmp_number = _mali_osk_atomic_xchg(
+		tmp_number = atomic_xchg(
 				     &session->number_of_window_jobs, 0);
 		if (max_window_num < tmp_number) {
 			max_window_num = tmp_number;

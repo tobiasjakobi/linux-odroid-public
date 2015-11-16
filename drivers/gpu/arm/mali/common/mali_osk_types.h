@@ -160,27 +160,6 @@ typedef _mali_osk_errcode_t (*_mali_osk_irq_uhandler_t)(void *arg);
 /** @} */ /* end group _mali_osk_irq */
 
 
-/** @defgroup _mali_osk_atomic OSK Atomic counters
- * @{ */
-
-/** @brief Public type of atomic counters
- *
- * This is public for allocation on stack. On systems that support it, this is just a single 32-bit value.
- * On others, it could be encapsulating an object stored elsewhere.
- *
- * Regardless of implementation, the \ref _mali_osk_atomic functions \b must be used
- * for all accesses to the variable's value, even if atomicity is not required.
- * Do not access u.val or u.obj directly.
- */
-typedef struct {
-	union {
-		u32 val;
-		void *obj;
-	} u;
-} _mali_osk_atomic_t;
-/** @} */ /* end group _mali_osk_atomic */
-
-
 /** @defgroup _mali_osk_lock OSK Mutual Exclusion Locks
  * @{ */
 

@@ -37,7 +37,7 @@ struct mali_session_data {
 	_MALI_OSK_LIST_HEAD(pp_job_list); /**< List of all PP jobs on this session */
 
 #if defined(CONFIG_MALI_DVFS)
-	_mali_osk_atomic_t number_of_window_jobs; /**< Record the window jobs completed on this session in a period */
+	atomic_t number_of_window_jobs; /**< Record the window jobs completed on this session in a period */
 #endif
 
 	_mali_osk_list_t pp_job_fb_lookup_list[MALI_PP_JOB_FB_LOOKUP_LIST_SIZE]; /**< List of PP job lists per frame builder id.  Used to link jobs from same frame builder. */
@@ -105,7 +105,7 @@ MALI_STATIC_INLINE void mali_session_send_notification(struct mali_session_data 
 MALI_STATIC_INLINE void mali_session_inc_num_window_jobs(struct mali_session_data *session)
 {
 	MALI_DEBUG_ASSERT_POINTER(session);
-	_mali_osk_atomic_inc(&session->number_of_window_jobs);
+	atomic_inc(&session->number_of_window_jobs);
 }
 
 /*

@@ -66,7 +66,7 @@ typedef enum mali_soft_job_state {
 typedef struct mali_soft_job {
 	mali_soft_job_type            type;                   /**< Soft job type.  Must be one of MALI_SOFT_JOB_TYPE_*. */
 	u64                           user_job;               /**< Identifier for soft job in user space. */
-	_mali_osk_atomic_t            refcount;               /**< Soft jobs are reference counted to prevent premature deletion. */
+	atomic_t                      refcount;               /**< Soft jobs are reference counted to prevent premature deletion. */
 	struct mali_timeline_tracker  tracker;                /**< Timeline tracker for soft job. */
 	mali_bool                     activated;              /**< MALI_TRUE if the job has been activated, MALI_FALSE if not. */
 	_mali_osk_notification_t     *activated_notification; /**< Pre-allocated notification object for ACTIVATED_NOTIFICATION. */

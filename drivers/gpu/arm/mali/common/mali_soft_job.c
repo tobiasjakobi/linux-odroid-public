@@ -127,9 +127,7 @@ void mali_soft_job_destroy(struct mali_soft_job *job)
 	MALI_DEBUG_PRINT(4, ("Mali Soft Job: destroying soft job %u (0x%08X)\n", job->id, job));
 
 	if (NULL != job) {
-		if (0 < _mali_osk_atomic_dec_return(&job->refcount)) return;
-
-		_mali_osk_atomic_term(&job->refcount);
+		if (0 < atomic_dec_return(&job->refcount)) return;
 
 		if (NULL != job->activated_notification) {
 			_mali_osk_notification_delete(job->activated_notification);
@@ -175,7 +173,7 @@ struct mali_soft_job *mali_soft_job_create(struct mali_soft_job_system *system, 
 
 	job->activated_notification = notification;
 
-	_mali_osk_atomic_init(&job->refcount, 1);
+	atomic_set(&job->refcount, 1);
 
 	MALI_DEBUG_ASSERT(MALI_SOFT_JOB_STATE_ALLOCATED == job->state);
 	MALI_DEBUG_ASSERT(system == job->system);
@@ -372,7 +370,7 @@ mali_scheduler_mask mali_soft_job_system_timeout_job(struct mali_soft_job *job)
 	MALI_DEBUG_ASSERT(MALI_SOFT_JOB_STATE_STARTED == job->state);
 
 	job->state = MALI_SOFT_JOB_STATE_TIMED_OUT;
-	_mali_osk_atomic_inc(&job->refcount);
+	atomic_inc(&job->refcount);
 
 	mali_soft_job_system_unlock(job->system);
 

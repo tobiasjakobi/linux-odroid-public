@@ -30,8 +30,8 @@ extern struct mali_scheduler_job_queue job_queue_gp;
 /* Queue of PP jobs */
 extern struct mali_scheduler_job_queue job_queue_pp;
 
-extern _mali_osk_atomic_t mali_job_id_autonumber;
-extern _mali_osk_atomic_t mali_job_cache_order_autonumber;
+extern atomic_t mali_job_id_autonumber;
+extern atomic_t mali_job_cache_order_autonumber;
 
 #define MALI_DEBUG_ASSERT_SCHEDULER_LOCK_HELD() MALI_DEBUG_ASSERT_LOCK_HELD(mali_scheduler_lock_obj);
 
@@ -67,12 +67,12 @@ struct mali_pp_job *mali_scheduler_job_pp_virtual_get(void);
 
 MALI_STATIC_INLINE u32 mali_scheduler_get_new_id(void)
 {
-	return _mali_osk_atomic_inc_return(&mali_job_id_autonumber);
+	return atomic_inc_return(&mali_job_id_autonumber);
 }
 
 MALI_STATIC_INLINE u32 mali_scheduler_get_new_cache_order(void)
 {
-	return _mali_osk_atomic_inc_return(&mali_job_cache_order_autonumber);
+	return atomic_inc_return(&mali_job_cache_order_autonumber);
 }
 
 /**

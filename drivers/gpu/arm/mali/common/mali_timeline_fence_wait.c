@@ -32,7 +32,6 @@ static struct mali_timeline_fence_wait_tracker *mali_timeline_fence_wait_tracker
 static void mali_timeline_fence_wait_tracker_free(struct mali_timeline_fence_wait_tracker *wait)
 {
 	MALI_DEBUG_ASSERT_POINTER(wait);
-	_mali_osk_atomic_term(&wait->refcount);
 	kfree(wait);
 }
 
@@ -149,7 +148,7 @@ mali_bool mali_timeline_fence_wait(struct mali_timeline_system *system, struct m
 	/* Initialize refcount to two references.  The reference first will be released by this
 	 * function after the wait is over.  The second reference will be released when the tracker
 	 * is activated. */
-	_mali_osk_atomic_init(&wait->refcount, 2);
+	atomic_set(&wait->refcount, 2);
 
 	/* Add tracker to timeline system, but not to a timeline. */
 	mali_timeline_tracker_init(&wait->tracker, MALI_TIMELINE_TRACKER_WAIT, fence, wait);
@@ -166,7 +165,7 @@ mali_bool mali_timeline_fence_wait(struct mali_timeline_system *system, struct m
 
 	ret = wait->activated;
 
-	if (0 == _mali_osk_atomic_dec_return(&wait->refcount)) {
+	if (0 == atomic_dec_return(&wait->refcount)) {
 		mali_timeline_fence_wait_tracker_free(wait);
 	}
 
@@ -192,7 +191,7 @@ void mali_timeline_fence_wait_activate(struct mali_timeline_fence_wait_tracker *
 	MALI_DEBUG_ASSERT(MALI_SCHEDULER_MASK_EMPTY == schedule_mask);
 	MALI_IGNORE(schedule_mask);
 
-	if (0 == _mali_osk_atomic_dec_return(&wait->refcount)) {
+	if (0 == atomic_dec_return(&wait->refcount)) {
 		mali_timeline_fence_wait_tracker_free(wait);
 	}
 }

@@ -59,8 +59,8 @@ struct mali_pp_job {
 	 * These members are used by both scheduler and executor.
 	 * They are "protected" by atomic operations.
 	 */
-	_mali_osk_atomic_t sub_jobs_completed;                            /**< Number of completed sub-jobs in this superjob */
-	_mali_osk_atomic_t sub_job_errors;                                /**< Bitfield with errors (errors for each single sub-job is or'ed together) */
+	atomic_t sub_jobs_completed;                            /**< Number of completed sub-jobs in this superjob */
+	atomic_t sub_job_errors;                                /**< Bitfield with errors (errors for each single sub-job is or'ed together) */
 
 	/*
 	 * These members are used by scheduler, but only when no one else
@@ -359,8 +359,8 @@ MALI_STATIC_INLINE void mali_pp_job_mark_unstarted_failed(struct mali_pp_job *jo
 
 	/* Not the most optimal way, but this is only used in error cases */
 	for (i = 0; i < jobs_remaining; i++) {
-		_mali_osk_atomic_inc(&job->sub_jobs_completed);
-		_mali_osk_atomic_inc(&job->sub_job_errors);
+		atomic_inc(&job->sub_jobs_completed);
+		atomic_inc(&job->sub_job_errors);
 	}
 }
 
@@ -368,7 +368,7 @@ MALI_STATIC_INLINE mali_bool mali_pp_job_is_complete(struct mali_pp_job *job)
 {
 	MALI_DEBUG_ASSERT_POINTER(job);
 	return (job->sub_jobs_num ==
-		_mali_osk_atomic_read(&job->sub_jobs_completed)) ?
+		atomic_read(&job->sub_jobs_completed)) ?
 	       MALI_TRUE : MALI_FALSE;
 }
 
@@ -460,16 +460,16 @@ MALI_STATIC_INLINE void mali_pp_job_mark_sub_job_completed(struct mali_pp_job *j
 {
 	MALI_DEBUG_ASSERT_POINTER(job);
 
-	_mali_osk_atomic_inc(&job->sub_jobs_completed);
+	atomic_inc(&job->sub_jobs_completed);
 	if (MALI_FALSE == success) {
-		_mali_osk_atomic_inc(&job->sub_job_errors);
+		atomic_inc(&job->sub_job_errors);
 	}
 }
 
 MALI_STATIC_INLINE mali_bool mali_pp_job_was_success(struct mali_pp_job *job)
 {
 	MALI_DEBUG_ASSERT_POINTER(job);
-	if (0 == _mali_osk_atomic_read(&job->sub_job_errors)) {
+	if (0 == atomic_read(&job->sub_job_errors)) {
 		return MALI_TRUE;
 	}
 	return MALI_FALSE;

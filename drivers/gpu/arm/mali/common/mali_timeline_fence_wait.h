@@ -41,7 +41,7 @@
  */
 struct mali_timeline_fence_wait_tracker {
 	mali_bool activated;                  /**< MALI_TRUE if the tracker has been activated, MALI_FALSE if not. */
-	_mali_osk_atomic_t refcount;          /**< Reference count. */
+	atomic_t refcount;                    /**< Reference count. */
 	struct mali_timeline_system *system;  /**< Timeline system. */
 	struct mali_timeline_tracker tracker; /**< Timeline tracker. */
 };

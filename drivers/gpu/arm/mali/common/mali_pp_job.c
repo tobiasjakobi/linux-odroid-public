@@ -21,18 +21,18 @@
 
 static u32 pp_counter_src0 = MALI_HW_CORE_NO_COUNTER;   /**< Performance counter 0, MALI_HW_CORE_NO_COUNTER for disabled */
 static u32 pp_counter_src1 = MALI_HW_CORE_NO_COUNTER;   /**< Performance counter 1, MALI_HW_CORE_NO_COUNTER for disabled */
-static _mali_osk_atomic_t pp_counter_per_sub_job_count; /**< Number of values in the two arrays which is != MALI_HW_CORE_NO_COUNTER */
+static atomic_t pp_counter_per_sub_job_count; /**< Number of values in the two arrays which is != MALI_HW_CORE_NO_COUNTER */
 static u32 pp_counter_per_sub_job_src0[_MALI_PP_MAX_SUB_JOBS] = { MALI_HW_CORE_NO_COUNTER, MALI_HW_CORE_NO_COUNTER, MALI_HW_CORE_NO_COUNTER, MALI_HW_CORE_NO_COUNTER, MALI_HW_CORE_NO_COUNTER, MALI_HW_CORE_NO_COUNTER, MALI_HW_CORE_NO_COUNTER, MALI_HW_CORE_NO_COUNTER };
 static u32 pp_counter_per_sub_job_src1[_MALI_PP_MAX_SUB_JOBS] = { MALI_HW_CORE_NO_COUNTER, MALI_HW_CORE_NO_COUNTER, MALI_HW_CORE_NO_COUNTER, MALI_HW_CORE_NO_COUNTER, MALI_HW_CORE_NO_COUNTER, MALI_HW_CORE_NO_COUNTER, MALI_HW_CORE_NO_COUNTER, MALI_HW_CORE_NO_COUNTER };
 
 void mali_pp_job_initialize(void)
 {
-	_mali_osk_atomic_init(&pp_counter_per_sub_job_count, 0);
+	atomic_set(&pp_counter_per_sub_job_count, 0);
 }
 
 void mali_pp_job_terminate(void)
 {
-	_mali_osk_atomic_term(&pp_counter_per_sub_job_count);
+	/* Nothing here. */
 }
 
 struct mali_pp_job *mali_pp_job_create(struct mali_session_data *session,
@@ -63,7 +63,7 @@ struct mali_pp_job *mali_pp_job_create(struct mali_session_data *session,
 		 * so pass the debugfs / DS-5 provided global ones to the job object */
 		if (!((perf_counter_flag & _MALI_PERFORMANCE_COUNTER_FLAG_SRC0_ENABLE) ||
 		      (perf_counter_flag & _MALI_PERFORMANCE_COUNTER_FLAG_SRC1_ENABLE))) {
-			u32 sub_job_count = _mali_osk_atomic_read(&pp_counter_per_sub_job_count);
+			u32 sub_job_count = atomic_read(&pp_counter_per_sub_job_count);
 
 			/* These counters apply for all virtual jobs, and where no per sub job counter is specified */
 			job->uargs.perf_counter_src0 = pp_counter_src0;
@@ -85,8 +85,8 @@ struct mali_pp_job *mali_pp_job_create(struct mali_session_data *session,
 		job->pid = _mali_osk_get_pid();
 		job->tid = _mali_osk_get_tid();
 
-		_mali_osk_atomic_init(&job->sub_jobs_completed, 0);
-		_mali_osk_atomic_init(&job->sub_job_errors, 0);
+		atomic_set(&job->sub_jobs_completed, 0);
+		atomic_set(&job->sub_job_errors, 0);
 
 		if (job->uargs.num_memory_cookies > 0) {
 			u32 size;
@@ -164,9 +164,6 @@ void mali_pp_job_delete(struct mali_pp_job *job)
 	if (NULL != job->memory_cookies) {
 		kfree(job->memory_cookies);
 	}
-
-	_mali_osk_atomic_term(&job->sub_jobs_completed);
-	_mali_osk_atomic_term(&job->sub_job_errors);
 
 	kfree(job);
 }
@@ -251,12 +248,12 @@ void mali_pp_job_set_pp_counter_sub_job_src0(u32 sub_job, u32 counter)
 
 	if (MALI_HW_CORE_NO_COUNTER == pp_counter_per_sub_job_src0[sub_job]) {
 		/* increment count since existing counter was disabled */
-		_mali_osk_atomic_inc(&pp_counter_per_sub_job_count);
+		atomic_inc(&pp_counter_per_sub_job_count);
 	}
 
 	if (MALI_HW_CORE_NO_COUNTER == counter) {
 		/* decrement count since new counter is disabled */
-		_mali_osk_atomic_dec(&pp_counter_per_sub_job_count);
+		atomic_dec(&pp_counter_per_sub_job_count);
 	}
 
 	/* PS: A change from MALI_HW_CORE_NO_COUNTER to MALI_HW_CORE_NO_COUNTER will inc and dec, result will be 0 change */
@@ -270,12 +267,12 @@ void mali_pp_job_set_pp_counter_sub_job_src1(u32 sub_job, u32 counter)
 
 	if (MALI_HW_CORE_NO_COUNTER == pp_counter_per_sub_job_src1[sub_job]) {
 		/* increment count since existing counter was disabled */
-		_mali_osk_atomic_inc(&pp_counter_per_sub_job_count);
+		atomic_inc(&pp_counter_per_sub_job_count);
 	}
 
 	if (MALI_HW_CORE_NO_COUNTER == counter) {
 		/* decrement count since new counter is disabled */
-		_mali_osk_atomic_dec(&pp_counter_per_sub_job_count);
+		atomic_dec(&pp_counter_per_sub_job_count);
 	}
 
 	/* PS: A change from MALI_HW_CORE_NO_COUNTER to MALI_HW_CORE_NO_COUNTER will inc and dec, result will be 0 change */

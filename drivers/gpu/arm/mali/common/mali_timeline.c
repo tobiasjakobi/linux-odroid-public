@@ -25,9 +25,9 @@
  * timeline system, we can use these three value to decide
  * if need to deactivate idle group.
  */
-_mali_osk_atomic_t gp_tracker_count;
-_mali_osk_atomic_t phy_pp_tracker_count;
-_mali_osk_atomic_t virt_pp_tracker_count;
+atomic_t gp_tracker_count;
+atomic_t phy_pp_tracker_count;
+atomic_t virt_pp_tracker_count;
 
 static mali_scheduler_mask mali_timeline_system_release_waiter(struct mali_timeline_system *system,
 		struct mali_timeline_waiter *waiter);
@@ -277,12 +277,12 @@ static void mali_timeline_insert_tracker(struct mali_timeline *timeline, struct 
 	MALI_DEBUG_ASSERT(!mali_timeline_is_empty(timeline));
 
 	if (MALI_TIMELINE_TRACKER_GP == tracker->type) {
-		_mali_osk_atomic_inc(&gp_tracker_count);
+		atomic_inc(&gp_tracker_count);
 	} else if (MALI_TIMELINE_TRACKER_PP == tracker->type) {
 		if (mali_pp_job_is_virtual((struct mali_pp_job *)tracker->job)) {
-			_mali_osk_atomic_inc(&virt_pp_tracker_count);
+			atomic_inc(&virt_pp_tracker_count);
 		} else {
-			_mali_osk_atomic_inc(&phy_pp_tracker_count);
+			atomic_inc(&phy_pp_tracker_count);
 		}
 	}
 
@@ -581,15 +581,15 @@ static mali_scheduler_mask mali_timeline_tracker_activate(struct mali_timeline_t
 	case MALI_TIMELINE_TRACKER_GP:
 		schedule_mask = mali_scheduler_activate_gp_job((struct mali_gp_job *) tracker->job);
 
-		_mali_osk_atomic_dec(&gp_tracker_count);
+		atomic_dec(&gp_tracker_count);
 		break;
 	case MALI_TIMELINE_TRACKER_PP:
 		schedule_mask = mali_scheduler_activate_pp_job((struct mali_pp_job *) tracker->job);
 
 		if (mali_pp_job_is_virtual((struct mali_pp_job *)tracker->job)) {
-			_mali_osk_atomic_dec(&virt_pp_tracker_count);
+			atomic_dec(&virt_pp_tracker_count);
 		} else {
-			_mali_osk_atomic_dec(&phy_pp_tracker_count);
+			atomic_dec(&phy_pp_tracker_count);
 		}
 		break;
 	case MALI_TIMELINE_TRACKER_SOFT:
@@ -1264,16 +1264,14 @@ mali_timeline_point mali_timeline_system_get_latest_point(struct mali_timeline_s
 
 void mali_timeline_initialize(void)
 {
-	_mali_osk_atomic_init(&gp_tracker_count, 0);
-	_mali_osk_atomic_init(&phy_pp_tracker_count, 0);
-	_mali_osk_atomic_init(&virt_pp_tracker_count, 0);
+	atomic_set(&gp_tracker_count, 0);
+	atomic_set(&phy_pp_tracker_count, 0);
+	atomic_set(&virt_pp_tracker_count, 0);
 }
 
 void mali_timeline_terminate(void)
 {
-	_mali_osk_atomic_term(&gp_tracker_count);
-	_mali_osk_atomic_term(&phy_pp_tracker_count);
-	_mali_osk_atomic_term(&virt_pp_tracker_count);
+	/* Nothing here. */
 }
 
 #if defined(MALI_TIMELINE_DEBUG_FUNCTIONS)

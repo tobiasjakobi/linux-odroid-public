@@ -1125,7 +1125,7 @@ _mali_osk_errcode_t _mali_ukk_open(void **context)
 	}
 
 #if defined(CONFIG_MALI_DVFS)
-	_mali_osk_atomic_init(&session->number_of_window_jobs, 0);
+	atomic_set(&session->number_of_window_jobs, 0);
 #endif
 
 	session->use_high_priority_job_queue = MALI_FALSE;
@@ -1227,10 +1227,6 @@ _mali_osk_errcode_t _mali_ukk_close(void **context)
 
 	/* Free remaining memory allocated to this session */
 	mali_memory_session_end(session);
-
-#if defined(CONFIG_MALI_DVFS)
-	_mali_osk_atomic_term(&session->number_of_window_jobs);
-#endif
 
 	/* Free session data structures */
 	mali_mmu_pagedir_free(session->page_directory);

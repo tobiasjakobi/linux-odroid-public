@@ -33,7 +33,7 @@ typedef enum mali_profiling_state {
 static _mali_osk_mutex_t *lock = NULL;
 static mali_profiling_state prof_state = MALI_PROFILING_STATE_UNINITIALIZED;
 static mali_profiling_entry *profile_entries = NULL;
-static _mali_osk_atomic_t profile_insert_index;
+static atomic_t profile_insert_index;
 static u32 profile_mask = 0;
 
 static inline void add_event(u32 event_id, u32 data0, u32 data1, u32 data2, u32 data3, u32 data4);
@@ -48,7 +48,7 @@ _mali_osk_errcode_t _mali_internal_profiling_init(mali_bool auto_start)
 {
 	profile_entries = NULL;
 	profile_mask = 0;
-	_mali_osk_atomic_init(&profile_insert_index, 0);
+	atomic_set(&profile_insert_index, 0);
 
 	lock = _mali_osk_mutex_init(_MALI_OSK_LOCKFLAG_ORDERED, _MALI_OSK_LOCK_ORDER_PROFILING);
 	if (NULL == lock) {
@@ -147,7 +147,7 @@ _mali_osk_errcode_t _mali_internal_profiling_start(u32 *limit)
 
 static inline void add_event(u32 event_id, u32 data0, u32 data1, u32 data2, u32 data3, u32 data4)
 {
-	u32 cur_index = (_mali_osk_atomic_inc_return(&profile_insert_index) - 1) & profile_mask;
+	u32 cur_index = (atomic_inc_return(&profile_insert_index) - 1) & profile_mask;
 
 	profile_entries[cur_index].timestamp = _mali_timestamp_get();
 	profile_entries[cur_index].event_id = event_id;
@@ -183,7 +183,7 @@ _mali_osk_errcode_t _mali_internal_profiling_stop(u32 *count)
 
 	tracepoint_synchronize_unregister();
 
-	*count = _mali_osk_atomic_read(&profile_insert_index);
+	*count = atomic_read(&profile_insert_index);
 	if (*count > profile_mask) *count = profile_mask;
 
 	return _MALI_OSK_ERR_OK;
@@ -195,7 +195,7 @@ u32 _mali_internal_profiling_get_count(void)
 
 	_mali_osk_mutex_wait(lock);
 	if (MALI_PROFILING_STATE_RETURN == prof_state) {
-		retval = _mali_osk_atomic_read(&profile_insert_index);
+		retval = atomic_read(&profile_insert_index);
 		if (retval > profile_mask) retval = profile_mask;
 	}
 	_mali_osk_mutex_signal(lock);
@@ -205,7 +205,7 @@ u32 _mali_internal_profiling_get_count(void)
 
 _mali_osk_errcode_t _mali_internal_profiling_get_event(u32 index, u64 *timestamp, u32 *event_id, u32 data[5])
 {
-	u32 raw_index = _mali_osk_atomic_read(&profile_insert_index);
+	u32 raw_index = atomic_read(&profile_insert_index);
 
 	_mali_osk_mutex_wait(lock);
 
@@ -252,7 +252,7 @@ _mali_osk_errcode_t _mali_internal_profiling_clear(void)
 
 	prof_state = MALI_PROFILING_STATE_IDLE;
 	profile_mask = 0;
-	_mali_osk_atomic_init(&profile_insert_index, 0);
+	atomic_set(&profile_insert_index, 0);
 
 	if (NULL != profile_entries) {
 		vfree(profile_entries);
