@@ -25,8 +25,6 @@
 #include "mali_kernel_linux.h"
 
 
-#ifdef CONFIG_MALI_DT
-
 #define MALI_OSK_INVALID_RESOURCE_ADDRESS 0xFFFFFFFF
 
 /**
@@ -220,87 +218,6 @@ u32 _mali_osk_get_pmu_switch_delay(void)
 
 	return 0;
 }
-
-#else /* CONFIG_MALI_DT */
-
-_mali_osk_errcode_t _mali_osk_resource_find(u32 addr, _mali_osk_resource_t *res)
-{
-	int i;
-	uintptr_t phys_addr;
-
-	if (NULL == mali_platform_device) {
-		/* Not connected to a device */
-		return _MALI_OSK_ERR_ITEM_NOT_FOUND;
-	}
-
-	phys_addr = addr + _mali_osk_resource_base_address();
-	for (i = 0; i < mali_platform_device->num_resources; i++) {
-		if (IORESOURCE_MEM == resource_type(&(mali_platform_device->resource[i])) &&
-		    mali_platform_device->resource[i].start == phys_addr) {
-			if (NULL != res) {
-				res->base = phys_addr;
-				res->description = mali_platform_device->resource[i].name;
-
-				/* Any (optional) IRQ resource belonging to this resource will follow */
-				if ((i + 1) < mali_platform_device->num_resources &&
-				    IORESOURCE_IRQ == resource_type(&(mali_platform_device->resource[i + 1]))) {
-					res->irq = mali_platform_device->resource[i + 1].start;
-				} else {
-					res->irq = -1;
-				}
-			}
-			return _MALI_OSK_ERR_OK;
-		}
-	}
-
-	return _MALI_OSK_ERR_ITEM_NOT_FOUND;
-}
-
-uintptr_t _mali_osk_resource_base_address(void)
-{
-	uintptr_t lowest_addr = (uintptr_t)(0 - 1);
-	uintptr_t ret = 0;
-
-	if (NULL != mali_platform_device) {
-		int i;
-		for (i = 0; i < mali_platform_device->num_resources; i++) {
-			if (mali_platform_device->resource[i].flags & IORESOURCE_MEM &&
-			    mali_platform_device->resource[i].start < lowest_addr) {
-				lowest_addr = mali_platform_device->resource[i].start;
-				ret = lowest_addr;
-			}
-		}
-	}
-
-	return ret;
-}
-
-void _mali_osk_device_data_pmu_config_get(u16 *domain_config_array, int array_size)
-{
-	_mali_osk_device_data data = { 0, };
-
-	if (_MALI_OSK_ERR_OK == _mali_osk_device_data_get(&data)) {
-		/* Copy the custom customer power domain config */
-		_mali_osk_memcpy(domain_config_array, data.pmu_domain_config, sizeof(data.pmu_domain_config));
-	}
-
-	return;
-}
-
-u32 _mali_osk_get_pmu_switch_delay(void)
-{
-	_mali_osk_errcode_t err;
-	_mali_osk_device_data data = { 0, };
-
-	err = _mali_osk_device_data_get(&data);
-
-	if (_MALI_OSK_ERR_OK == err) {
-		return data.pmu_switch_delay;
-	}
-
-	return 0;
-}
-#endif /* CONFIG_MALI_DT */
 
 _mali_osk_errcode_t _mali_osk_device_data_get(_mali_osk_device_data *data)
 {

@@ -80,16 +80,6 @@ config MALI_PMU_PARALLEL_POWER_UP
 	  domains at the same time may cause peak currents higher than what some systems can handle.
 	  These systems must not enable this option.
 
-config MALI_DT
-	bool "Using device tree to initialize module"
-	depends on MALI400 && CONFIG_OF
-	default n
-	---help---
-	  This enable the Mali driver to choose the device tree path to get platform resoures
-	  and disable the old config method. Mali driver could run on the platform which the
-	  device tree is enabled in kernel and corresponding hardware description is implemented
-	  properly in device DTS file.
-
 config MALI_QUIET
 	bool "Make Mali driver very quiet"
 	depends on MALI400 && !MALI400_DEBUG

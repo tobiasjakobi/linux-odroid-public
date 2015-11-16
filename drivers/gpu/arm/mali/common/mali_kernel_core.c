@@ -716,13 +716,11 @@ _mali_osk_errcode_t mali_initialize_subsystems(void)
 {
 	_mali_osk_errcode_t err;
 
-#ifdef CONFIG_MALI_DT
 	err = _mali_osk_resource_initialize();
 	if (_MALI_OSK_ERR_OK != err) {
 		mali_terminate_subsystems();
 		return err;
 	}
-#endif
 
 	mali_pp_job_initialize();
 
