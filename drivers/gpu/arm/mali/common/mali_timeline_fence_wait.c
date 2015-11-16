@@ -101,11 +101,7 @@ static mali_bool mali_timeline_fence_wait_check_status(struct mali_timeline_syst
 	if (-1 != fence->sync_fd) {
 		sync_fence = sync_fence_fdget(fence->sync_fd);
 		if (likely(NULL != sync_fence)) {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
-			if( 0 == sync_fence->status) {
-#else
 			if (0 == atomic_read(&sync_fence->status)) {
-#endif
 				ret = MALI_FALSE;
 			}
 		} else {

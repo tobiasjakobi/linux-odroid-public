@@ -26,25 +26,11 @@
 #define MALI_OS_MEMORY_KERNEL_BUFFER_SIZE_IN_PAGES (MALI_OS_MEMORY_KERNEL_BUFFER_SIZE_IN_MB * 256)
 #define MALI_OS_MEMORY_POOL_TRIM_JIFFIES (10 * CONFIG_HZ) /* Default to 10s */
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 /* Write combine dma_attrs */
 static DEFINE_DMA_ATTRS(dma_attrs_wc);
-#endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 0, 0)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 35)
-static int mali_mem_os_shrink(int nr_to_scan, gfp_t gfp_mask);
-#else
-static int mali_mem_os_shrink(struct shrinker *shrinker, int nr_to_scan, gfp_t gfp_mask);
-#endif
-#else
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0)
-static int mali_mem_os_shrink(struct shrinker *shrinker, struct shrink_control *sc);
-#else
 static unsigned long mali_mem_os_shrink(struct shrinker *shrinker, struct shrink_control *sc);
 static unsigned long mali_mem_os_shrink_count(struct shrinker *shrinker, struct shrink_control *sc);
-#endif
-#endif
 static void mali_mem_os_trim_pool(struct work_struct *work);
 
 static struct mali_mem_os_allocator {
@@ -66,20 +52,11 @@ static struct mali_mem_os_allocator {
 	.allocated_pages = ATOMIC_INIT(0),
 	.allocation_limit = 0,
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0)
-	.shrinker.shrink = mali_mem_os_shrink,
-#else
 	.shrinker.count_objects = mali_mem_os_shrink_count,
 	.shrinker.scan_objects = mali_mem_os_shrink,
-#endif
+
 	.shrinker.seeks = DEFAULT_SEEKS,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 7, 0)
 	.timed_shrinker = __DELAYED_WORK_INITIALIZER(mali_mem_os_allocator.timed_shrinker, mali_mem_os_trim_pool, TIMER_DEFERRABLE),
-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 38)
-	.timed_shrinker = __DEFERRED_WORK_INITIALIZER(mali_mem_os_allocator.timed_shrinker, mali_mem_os_trim_pool),
-#else
-	.timed_shrinker = __DELAYED_WORK_INITIALIZER(mali_mem_os_allocator.timed_shrinker, mali_mem_os_trim_pool),
-#endif
 };
 
 static void mali_mem_os_free(mali_mem_allocation *descriptor)
@@ -151,12 +128,7 @@ static int mali_mem_os_alloc_pages(mali_mem_allocation *descriptor, u32 size)
 #if defined(CONFIG_ARM) && !defined(CONFIG_ARM_LPAE)
 		flags |= GFP_HIGHUSER;
 #else
-	/* After 3.15.0 kernel use ZONE_DMA replace ZONE_DMA32 */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0)
-		flags |= GFP_DMA32;
-#else
 		flags |= GFP_DMA;
-#endif
 #endif
 
 		new_page = alloc_page(flags);
@@ -356,14 +328,10 @@ _mali_osk_errcode_t mali_mem_os_get_table_page(mali_dma_addr *phys, mali_io_addr
 	spin_unlock(&mali_mem_page_table_page_pool.lock);
 
 	if (_MALI_OSK_ERR_OK != ret) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 		*mapping = dma_alloc_attrs(&mali_platform_device->dev,
 					   _MALI_OSK_MALI_PAGE_SIZE, &tmp_phys,
 					   GFP_KERNEL, &dma_attrs_wc);
-#else
-		*mapping = dma_alloc_writecombine(&mali_platform_device->dev,
-						  _MALI_OSK_MALI_PAGE_SIZE, &tmp_phys, GFP_KERNEL);
-#endif
+
 		if (NULL != *mapping) {
 			ret = _MALI_OSK_ERR_OK;
 
@@ -395,14 +363,9 @@ void mali_mem_os_release_table_page(mali_dma_addr phys, void *virt)
 	} else {
 		spin_unlock(&mali_mem_page_table_page_pool.lock);
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 		dma_free_attrs(&mali_platform_device->dev,
 			       _MALI_OSK_MALI_PAGE_SIZE, virt, phys,
 			       &dma_attrs_wc);
-#else
-		dma_free_writecombine(&mali_platform_device->dev,
-				      _MALI_OSK_MALI_PAGE_SIZE, virt, phys);
-#endif
 	}
 }
 
@@ -447,14 +410,8 @@ static void mali_mem_os_page_table_pool_free(size_t nr_to_free)
 
 	/* After releasing the spinlock: free the pages we removed from the pool. */
 	for (i = 0; i < nr_to_free; i++) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 		dma_free_attrs(&mali_platform_device->dev, _MALI_OSK_MALI_PAGE_SIZE,
 			       virt_arr[i], (dma_addr_t)phys_arr[i], &dma_attrs_wc);
-#else
-		dma_free_writecombine(&mali_platform_device->dev,
-				      _MALI_OSK_MALI_PAGE_SIZE,
-				      virt_arr[i], (dma_addr_t)phys_arr[i]);
-#endif
 	}
 }
 
@@ -484,28 +441,15 @@ static unsigned long mali_mem_os_shrink_count(struct shrinker *shrinker, struct 
 	return mali_mem_os_allocator.pool_count;
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 0, 0)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 35)
-static int mali_mem_os_shrink(int nr_to_scan, gfp_t gfp_mask)
-#else
-static int mali_mem_os_shrink(struct shrinker *shrinker, int nr_to_scan, gfp_t gfp_mask)
-#endif /* Linux < 2.6.35 */
-#else
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0)
-static int mali_mem_os_shrink(struct shrinker *shrinker, struct shrink_control *sc)
-#else
+
+
 static unsigned long mali_mem_os_shrink(struct shrinker *shrinker, struct shrink_control *sc)
-#endif /* Linux < 3.12.0 */
-#endif /* Linux < 3.0.0 */
 {
 	struct page *page, *tmp;
 	unsigned long flags;
 	struct list_head *le, pages;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 0, 0)
-	int nr = nr_to_scan;
-#else
+
 	int nr = sc->nr_to_scan;
-#endif
 
 	if (0 == nr) {
 		return mali_mem_os_shrink_count(shrinker, sc);
@@ -542,11 +486,7 @@ static unsigned long mali_mem_os_shrink(struct shrinker *shrinker, struct shrink
 		cancel_delayed_work(&mali_mem_os_allocator.timed_shrinker);
 	}
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0)
-	return mali_mem_os_shrink_count(shrinker, sc);
-#else
 	return nr;
-#endif
 }
 
 static void mali_mem_os_trim_pool(struct work_struct *data)
@@ -598,9 +538,7 @@ _mali_osk_errcode_t mali_mem_os_init(void)
 		return _MALI_OSK_ERR_NOMEM;
 	}
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 	dma_set_attr(DMA_ATTR_WRITE_COMBINE, &dma_attrs_wc);
-#endif
 
 	register_shrinker(&mali_mem_os_allocator.shrinker);
 

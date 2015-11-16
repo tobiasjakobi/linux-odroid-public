@@ -123,27 +123,6 @@ static void timeline_release(struct sync_timeline *sync_timeline)
 	module_put(THIS_MODULE);
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
-static void timeline_print_pt(struct seq_file *s, struct sync_pt *sync_pt)
-{
-	struct mali_sync_pt *mpt;
-
-	MALI_DEBUG_ASSERT_POINTER(s);
-	MALI_DEBUG_ASSERT_POINTER(sync_pt);
-
-	mpt = to_mali_sync_pt(sync_pt);
-
-	/* It is possible this sync point is just under construct,
-	 * make sure the flag is valid before accessing it
-	*/
-	if (mpt->flag) {
-		seq_printf(s, "%u", mpt->flag->point);
-	} else {
-		seq_printf(s, "uninitialized");
-	}
-}
-
-#else
 static void timeline_pt_value_str(struct sync_pt *pt, char *str, int size)
 {
 	struct mali_sync_pt *mpt;
@@ -179,7 +158,6 @@ static void timeline_value_str(struct sync_timeline *timeline, char *str, int si
 			mali_sync_tl->timeline->point_next);
 	}
 }
-#endif
 
 static struct sync_timeline_ops mali_timeline_ops = {
 	.driver_name    = "Mali",
@@ -188,12 +166,8 @@ static struct sync_timeline_ops mali_timeline_ops = {
 	.compare        = timeline_compare,
 	.free_pt        = timeline_free_pt,
 	.release_obj    = timeline_release,
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
-	.print_pt       = timeline_print_pt,
-#else
 	.pt_value_str = timeline_pt_value_str,
 	.timeline_value_str = timeline_value_str,
-#endif
 };
 
 struct sync_timeline *mali_sync_timeline_create(struct mali_timeline *timeline, const char *name)

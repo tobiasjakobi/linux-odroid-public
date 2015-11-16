@@ -169,17 +169,7 @@ extern int mali_platform_device_unregister(void);
 #endif
 
 /* Linux power management operations provided by the Mali device driver */
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 29))
-struct pm_ext_ops mali_dev_ext_pm_ops = {
-	.base =
-	{
-		.suspend = mali_driver_suspend_scheduler,
-		.resume = mali_driver_resume_scheduler,
-		.freeze = mali_driver_suspend_scheduler,
-		.thaw =   mali_driver_resume_scheduler,
-	},
-};
-#else
+
 static const struct dev_pm_ops mali_dev_pm_ops = {
 #ifdef CONFIG_PM_RUNTIME
 	.runtime_suspend = mali_driver_runtime_suspend,
@@ -192,7 +182,6 @@ static const struct dev_pm_ops mali_dev_pm_ops = {
 	.thaw = mali_driver_resume_scheduler,
 	.poweroff = mali_driver_suspend_scheduler,
 };
-#endif
 
 #ifdef CONFIG_MALI_DT
 static struct of_device_id base_dt_ids[] = {
@@ -210,17 +199,12 @@ MODULE_DEVICE_TABLE(of, base_dt_ids);
 static struct platform_driver mali_platform_driver = {
 	.probe  = mali_probe,
 	.remove = mali_remove,
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 29))
-	.pm = &mali_dev_ext_pm_ops,
-#endif
 	.driver =
 	{
 		.name   = MALI_GPU_NAME_UTGARD,
 		.owner  = THIS_MODULE,
 		.bus = &platform_bus_type,
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29))
 		.pm = &mali_dev_pm_ops,
-#endif
 #ifdef CONFIG_MALI_DT
 		.of_match_table = of_match_ptr(base_dt_ids),
 #endif
