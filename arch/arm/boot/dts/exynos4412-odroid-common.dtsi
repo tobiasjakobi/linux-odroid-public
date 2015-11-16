@@ -259,6 +259,9 @@
 &gpu {
 	mali-supply = <&buck4_reg>;
 	status = "okay";
+
+	regulator-microvolt-offset = <50000>;
+	regulator-microsecs-delay = <50>;
 };
 
 &hdmi {
