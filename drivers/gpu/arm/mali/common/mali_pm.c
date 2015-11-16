@@ -70,7 +70,7 @@ static int mali_pm_domain_power_cost_result[MALI_MAX_NUMBER_OF_PHYSICAL_PP_GROUP
  * Keep track of runtime PM state, so that we know
  * how to resume during OS resume.
  */
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 static mali_bool mali_pm_runtime_active = MALI_FALSE;
 #else
 /* when kernel don't enable PM_RUNTIME, set the flag always true,
