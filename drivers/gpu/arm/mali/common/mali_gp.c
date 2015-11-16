@@ -32,7 +32,7 @@ struct mali_gp_core *mali_gp_create(const _mali_osk_resource_t *resource, struct
 	MALI_DEBUG_ASSERT(NULL == mali_global_gp_core);
 	MALI_DEBUG_PRINT(2, ("Mali GP: Creating Mali GP core: %s\n", resource->description));
 
-	core = _mali_osk_malloc(sizeof(struct mali_gp_core));
+	core = kmalloc(sizeof(struct mali_gp_core), GFP_KERNEL);
 	if (NULL != core) {
 		if (_MALI_OSK_ERR_OK == mali_hw_core_create(&core->hw_core, resource, MALIGP2_REGISTER_ADDRESS_SPACE_SIZE)) {
 			_mali_osk_errcode_t ret;
@@ -66,7 +66,7 @@ struct mali_gp_core *mali_gp_create(const _mali_osk_resource_t *resource, struct
 			mali_hw_core_delete(&core->hw_core);
 		}
 
-		_mali_osk_free(core);
+		kfree(core);
 	} else {
 		MALI_PRINT_ERROR(("Failed to allocate memory for GP core\n"));
 	}
@@ -81,7 +81,7 @@ void mali_gp_delete(struct mali_gp_core *core)
 	_mali_osk_irq_term(core->irq);
 	mali_hw_core_delete(&core->hw_core);
 	mali_global_gp_core = NULL;
-	_mali_osk_free(core);
+	kfree(core);
 }
 
 void mali_gp_stop_bus(struct mali_gp_core *core)

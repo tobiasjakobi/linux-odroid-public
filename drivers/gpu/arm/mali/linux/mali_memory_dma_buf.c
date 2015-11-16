@@ -62,7 +62,7 @@ static void mali_dma_buf_release(struct mali_dma_buf_attachment *mem)
 	dma_buf_detach(mem->buf, mem->attachment);
 	dma_buf_put(mem->buf);
 
-	_mali_osk_free(mem);
+	kfree(mem);
 }
 
 void mali_mem_dma_buf_release(mali_mem_allocation *descriptor)
@@ -294,7 +294,7 @@ int mali_attach_dma_buf(struct mali_session_data *session, _mali_uk_attach_dma_b
 		return -EINVAL;
 	}
 
-	mem = _mali_osk_calloc(1, sizeof(struct mali_dma_buf_attachment));
+	mem = kcalloc(1, sizeof(struct mali_dma_buf_attachment), GFP_KERNEL);
 	if (NULL == mem) {
 		MALI_DEBUG_PRINT_ERROR(("Failed to allocate dma-buf tracing struct\n"));
 		dma_buf_put(buf);
@@ -311,7 +311,7 @@ int mali_attach_dma_buf(struct mali_session_data *session, _mali_uk_attach_dma_b
 	if (NULL == mem->attachment) {
 		MALI_DEBUG_PRINT_ERROR(("Failed to attach to dma-buf %d\n", fd));
 		dma_buf_put(mem->buf);
-		_mali_osk_free(mem);
+		kfree(mem);
 		return -EFAULT;
 	}
 

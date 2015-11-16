@@ -1004,7 +1004,7 @@ _mali_osk_errcode_t _mali_ukk_wait_for_notification(_mali_uk_wait_for_notificati
 
 	/* copy the buffer to the user */
 	args->type = (_mali_uk_notification_type)notification->notification_type;
-	_mali_osk_memcpy(&args->data, notification->result_buffer, notification->result_buffer_size);
+	memcpy(&args->data, notification->result_buffer, notification->result_buffer_size);
 
 	/* finished with the notification */
 	_mali_osk_notification_delete(notification);
@@ -1065,7 +1065,7 @@ _mali_osk_errcode_t _mali_ukk_open(void **context)
 	struct mali_session_data *session;
 
 	/* allocated struct to track this session */
-	session = (struct mali_session_data *)_mali_osk_calloc(1, sizeof(struct mali_session_data));
+	session = (struct mali_session_data *)kcalloc(1, sizeof(struct mali_session_data), GFP_KERNEL);
 	MALI_CHECK_NON_NULL(session, _MALI_OSK_ERR_NOMEM);
 
 	MALI_DEBUG_PRINT(3, ("Session starting\n"));
@@ -1073,21 +1073,21 @@ _mali_osk_errcode_t _mali_ukk_open(void **context)
 	/* create a response queue for this session */
 	session->ioctl_queue = _mali_osk_notification_queue_init();
 	if (NULL == session->ioctl_queue) {
-		_mali_osk_free(session);
+		kfree(session);
 		MALI_ERROR(_MALI_OSK_ERR_NOMEM);
 	}
 
 	session->page_directory = mali_mmu_pagedir_alloc();
 	if (NULL == session->page_directory) {
 		_mali_osk_notification_queue_term(session->ioctl_queue);
-		_mali_osk_free(session);
+		kfree(session);
 		MALI_ERROR(_MALI_OSK_ERR_NOMEM);
 	}
 
 	if (_MALI_OSK_ERR_OK != mali_mmu_pagedir_map(session->page_directory, MALI_DLBU_VIRT_ADDR, _MALI_OSK_MALI_PAGE_SIZE)) {
 		MALI_PRINT_ERROR(("Failed to map DLBU page into session\n"));
 		_mali_osk_notification_queue_term(session->ioctl_queue);
-		_mali_osk_free(session);
+		kfree(session);
 		MALI_ERROR(_MALI_OSK_ERR_NOMEM);
 	}
 
@@ -1099,7 +1099,7 @@ _mali_osk_errcode_t _mali_ukk_open(void **context)
 	if (_MALI_OSK_ERR_OK != mali_memory_session_begin(session)) {
 		mali_mmu_pagedir_free(session->page_directory);
 		_mali_osk_notification_queue_term(session->ioctl_queue);
-		_mali_osk_free(session);
+		kfree(session);
 		MALI_ERROR(_MALI_OSK_ERR_NOMEM);
 	}
 
@@ -1109,7 +1109,7 @@ _mali_osk_errcode_t _mali_ukk_open(void **context)
 		mali_memory_session_end(session);
 		mali_mmu_pagedir_free(session->page_directory);
 		_mali_osk_notification_queue_term(session->ioctl_queue);
-		_mali_osk_free(session);
+		kfree(session);
 		MALI_ERROR(_MALI_OSK_ERR_NOMEM);
 	}
 
@@ -1120,7 +1120,7 @@ _mali_osk_errcode_t _mali_ukk_open(void **context)
 		mali_memory_session_end(session);
 		mali_mmu_pagedir_free(session->page_directory);
 		_mali_osk_notification_queue_term(session->ioctl_queue);
-		_mali_osk_free(session);
+		kfree(session);
 		MALI_ERROR(_MALI_OSK_ERR_NOMEM);
 	}
 
@@ -1141,7 +1141,7 @@ _mali_osk_errcode_t _mali_ukk_open(void **context)
 	session->pid = _mali_osk_get_pid();
 	session->comm = _mali_osk_get_comm();
 	session->max_mali_mem_allocated = 0;
-	_mali_osk_memset(session->mali_mem_array, 0, sizeof(size_t) * MALI_MEM_TYPE_MAX);
+	memset(session->mali_mem_array, 0, sizeof(size_t) * MALI_MEM_TYPE_MAX);
 	*context = (void *)session;
 
 	/* Add session to the list of all sessions. */
@@ -1235,7 +1235,7 @@ _mali_osk_errcode_t _mali_ukk_close(void **context)
 	/* Free session data structures */
 	mali_mmu_pagedir_free(session->page_directory);
 	_mali_osk_notification_queue_term(session->ioctl_queue);
-	_mali_osk_free(session);
+	kfree(session);
 
 	*context = NULL;
 

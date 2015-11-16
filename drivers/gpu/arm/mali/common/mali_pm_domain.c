@@ -46,8 +46,8 @@ struct mali_pm_domain *mali_pm_domain_create(u32 pmu_mask)
 			 ("Mali PM domain: Creating Mali PM domain (mask=0x%08X)\n",
 			  pmu_mask));
 
-	domain = (struct mali_pm_domain *)_mali_osk_malloc(
-			 sizeof(struct mali_pm_domain));
+	domain = (struct mali_pm_domain *)kmalloc(
+			 sizeof(struct mali_pm_domain), GFP_KERNEL);
 	if (NULL != domain) {
 		domain->power_is_on = MALI_FALSE;
 		domain->pmu_mask = pmu_mask;
@@ -79,7 +79,7 @@ void mali_pm_domain_delete(struct mali_pm_domain *domain)
 	_mali_osk_list_delinit(&domain->group_list);
 	_mali_osk_list_delinit(&domain->l2_cache_list);
 
-	_mali_osk_free(domain);
+	kfree(domain);
 }
 
 void mali_pm_domain_add_group(struct mali_pm_domain *domain,

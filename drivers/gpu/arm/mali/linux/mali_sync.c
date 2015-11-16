@@ -249,7 +249,7 @@ struct mali_sync_flag *mali_sync_flag_create(struct sync_timeline *sync_tl, mali
 
 	if (NULL == sync_tl) return NULL;
 
-	flag = _mali_osk_calloc(1, sizeof(*flag));
+	flag = kcalloc(1, sizeof(*flag), GFP_KERNEL);
 	if (NULL == flag) return NULL;
 
 	flag->sync_tl = sync_tl;
@@ -279,7 +279,7 @@ static void mali_sync_flag_free(struct kref *ref)
 	MALI_DEBUG_ASSERT_POINTER(ref);
 	flag = container_of(ref, struct mali_sync_flag, refcount);
 
-	_mali_osk_free(flag);
+	kfree(flag);
 }
 
 void mali_sync_flag_put(struct mali_sync_flag *flag)

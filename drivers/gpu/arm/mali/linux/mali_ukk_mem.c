@@ -156,7 +156,7 @@ int mem_dump_mmu_page_table_wrapper(struct mali_session_data *session_data, _mal
 	if (kargs.size > SZ_8M)
 		return -EINVAL;
 
-	buffer = (void *)(uintptr_t)_mali_osk_valloc(kargs.size);
+	buffer = (void *)(uintptr_t)vmalloc(kargs.size);
 	if (NULL == buffer) {
 		rc = -ENOMEM;
 		goto err_exit;
@@ -185,6 +185,6 @@ int mem_dump_mmu_page_table_wrapper(struct mali_session_data *session_data, _mal
 	rc = 0;
 
 err_exit:
-	if (buffer) _mali_osk_vfree(buffer);
+	if (buffer) vfree(buffer);
 	return rc;
 }

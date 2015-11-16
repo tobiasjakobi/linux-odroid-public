@@ -29,7 +29,7 @@ struct mali_bcast_unit *mali_bcast_unit_create(const _mali_osk_resource_t *resou
 	MALI_DEBUG_PRINT(2, ("Broadcast: Creating Mali Broadcast unit: %s\n",
 			     resource->description));
 
-	bcast_unit = _mali_osk_malloc(sizeof(struct mali_bcast_unit));
+	bcast_unit = kmalloc(sizeof(struct mali_bcast_unit), GFP_KERNEL);
 	if (NULL == bcast_unit) {
 		MALI_PRINT_ERROR(("Broadcast: Failed to allocate memory for Broadcast unit\n"));
 		return NULL;
@@ -45,7 +45,7 @@ struct mali_bcast_unit *mali_bcast_unit_create(const _mali_osk_resource_t *resou
 		MALI_PRINT_ERROR(("Broadcast: Failed map broadcast unit\n"));
 	}
 
-	_mali_osk_free(bcast_unit);
+	kfree(bcast_unit);
 
 	return NULL;
 }
@@ -54,7 +54,7 @@ void mali_bcast_unit_delete(struct mali_bcast_unit *bcast_unit)
 {
 	MALI_DEBUG_ASSERT_POINTER(bcast_unit);
 	mali_hw_core_delete(&bcast_unit->hw_core);
-	_mali_osk_free(bcast_unit);
+	kfree(bcast_unit);
 }
 
 /* Call this function to add the @group's id into bcast mask

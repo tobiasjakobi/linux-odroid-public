@@ -1328,5 +1328,5 @@ void mali_pm_get_best_power_cost_mask(int num_requested, int *dst)
 {
 	MALI_DEBUG_ASSERT((mali_executor_get_num_cores_total() >= num_requested) && (0 <= num_requested));
 
-	_mali_osk_memcpy(dst, mali_pm_domain_power_cost_result[num_requested], MALI_MAX_NUMBER_OF_DOMAINS * sizeof(int));
+	memcpy(dst, mali_pm_domain_power_cost_result[num_requested], MALI_MAX_NUMBER_OF_DOMAINS * sizeof(int));
 }

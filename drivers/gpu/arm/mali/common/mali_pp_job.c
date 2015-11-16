@@ -41,7 +41,7 @@ struct mali_pp_job *mali_pp_job_create(struct mali_session_data *session,
 	struct mali_pp_job *job;
 	u32 perf_counter_flag;
 
-	job = _mali_osk_calloc(1, sizeof(struct mali_pp_job));
+	job = kcalloc(1, sizeof(struct mali_pp_job), GFP_KERNEL);
 	if (NULL != job) {
 		if (0 != _mali_osk_copy_from_user(&job->uargs, uargs, sizeof(_mali_uk_pp_start_job_s))) {
 			goto fail;
@@ -72,8 +72,8 @@ struct mali_pp_job *mali_pp_job_create(struct mali_session_data *session,
 			/* We only copy the per sub job array if it is enabled with at least one counter */
 			if (0 < sub_job_count) {
 				job->perf_counter_per_sub_job_count = sub_job_count;
-				_mali_osk_memcpy(job->perf_counter_per_sub_job_src0, pp_counter_per_sub_job_src0, sizeof(pp_counter_per_sub_job_src0));
-				_mali_osk_memcpy(job->perf_counter_per_sub_job_src1, pp_counter_per_sub_job_src1, sizeof(pp_counter_per_sub_job_src1));
+				memcpy(job->perf_counter_per_sub_job_src0, pp_counter_per_sub_job_src0, sizeof(pp_counter_per_sub_job_src0));
+				memcpy(job->perf_counter_per_sub_job_src1, pp_counter_per_sub_job_src1, sizeof(pp_counter_per_sub_job_src1));
 			}
 		}
 
@@ -99,7 +99,7 @@ struct mali_pp_job *mali_pp_job_create(struct mali_session_data *session,
 
 			size = sizeof(*memory_cookies) * job->uargs.num_memory_cookies;
 
-			job->memory_cookies = _mali_osk_malloc(size);
+			job->memory_cookies = kmalloc(size, GFP_KERNEL);
 			if (NULL == job->memory_cookies) {
 				MALI_PRINT_ERROR(("Mali PP job: Failed to allocate %d bytes of memory cookies!\n", size));
 				goto fail;
@@ -112,8 +112,8 @@ struct mali_pp_job *mali_pp_job_create(struct mali_session_data *session,
 
 #if defined(CONFIG_DMA_SHARED_BUFFER) && !defined(CONFIG_MALI_DMA_BUF_MAP_ON_ATTACH)
 			if (0 < job->uargs.num_memory_cookies) {
-				job->dma_bufs = _mali_osk_calloc(job->uargs.num_memory_cookies,
-								 sizeof(struct mali_dma_buf_attachment *));
+				job->dma_bufs = kcalloc(job->uargs.num_memory_cookies,
+							sizeof(struct mali_dma_buf_attachment *), GFP_KERNEL);
 				if (NULL == job->dma_bufs) {
 					MALI_PRINT_ERROR(("Mali PP job: Failed to allocate dma_bufs array!\n"));
 					goto fail;
@@ -156,19 +156,19 @@ void mali_pp_job_delete(struct mali_pp_job *job)
 	if (0 < job->uargs.num_memory_cookies) {
 		mali_dma_buf_unmap_job(job);
 		if (NULL != job->dma_bufs) {
-			_mali_osk_free(job->dma_bufs);
+			kfree(job->dma_bufs);
 		}
 	}
 #endif /* CONFIG_DMA_SHARED_BUFFER */
 
 	if (NULL != job->memory_cookies) {
-		_mali_osk_free(job->memory_cookies);
+		kfree(job->memory_cookies);
 	}
 
 	_mali_osk_atomic_term(&job->sub_jobs_completed);
 	_mali_osk_atomic_term(&job->sub_job_errors);
 
-	_mali_osk_free(job);
+	kfree(job);
 }
 
 void mali_pp_job_list_add(struct mali_pp_job *job, _mali_osk_list_t *list)

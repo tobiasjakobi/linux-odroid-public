@@ -21,7 +21,7 @@
  */
 static struct mali_timeline_fence_wait_tracker *mali_timeline_fence_wait_tracker_alloc(void)
 {
-	return (struct mali_timeline_fence_wait_tracker *) _mali_osk_calloc(1, sizeof(struct mali_timeline_fence_wait_tracker));
+	return (struct mali_timeline_fence_wait_tracker *) kcalloc(1, sizeof(struct mali_timeline_fence_wait_tracker), GFP_KERNEL);
 }
 
 /**
@@ -33,7 +33,7 @@ static void mali_timeline_fence_wait_tracker_free(struct mali_timeline_fence_wai
 {
 	MALI_DEBUG_ASSERT_POINTER(wait);
 	_mali_osk_atomic_term(&wait->refcount);
-	_mali_osk_free(wait);
+	kfree(wait);
 }
 
 /**

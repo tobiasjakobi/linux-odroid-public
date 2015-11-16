@@ -230,7 +230,7 @@ _mali_osk_errcode_t _mali_osk_device_data_get(_mali_osk_device_data *data)
 		if (NULL != os_data) {
 			/* Copy data from OS dependant struct to Mali neutral struct (identical!) */
 			BUILD_BUG_ON(sizeof(*os_data) != sizeof(*data));
-			_mali_osk_memcpy(data, os_data, sizeof(*os_data));
+			memcpy(data, os_data, sizeof(*os_data));
 
 			return _MALI_OSK_ERR_OK;
 		}

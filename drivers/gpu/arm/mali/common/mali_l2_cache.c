@@ -111,7 +111,7 @@ struct mali_l2_cache_core *mali_l2_cache_create(
 		return NULL;
 	}
 
-	cache = _mali_osk_malloc(sizeof(struct mali_l2_cache_core));
+	cache = kmalloc(sizeof(struct mali_l2_cache_core), GFP_KERNEL);
 	if (NULL == cache) {
 		MALI_PRINT_ERROR(("Mali L2 cache: Failed to allocate memory for L2 cache core\n"));
 		return NULL;
@@ -128,7 +128,7 @@ struct mali_l2_cache_core *mali_l2_cache_create(
 
 	if (_MALI_OSK_ERR_OK != mali_hw_core_create(&cache->hw_core,
 			resource, MALI400_L2_CACHE_REGISTERS_SIZE)) {
-		_mali_osk_free(cache);
+		kfree(cache);
 		return NULL;
 	}
 
@@ -149,7 +149,7 @@ struct mali_l2_cache_core *mali_l2_cache_create(
 		MALI_PRINT_ERROR(("Mali L2 cache: Failed to create counter lock for L2 cache core %s\n",
 				  cache->hw_core.description));
 		mali_hw_core_delete(&cache->hw_core);
-		_mali_osk_free(cache);
+		kfree(cache);
 		return NULL;
 	}
 
@@ -192,7 +192,7 @@ void mali_l2_cache_delete(struct mali_l2_cache_core *cache)
 
 	_mali_osk_spinlock_irq_term(cache->lock);
 	mali_hw_core_delete(&cache->hw_core);
-	_mali_osk_free(cache);
+	kfree(cache);
 }
 
 void mali_l2_cache_power_up(struct mali_l2_cache_core *cache)

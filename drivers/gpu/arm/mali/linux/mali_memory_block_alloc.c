@@ -55,10 +55,10 @@ static mali_mem_allocator *mali_mem_block_allocator_create(u32 base_address, u32
 		return NULL;
 	}
 
-	info = _mali_osk_malloc(sizeof(block_allocator));
+	info = kmalloc(sizeof(block_allocator), GFP_KERNEL);
 	if (NULL != info) {
 		mutex_init(&info->mutex);
-		info->all_blocks = _mali_osk_malloc(sizeof(block_info) * num_blocks);
+		info->all_blocks = kmalloc(sizeof(block_info) * num_blocks, GFP_KERNEL);
 		if (NULL != info->all_blocks) {
 			u32 i;
 			info->first_free = NULL;
@@ -75,7 +75,7 @@ static mali_mem_allocator *mali_mem_block_allocator_create(u32 base_address, u32
 
 			return (mali_mem_allocator *)info;
 		}
-		_mali_osk_free(info);
+		kfree(info);
 	}
 
 	return NULL;
@@ -90,8 +90,8 @@ void mali_mem_block_allocator_destroy(mali_mem_allocator *allocator)
 
 	MALI_DEBUG_ASSERT_POINTER(info);
 
-	_mali_osk_free(info->all_blocks);
-	_mali_osk_free(info);
+	kfree(info->all_blocks);
+	kfree(info);
 }
 
 static void mali_mem_block_mali_map(mali_mem_allocation *descriptor, u32 phys, u32 virt, u32 size)

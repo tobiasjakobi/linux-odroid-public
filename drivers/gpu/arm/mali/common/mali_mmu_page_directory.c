@@ -258,14 +258,14 @@ struct mali_page_directory *mali_mmu_pagedir_alloc(void)
 	_mali_osk_errcode_t err;
 	mali_dma_addr phys;
 
-	pagedir = _mali_osk_calloc(1, sizeof(struct mali_page_directory));
+	pagedir = kcalloc(1, sizeof(struct mali_page_directory), GFP_KERNEL);
 	if (NULL == pagedir) {
 		return NULL;
 	}
 
 	err = mali_mmu_get_table_page(&phys, &pagedir->page_directory_mapped);
 	if (_MALI_OSK_ERR_OK != err) {
-		_mali_osk_free(pagedir);
+		kfree(pagedir);
 		return NULL;
 	}
 
@@ -298,7 +298,7 @@ void mali_mmu_pagedir_free(struct mali_page_directory *pagedir)
 	/* Free the page directory page. */
 	mali_mmu_release_table_page(pagedir->page_directory, pagedir->page_directory_mapped);
 
-	_mali_osk_free(pagedir);
+	kfree(pagedir);
 }
 
 
@@ -398,7 +398,7 @@ static _mali_osk_errcode_t mali_mmu_dump_page(mali_io_address page, u32 phys_add
 			*info->buffer = phys_addr;
 			info->buffer++;
 
-			_mali_osk_memcpy(info->buffer, page, page_size_in_bytes);
+			memcpy(info->buffer, page, page_size_in_bytes);
 			info->buffer += page_size_in_elements;
 
 			info->buffer_left -= dump_size_in_bytes;

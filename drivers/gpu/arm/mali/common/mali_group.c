@@ -63,7 +63,7 @@ struct mali_group *mali_group_create(struct mali_l2_cache_core *core,
 		return NULL;
 	}
 
-	group = _mali_osk_calloc(1, sizeof(struct mali_group));
+	group = kcalloc(1, sizeof(struct mali_group), GFP_KERNEL);
 	if (NULL != group) {
 		group->timeout_timer = _mali_osk_timer_init();
 		if (NULL != group->timeout_timer) {
@@ -85,7 +85,7 @@ struct mali_group *mali_group_create(struct mali_l2_cache_core *core,
 
 			return group;
 		}
-		_mali_osk_free(group);
+		kfree(group);
 	}
 
 	return NULL;
@@ -164,7 +164,7 @@ void mali_group_delete(struct mali_group *group)
 		_mali_osk_wq_delete_work(group->bottom_half_work_pp);
 	}
 
-	_mali_osk_free(group);
+	kfree(group);
 }
 
 _mali_osk_errcode_t mali_group_add_mmu_core(struct mali_group *group, struct mali_mmu_core *mmu_core)

@@ -17,7 +17,7 @@ struct mali_spinlock_reentrant *mali_spinlock_reentrant_init(_mali_osk_lock_orde
 {
 	struct mali_spinlock_reentrant *spinlock;
 
-	spinlock = _mali_osk_calloc(1, sizeof(struct mali_spinlock_reentrant));
+	spinlock = kcalloc(1, sizeof(struct mali_spinlock_reentrant), GFP_KERNEL);
 	if (NULL == spinlock) {
 		return NULL;
 	}
@@ -40,7 +40,7 @@ void mali_spinlock_reentrant_term(struct mali_spinlock_reentrant *spinlock)
 		_mali_osk_spinlock_irq_term(spinlock->lock);
 	}
 
-	_mali_osk_free(spinlock);
+	kfree(spinlock);
 }
 
 void mali_spinlock_reentrant_wait(struct mali_spinlock_reentrant *spinlock, u32 tid)

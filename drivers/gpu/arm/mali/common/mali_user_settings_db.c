@@ -41,7 +41,7 @@ static void mali_user_settings_notify(_mali_uk_user_setting_t setting, u32 value
 			return;
 		}
 
-		notobjs = (_mali_osk_notification_t **)_mali_osk_malloc(sizeof(_mali_osk_notification_t *) * num_sessions_alloc);
+		notobjs = (_mali_osk_notification_t **)kmalloc(sizeof(_mali_osk_notification_t *) * num_sessions_alloc, GFP_KERNEL);
 		if (NULL == notobjs) {
 			MALI_PRINT_ERROR(("Failed to notify user space session about num PP core change (alloc failure)\n"));
 			return;
@@ -89,7 +89,7 @@ static void mali_user_settings_notify(_mali_uk_user_setting_t setting, u32 value
 			}
 		}
 
-		_mali_osk_free(notobjs);
+		kfree(notobjs);
 	}
 }
 
@@ -141,7 +141,7 @@ _mali_osk_errcode_t _mali_ukk_get_user_settings(_mali_uk_get_user_settings_s *ar
 {
 	MALI_DEBUG_ASSERT_POINTER(args);
 
-	_mali_osk_memcpy(args->settings, mali_user_settings, sizeof(mali_user_settings));
+	memcpy(args->settings, mali_user_settings, sizeof(mali_user_settings));
 
 	return _MALI_OSK_ERR_OK;
 }

@@ -32,7 +32,7 @@ static void descriptor_table_free(mali_descriptor_table *table);
 
 mali_descriptor_mapping *mali_descriptor_mapping_create(int init_entries, int max_entries)
 {
-	mali_descriptor_mapping *map = _mali_osk_calloc(1, sizeof(mali_descriptor_mapping));
+	mali_descriptor_mapping *map = kcalloc(1, sizeof(mali_descriptor_mapping), GFP_KERNEL);
 
 	init_entries = MALI_PAD_INT(init_entries);
 	max_entries = MALI_PAD_INT(max_entries);
@@ -49,7 +49,7 @@ mali_descriptor_mapping *mali_descriptor_mapping_create(int init_entries, int ma
 			}
 			descriptor_table_free(map->table);
 		}
-		_mali_osk_free(map);
+		kfree(map);
 	}
 	return NULL;
 }
@@ -58,7 +58,7 @@ void mali_descriptor_mapping_destroy(mali_descriptor_mapping *map)
 {
 	descriptor_table_free(map->table);
 	_mali_osk_mutex_rw_term(map->lock);
-	_mali_osk_free(map);
+	kfree(map);
 }
 
 _mali_osk_errcode_t mali_descriptor_mapping_allocate_mapping(mali_descriptor_mapping *map, void *target, int *odescriptor)
@@ -84,8 +84,8 @@ _mali_osk_errcode_t mali_descriptor_mapping_allocate_mapping(mali_descriptor_map
 		if (NULL == new_table) goto unlock_and_exit;
 
 		old_table = map->table;
-		_mali_osk_memcpy(new_table->usage, old_table->usage, (sizeof(unsigned long)*map->current_nr_mappings) / BITS_PER_LONG);
-		_mali_osk_memcpy(new_table->mappings, old_table->mappings, map->current_nr_mappings * sizeof(void *));
+		memcpy(new_table->usage, old_table->usage, (sizeof(unsigned long)*map->current_nr_mappings) / BITS_PER_LONG);
+		memcpy(new_table->mappings, old_table->mappings, map->current_nr_mappings * sizeof(void *));
 		map->table = new_table;
 		descriptor_table_free(old_table);
 	}
@@ -186,7 +186,7 @@ static mali_descriptor_table *descriptor_table_alloc(int count)
 {
 	mali_descriptor_table *table;
 
-	table = _mali_osk_calloc(1, sizeof(mali_descriptor_table) + ((sizeof(unsigned long) * count) / BITS_PER_LONG) + (sizeof(void *) * count));
+	table = kcalloc(1, sizeof(mali_descriptor_table) + ((sizeof(unsigned long) * count) / BITS_PER_LONG) + (sizeof(void *) * count), GFP_KERNEL);
 
 	if (NULL != table) {
 		table->usage = (u32 *)((u8 *)table + sizeof(mali_descriptor_table));
@@ -198,5 +198,5 @@ static mali_descriptor_table *descriptor_table_alloc(int count)
 
 static void descriptor_table_free(mali_descriptor_table *table)
 {
-	_mali_osk_free(table);
+	kfree(table);
 }

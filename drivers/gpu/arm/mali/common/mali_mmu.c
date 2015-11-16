@@ -109,7 +109,7 @@ struct mali_mmu_core *mali_mmu_create(_mali_osk_resource_t *resource, struct mal
 
 	MALI_DEBUG_PRINT(2, ("Mali MMU: Creating Mali MMU: %s\n", resource->description));
 
-	mmu = _mali_osk_calloc(1, sizeof(struct mali_mmu_core));
+	mmu = kcalloc(1, sizeof(struct mali_mmu_core), GFP_KERNEL);
 	if (NULL != mmu) {
 		if (_MALI_OSK_ERR_OK == mali_hw_core_create(&mmu->hw_core, resource, MALI_MMU_REGISTERS_SIZE)) {
 			if (_MALI_OSK_ERR_OK == mali_group_add_mmu_core(group, mmu)) {
@@ -140,7 +140,7 @@ struct mali_mmu_core *mali_mmu_create(_mali_osk_resource_t *resource, struct mal
 			mali_hw_core_delete(&mmu->hw_core);
 		}
 
-		_mali_osk_free(mmu);
+		kfree(mmu);
 	} else {
 		MALI_PRINT_ERROR(("Failed to allocate memory for MMU\n"));
 	}
@@ -155,7 +155,7 @@ void mali_mmu_delete(struct mali_mmu_core *mmu)
 	}
 
 	mali_hw_core_delete(&mmu->hw_core);
-	_mali_osk_free(mmu);
+	kfree(mmu);
 }
 
 static void mali_mmu_enable_paging(struct mali_mmu_core *mmu)

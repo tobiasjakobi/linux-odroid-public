@@ -110,7 +110,7 @@ struct mali_dlbu_core *mali_dlbu_create(const _mali_osk_resource_t *resource)
 
 	MALI_DEBUG_PRINT(2, ("Mali DLBU: Creating Mali dynamic load balancing unit: %s\n", resource->description));
 
-	core = _mali_osk_malloc(sizeof(struct mali_dlbu_core));
+	core = kmalloc(sizeof(struct mali_dlbu_core), GFP_KERNEL);
 	if (NULL != core) {
 		if (_MALI_OSK_ERR_OK == mali_hw_core_create(&core->hw_core, resource, MALI_DLBU_SIZE)) {
 			core->pp_cores_mask = 0;
@@ -121,7 +121,7 @@ struct mali_dlbu_core *mali_dlbu_create(const _mali_osk_resource_t *resource)
 			mali_hw_core_delete(&core->hw_core);
 		}
 
-		_mali_osk_free(core);
+		kfree(core);
 	} else {
 		MALI_PRINT_ERROR(("Mali DLBU: Failed to allocate memory for DLBU core\n"));
 	}
@@ -133,7 +133,7 @@ void mali_dlbu_delete(struct mali_dlbu_core *dlbu)
 {
 	MALI_DEBUG_ASSERT_POINTER(dlbu);
 	mali_hw_core_delete(&dlbu->hw_core);
-	_mali_osk_free(dlbu);
+	kfree(dlbu);
 }
 
 _mali_osk_errcode_t mali_dlbu_reset(struct mali_dlbu_core *dlbu)

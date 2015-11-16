@@ -295,7 +295,7 @@ _mali_osk_errcode_t mali_memory_session_begin(struct mali_session_data *session_
 
 	if (NULL == session_data->memory_lock) {
 		mali_descriptor_mapping_destroy(session_data->descriptor_mapping);
-		_mali_osk_free(session_data);
+		kfree(session_data);
 		MALI_ERROR(_MALI_OSK_ERR_FAULT);
 	}
 

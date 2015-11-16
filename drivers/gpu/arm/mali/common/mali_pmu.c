@@ -32,8 +32,8 @@ struct mali_pmu_core *mali_pmu_create(_mali_osk_resource_t *resource)
 	MALI_DEBUG_ASSERT(NULL == mali_global_pmu_core);
 	MALI_DEBUG_PRINT(2, ("Mali PMU: Creating Mali PMU core\n"));
 
-	pmu = (struct mali_pmu_core *)_mali_osk_malloc(
-		      sizeof(struct mali_pmu_core));
+	pmu = (struct mali_pmu_core *)kmalloc(
+		      sizeof(struct mali_pmu_core), GFP_KERNEL);
 	if (NULL != pmu) {
 		pmu->registered_cores_mask = 0; /* to be set later */
 
@@ -46,7 +46,7 @@ struct mali_pmu_core *mali_pmu_create(_mali_osk_resource_t *resource)
 
 			return pmu;
 		}
-		_mali_osk_free(pmu);
+		kfree(pmu);
 	}
 
 	return NULL;
@@ -62,7 +62,7 @@ void mali_pmu_delete(struct mali_pmu_core *pmu)
 	mali_global_pmu_core = NULL;
 
 	mali_hw_core_delete(&pmu->hw_core);
-	_mali_osk_free(pmu);
+	kfree(pmu);
 }
 
 void mali_pmu_set_registered_cores_mask(struct mali_pmu_core *pmu, u32 mask)

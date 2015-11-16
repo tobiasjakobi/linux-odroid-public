@@ -79,7 +79,7 @@ void _mali_internal_profiling_term(void)
 	prof_state = MALI_PROFILING_STATE_UNINITIALIZED;
 
 	if (NULL != profile_entries) {
-		_mali_osk_vfree(profile_entries);
+		vfree(profile_entries);
 		profile_entries = NULL;
 	}
 
@@ -101,10 +101,10 @@ _mali_osk_errcode_t _mali_internal_profiling_start(u32 *limit)
 		return _MALI_OSK_ERR_BUSY;
 	}
 
-	new_profile_entries = _mali_osk_valloc(*limit * sizeof(mali_profiling_entry));
+	new_profile_entries = vmalloc(*limit * sizeof(mali_profiling_entry));
 
 	if (NULL == new_profile_entries) {
-		_mali_osk_vfree(new_profile_entries);
+		vfree(new_profile_entries);
 		return _MALI_OSK_ERR_NOMEM;
 	}
 
@@ -124,7 +124,7 @@ _mali_osk_errcode_t _mali_internal_profiling_start(u32 *limit)
 
 	if (MALI_PROFILING_STATE_IDLE != prof_state) {
 		_mali_osk_mutex_signal(lock);
-		_mali_osk_vfree(new_profile_entries);
+		vfree(new_profile_entries);
 		return _MALI_OSK_ERR_INVALID_ARGS; /* invalid to call this function in this state */
 	}
 
@@ -135,7 +135,7 @@ _mali_osk_errcode_t _mali_internal_profiling_start(u32 *limit)
 	if (_MALI_OSK_ERR_OK == ret) {
 		prof_state = MALI_PROFILING_STATE_RUNNING;
 	} else {
-		_mali_osk_vfree(profile_entries);
+		vfree(profile_entries);
 		profile_entries = NULL;
 	}
 
@@ -255,7 +255,7 @@ _mali_osk_errcode_t _mali_internal_profiling_clear(void)
 	_mali_osk_atomic_init(&profile_insert_index, 0);
 
 	if (NULL != profile_entries) {
-		_mali_osk_vfree(profile_entries);
+		vfree(profile_entries);
 		profile_entries = NULL;
 	}
 

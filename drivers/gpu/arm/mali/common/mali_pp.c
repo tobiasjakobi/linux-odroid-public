@@ -43,7 +43,7 @@ struct mali_pp_core *mali_pp_create(const _mali_osk_resource_t *resource, struct
 		return NULL;
 	}
 
-	core = _mali_osk_malloc(sizeof(struct mali_pp_core));
+	core = kmalloc(sizeof(struct mali_pp_core), GFP_KERNEL);
 	if (NULL != core) {
 		core->core_id = mali_global_num_pp_cores;
 		core->bcast_id = bcast_id;
@@ -86,7 +86,7 @@ struct mali_pp_core *mali_pp_create(const _mali_osk_resource_t *resource, struct
 			mali_hw_core_delete(&core->hw_core);
 		}
 
-		_mali_osk_free(core);
+		kfree(core);
 	} else {
 		MALI_PRINT_ERROR(("Mali PP: Failed to allocate memory for PP core\n"));
 	}
@@ -120,7 +120,7 @@ void mali_pp_delete(struct mali_pp_core *core)
 		}
 	}
 
-	_mali_osk_free(core);
+	kfree(core);
 }
 
 void mali_pp_stop_bus(struct mali_pp_core *core)

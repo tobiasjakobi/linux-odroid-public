@@ -185,7 +185,7 @@ static void mali_timeline_destroy(struct mali_timeline *timeline)
 			_mali_osk_wq_delayed_delete_work_nonflush(timeline->delayed_work);
 		}
 
-		_mali_osk_free(timeline);
+		kfree(timeline);
 	}
 }
 
@@ -196,7 +196,7 @@ static struct mali_timeline *mali_timeline_create(struct mali_timeline_system *s
 	MALI_DEBUG_ASSERT_POINTER(system);
 	MALI_DEBUG_ASSERT(id < MALI_TIMELINE_MAX);
 
-	timeline = (struct mali_timeline *) _mali_osk_calloc(1, sizeof(struct mali_timeline));
+	timeline = (struct mali_timeline *) kcalloc(1, sizeof(struct mali_timeline), GFP_KERNEL);
 	if (NULL == timeline) {
 		return NULL;
 	}
@@ -451,7 +451,7 @@ void mali_timeline_tracker_init(struct mali_timeline_tracker *tracker,
 	MALI_DEBUG_ASSERT(MALI_TIMELINE_TRACKER_MAX > type);
 
 	/* Zero out all tracker members. */
-	_mali_osk_memset(tracker, 0, sizeof(*tracker));
+	memset(tracker, 0, sizeof(*tracker));
 
 	tracker->type = type;
 	tracker->job = job;
@@ -463,7 +463,7 @@ void mali_timeline_tracker_init(struct mali_timeline_tracker *tracker,
 
 	/* Copy fence. */
 	if (NULL != fence) {
-		_mali_osk_memcpy(&tracker->fence, fence, sizeof(struct mali_timeline_fence));
+		memcpy(&tracker->fence, fence, sizeof(struct mali_timeline_fence));
 	}
 }
 
@@ -683,7 +683,7 @@ struct mali_timeline_system *mali_timeline_system_create(struct mali_session_dat
 	MALI_DEBUG_ASSERT_POINTER(session);
 	MALI_DEBUG_PRINT(4, ("Mali Timeline: creating timeline system\n"));
 
-	system = (struct mali_timeline_system *) _mali_osk_calloc(1, sizeof(struct mali_timeline_system));
+	system = (struct mali_timeline_system *) kcalloc(1, sizeof(struct mali_timeline_system), GFP_KERNEL);
 	if (NULL == system) {
 		return NULL;
 	}
@@ -857,7 +857,7 @@ void mali_timeline_system_destroy(struct mali_timeline_system *system)
 		waiter = system->waiter_empty_list;
 		while (NULL != waiter) {
 			next = waiter->tracker_next;
-			_mali_osk_free(waiter);
+			kfree(waiter);
 			waiter = next;
 		}
 
@@ -876,7 +876,7 @@ void mali_timeline_system_destroy(struct mali_timeline_system *system)
 			mali_spinlock_reentrant_term(system->spinlock);
 		}
 
-		_mali_osk_free(system);
+		kfree(system);
 	}
 }
 
@@ -916,7 +916,7 @@ static struct mali_timeline_waiter *mali_timeline_system_get_zeroed_waiter(struc
 	if (NULL != waiter) {
 		/* Remove waiter from empty list and zero it */
 		system->waiter_empty_list = waiter->tracker_next;
-		_mali_osk_memset(waiter, 0, sizeof(*waiter));
+		memset(waiter, 0, sizeof(*waiter));
 	}
 
 	/* Return NULL if list was empty. */
@@ -950,7 +950,7 @@ static void mali_timeline_system_allocate_waiters(struct mali_timeline_system *s
 				continue;
 			}
 		} else {
-			waiter = _mali_osk_calloc(1, sizeof(struct mali_timeline_waiter));
+			waiter = kcalloc(1, sizeof(struct mali_timeline_waiter), GFP_KERNEL);
 			if (NULL == waiter) break;
 		}
 		++i;

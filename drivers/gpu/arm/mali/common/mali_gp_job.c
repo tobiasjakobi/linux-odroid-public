@@ -21,25 +21,25 @@ struct mali_gp_job *mali_gp_job_create(struct mali_session_data *session, _mali_
 	struct mali_gp_job *job;
 	u32 perf_counter_flag;
 
-	job = _mali_osk_malloc(sizeof(struct mali_gp_job));
+	job = kmalloc(sizeof(struct mali_gp_job), GFP_KERNEL);
 	if (NULL != job) {
 		job->finished_notification = _mali_osk_notification_create(_MALI_NOTIFICATION_GP_FINISHED, sizeof(_mali_uk_gp_job_finished_s));
 		if (NULL == job->finished_notification) {
-			_mali_osk_free(job);
+			kfree(job);
 			return NULL;
 		}
 
 		job->oom_notification = _mali_osk_notification_create(_MALI_NOTIFICATION_GP_STALLED, sizeof(_mali_uk_gp_job_suspended_s));
 		if (NULL == job->oom_notification) {
 			_mali_osk_notification_delete(job->finished_notification);
-			_mali_osk_free(job);
+			kfree(job);
 			return NULL;
 		}
 
 		if (0 != _mali_osk_copy_from_user(&job->uargs, uargs, sizeof(_mali_uk_gp_start_job_s))) {
 			_mali_osk_notification_delete(job->finished_notification);
 			_mali_osk_notification_delete(job->oom_notification);
-			_mali_osk_free(job);
+			kfree(job);
 			return NULL;
 		}
 
@@ -94,7 +94,7 @@ void mali_gp_job_delete(struct mali_gp_job *job)
 		job->finished_notification = NULL;
 	}
 
-	_mali_osk_free(job);
+	kfree(job);
 }
 
 void mali_gp_job_list_add(struct mali_gp_job *job, _mali_osk_list_t *list)

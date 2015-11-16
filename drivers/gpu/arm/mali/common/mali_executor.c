@@ -2161,7 +2161,7 @@ static void mali_executor_notify_core_change(u32 num_cores)
 			return;
 		}
 
-		notobjs = (_mali_osk_notification_t **)_mali_osk_malloc(sizeof(_mali_osk_notification_t *) * num_sessions_alloc);
+		notobjs = (_mali_osk_notification_t **)kmalloc(sizeof(_mali_osk_notification_t *) * num_sessions_alloc, GFP_KERNEL);
 		if (NULL == notobjs) {
 			MALI_PRINT_ERROR(("Failed to notify user space session about num PP core change (alloc failure)\n"));
 			/* there is probably no point in trying again, system must be really low on memory and probably unusable now anyway */
@@ -2206,7 +2206,7 @@ static void mali_executor_notify_core_change(u32 num_cores)
 			}
 		}
 
-		_mali_osk_free(notobjs);
+		kfree(notobjs);
 	}
 }
 

@@ -52,7 +52,7 @@ struct mali_soft_job_system *mali_soft_job_system_create(struct mali_session_dat
 
 	MALI_DEBUG_ASSERT_POINTER(session);
 
-	system = (struct mali_soft_job_system *) _mali_osk_calloc(1, sizeof(struct mali_soft_job_system));
+	system = (struct mali_soft_job_system *) kcalloc(1, sizeof(struct mali_soft_job_system), GFP_KERNEL);
 	if (NULL == system) {
 		return NULL;
 	}
@@ -83,7 +83,7 @@ void mali_soft_job_system_destroy(struct mali_soft_job_system *system)
 		if (NULL != system->lock) {
 			_mali_osk_spinlock_irq_term(system->lock);
 		}
-		_mali_osk_free(system);
+		kfree(system);
 	}
 }
 
@@ -101,7 +101,7 @@ static void mali_soft_job_system_free_job(struct mali_soft_job_system *system, s
 
 	mali_soft_job_system_unlock(job->system);
 
-	_mali_osk_free(job);
+	kfree(job);
 }
 
 MALI_STATIC_INLINE struct mali_soft_job *mali_soft_job_system_lookup_job(struct mali_soft_job_system *system, u32 job_id)
@@ -155,7 +155,7 @@ struct mali_soft_job *mali_soft_job_create(struct mali_soft_job_system *system, 
 		return NULL;
 	}
 
-	job = _mali_osk_malloc(sizeof(struct mali_soft_job));
+	job = kmalloc(sizeof(struct mali_soft_job), GFP_KERNEL);
 	if (unlikely(NULL == job)) {
 		MALI_DEBUG_PRINT(2, ("Mali Soft Job: system alloc job failed. \n"));
 		return NULL;
