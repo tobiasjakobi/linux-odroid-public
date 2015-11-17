@@ -22,6 +22,14 @@ MALI_PP_SCHEDULER_FORCE_NO_JOB_OVERLAP_BETWEEN_APPS ?= 0
 MALI_UPPER_HALF_SCHEDULING ?= 1
 MALI_ENABLE_CPU_CYCLES ?= 0
 
+ifneq ($(CONFIG_MALI_TARGET_PLATFORM),)
+    MALI_PLATFORM = $(patsubst "%",%,$(CONFIG_MALI_TARGET_PLATFORM))
+else
+    $(error No Mali target platform selected)
+endif
+
+MALI_PLATFORM_FILES = $(notdir $(wildcard $(src)/platform/$(MALI_PLATFORM)/*.c))
+
 # For customer releases the Linux Device Drivers will be provided as ARM proprietary and GPL releases:
 # The ARM proprietary product will only include the license/proprietary directory
 # The GPL product will only include the license/gpl directory
@@ -111,7 +119,7 @@ mali-y += \
 	__malidrv_build_info.o
 
 ifneq ($(MALI_PLATFORM_FILES),)
-	mali-y += $(MALI_PLATFORM_FILES:.c=.o)
+    mali-y += $(addprefix platform/$(MALI_PLATFORM)/,$(MALI_PLATFORM_FILES:.c=.o))
 endif
 
 mali-$(CONFIG_MALI400_PROFILING) += linux/mali_ukk_profiling.o

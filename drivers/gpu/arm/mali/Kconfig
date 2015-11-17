@@ -9,6 +9,13 @@ config MALI400
 	  To compile this driver as a module, choose M here: the module will be
 	  called mali.
 
+config MALI_TARGET_PLATFORM
+	string "Mali target platform"
+	default "exynos4412"
+	depends on MALI400
+	---help---
+	  This select the target platform for the Mali driver.
+
 config MALI450
 	bool "Enable Mali-450 support"
 	depends on MALI400
