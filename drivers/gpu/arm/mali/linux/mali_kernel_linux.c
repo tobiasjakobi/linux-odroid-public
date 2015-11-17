@@ -158,10 +158,8 @@ static int mali_driver_runtime_resume(struct device *dev);
 static int mali_driver_runtime_idle(struct device *dev);
 #endif
 
-#if defined(MALI_FAKE_PLATFORM_DEVICE)
 extern int mali_platform_device_init(struct platform_device *device);
 extern int mali_platform_device_deinit(struct platform_device *device);
-#endif
 
 /* Linux power management operations provided by the Mali device driver */
 

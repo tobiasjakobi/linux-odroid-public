@@ -92,11 +92,6 @@ export CONFIG_MALI450=y
 export EXTRA_DEFINES += -DCONFIG_MALI400=1
 export EXTRA_DEFINES += -DCONFIG_MALI450=1
 
-ifneq ($(MALI_PLATFORM),)
-export EXTRA_DEFINES += -DMALI_FAKE_PLATFORM_DEVICE=1
-export MALI_PLATFORM_FILES = $(wildcard platform/$(MALI_PLATFORM)/*.c)
-endif
-
 ifeq ($(USING_PROFILING),1)
 ifeq ($(CONFIG_TRACEPOINTS),)
 $(warning CONFIG_TRACEPOINTS required for profiling)
