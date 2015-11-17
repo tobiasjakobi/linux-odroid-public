@@ -931,14 +931,20 @@ u64 _mali_osk_boot_time_get_ns(void);
  * @param val 32-bit words to count leading zeros on
  * @return the number of leading zeros.
  */
-u32 _mali_osk_clz(u32 val);
+static inline u32 _mali_osk_clz(u32 input)
+{
+	return 32 - fls(input);
+}
 
 /** @brief find last (most-significant) bit set
  *
  * @param val 32-bit words to count last bit set on
  * @return last bit set.
  */
-u32 _mali_osk_fls(u32 val);
+static inline u32 _mali_osk_fls(u32 input)
+{
+	return fls(input);
+}
 
 /** @} */ /* end group _mali_osk_math */
 
