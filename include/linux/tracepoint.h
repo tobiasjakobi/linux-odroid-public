@@ -136,18 +136,7 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 #define TP_ARGS(args...)	args
 #define TP_CONDITION(args...)	args
 
-/*
- * Individual subsystem my have a separate configuration to
- * enable their tracepoints. By default, this file will create
- * the tracepoints if CONFIG_TRACEPOINT is defined. If a subsystem
- * wants to be able to disable its tracepoints from being created
- * it can define NOTRACE before including the tracepoint headers.
- */
-#if defined(CONFIG_TRACEPOINTS) && !defined(NOTRACE)
-#define TRACEPOINTS_ENABLED
-#endif
-
-#ifdef TRACEPOINTS_ENABLED
+#ifdef CONFIG_TRACEPOINTS
 
 /*
  * it_func[0] is never NULL because there is at least one element in the array
@@ -294,7 +283,7 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 #define EXPORT_TRACEPOINT_SYMBOL(name)					\
 	EXPORT_SYMBOL(__tracepoint_##name)
 
-#else /* !TRACEPOINTS_ENABLED */
+#else /* !CONFIG_TRACEPOINTS */
 #define __DECLARE_TRACE(name, proto, args, cond, data_proto, data_args) \
 	static inline void trace_##name(proto)				\
 	{ }								\
@@ -326,7 +315,7 @@ static inline struct tracepoint *tracepoint_ptr_deref(tracepoint_ptr_t *p)
 #define EXPORT_TRACEPOINT_SYMBOL_GPL(name)
 #define EXPORT_TRACEPOINT_SYMBOL(name)
 
-#endif /* TRACEPOINTS_ENABLED */
+#endif /* CONFIG_TRACEPOINTS */
 
 #ifdef CONFIG_TRACING
 /**
