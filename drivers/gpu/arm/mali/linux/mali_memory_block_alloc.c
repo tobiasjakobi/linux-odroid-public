@@ -298,12 +298,6 @@ _mali_osk_errcode_t mali_memory_core_resource_dedicated_memory(u32 start, u32 si
 
 	/* Do the low level linux operation first */
 
-	/* Request ownership of the memory */
-	if (_MALI_OSK_ERR_OK != _mali_osk_mem_reqregion(start, size, "Dedicated Mali GPU memory")) {
-		MALI_DEBUG_PRINT(1, ("Failed to request memory region for frame buffer (0x%08X - 0x%08X)\n", start, start + size - 1));
-		return _MALI_OSK_ERR_FAULT;
-	}
-
 	/* Create generic block allocator object to handle it */
 	allocator = mali_mem_block_allocator_create(start, 0 /* cpu_usage_adjust */, size);
 

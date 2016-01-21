@@ -31,11 +31,6 @@ void _mali_osk_mem_unmapioregion(uintptr_t phys, u32 size, mali_io_address virt)
 	iounmap((void *)virt);
 }
 
-_mali_osk_errcode_t inline _mali_osk_mem_reqregion(uintptr_t phys, u32 size, const char *description)
-{
-	return _MALI_OSK_ERR_OK; /* GPL driver gets the mem region for the resources registered automatically */
-}
-
 void inline _mali_osk_mem_iowrite32_relaxed(volatile mali_io_address addr, u32 offset, u32 val)
 {
 	__raw_writel(cpu_to_le32(val), ((u8 *)addr) + offset);

@@ -401,26 +401,6 @@ mali_io_address _mali_osk_mem_allocioregion(u32 *phys, u32 size);
  */
 void _mali_osk_mem_freeioregion(u32 phys, u32 size, mali_io_address mapping);
 
-/** @brief Request a region of physically contiguous memory
- *
- * This is used to ensure exclusive access to a region of physically contigous
- * memory.
- *
- * It is acceptable to implement this as a stub. However, it is then the job
- * of the System Integrator to ensure that no other device driver will be using
- * the physical address ranges used by Mali, while the Mali device driver is
- * loaded.
- *
- * @param phys CPU-physical base address of the memory to request. This must
- * be aligned to the system's page size, which is assumed to be 4K.
- * @param size the number of bytes of physically contiguous address space to
- * request.
- * @param description A textual description of the memory being requested.
- * @return _MALI_OSK_ERR_OK on success. Otherwise, a suitable
- * _mali_osk_errcode_t on failure.
- */
-_mali_osk_errcode_t _mali_osk_mem_reqregion(uintptr_t phys, u32 size, const char *description);
-
 /** @brief Read from a location currently mapped in through
  * _mali_osk_mem_mapioregion
  *
