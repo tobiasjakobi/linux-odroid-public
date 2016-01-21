@@ -13,6 +13,8 @@
 #include "mali_kernel_common.h"
 #include "mali_osk_mali.h"
 
+#include <asm/io.h>
+
 _mali_osk_errcode_t mali_hw_core_create(struct mali_hw_core *core, const _mali_osk_resource_t *resource, u32 reg_size)
 {
 	core->phys_addr = resource->base;
@@ -22,7 +24,7 @@ _mali_osk_errcode_t mali_hw_core_create(struct mali_hw_core *core, const _mali_o
 
 	MALI_DEBUG_ASSERT(core->phys_offset < core->phys_addr);
 
-	core->mapped_registers = _mali_osk_mem_mapioregion(core->phys_addr, core->size, core->description);
+	core->mapped_registers = (mali_io_address)ioremap_nocache(core->phys_addr, core->size);
 	if (NULL != core->mapped_registers) {
 		return _MALI_OSK_ERR_OK;
 	} else {
@@ -35,7 +37,7 @@ _mali_osk_errcode_t mali_hw_core_create(struct mali_hw_core *core, const _mali_o
 void mali_hw_core_delete(struct mali_hw_core *core)
 {
 	if (NULL != core->mapped_registers) {
-		_mali_osk_mem_unmapioregion(core->phys_addr, core->size, core->mapped_registers);
+		iounmap((void*)core->mapped_registers);
 		core->mapped_registers = NULL;
 	}
 }

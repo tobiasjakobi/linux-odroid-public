@@ -21,16 +21,6 @@
 #include "mali_osk.h"
 #include "mali_ukk.h"
 
-mali_io_address _mali_osk_mem_mapioregion(uintptr_t phys, u32 size, const char *description)
-{
-	return (mali_io_address)ioremap_nocache(phys, size);
-}
-
-void _mali_osk_mem_unmapioregion(uintptr_t phys, u32 size, mali_io_address virt)
-{
-	iounmap((void *)virt);
-}
-
 void inline _mali_osk_mem_iowrite32_relaxed(volatile mali_io_address addr, u32 offset, u32 val)
 {
 	__raw_writel(cpu_to_le32(val), ((u8 *)addr) + offset);

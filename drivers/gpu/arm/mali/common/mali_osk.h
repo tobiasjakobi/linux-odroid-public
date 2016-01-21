@@ -313,45 +313,6 @@ void _mali_osk_irq_term(_mali_osk_irq_t *irq);
 /** @addtogroup _mali_osk_low_level_memory
  * @{ */
 
-/** @brief Map a physically contiguous region into kernel space
- *
- * This is primarily used for mapping in registers from resources, and Mali-MMU
- * page tables. The mapping is only visable from kernel-space.
- *
- * Access has to go through _mali_osk_mem_ioread32 and _mali_osk_mem_iowrite32
- *
- * @param phys CPU-physical base address of the memory to map in. This must
- * be aligned to the system's page size, which is assumed to be 4K.
- * @param size the number of bytes of physically contiguous address space to
- * map in
- * @param description A textual description of the memory being mapped in.
- * @return On success, a Mali IO address through which the mapped-in
- * memory/registers can be accessed. NULL on failure.
- */
-mali_io_address _mali_osk_mem_mapioregion(uintptr_t phys, u32 size, const char *description);
-
-/** @brief Unmap a physically contiguous address range from kernel space.
- *
- * The address range should be one previously mapped in through
- * _mali_osk_mem_mapioregion.
- *
- * It is a programming error to do (but not limited to) the following:
- * - attempt an unmap twice
- * - unmap only part of a range obtained through _mali_osk_mem_mapioregion
- * - unmap more than the range obtained through  _mali_osk_mem_mapioregion
- * - unmap an address range that was not successfully mapped using
- * _mali_osk_mem_mapioregion
- * - provide a mapping that does not map to phys.
- *
- * @param phys CPU-physical base address of the memory that was originally
- * mapped in. This must be aligned to the system's page size, which is assumed
- * to be 4K
- * @param size The number of bytes that were originally mapped in.
- * @param mapping The Mali IO address through which the mapping is
- * accessed.
- */
-void _mali_osk_mem_unmapioregion(uintptr_t phys, u32 size, mali_io_address mapping);
-
 /** @brief Allocate and Map a physically contiguous region into kernel space
  *
  * This is used for allocating physically contiguous regions (such as Mali-MMU
