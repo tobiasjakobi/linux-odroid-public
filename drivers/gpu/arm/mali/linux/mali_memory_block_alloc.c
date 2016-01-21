@@ -309,7 +309,6 @@ _mali_osk_errcode_t mali_memory_core_resource_dedicated_memory(u32 start, u32 si
 
 	if (NULL == allocator) {
 		MALI_DEBUG_PRINT(1, ("Memory bank registration failed\n"));
-		_mali_osk_mem_unreqregion(start, size);
 		MALI_ERROR(_MALI_OSK_ERR_FAULT);
 	}
 

@@ -435,26 +435,6 @@ void _mali_osk_mem_freeioregion(u32 phys, u32 size, mali_io_address mapping);
  */
 _mali_osk_errcode_t _mali_osk_mem_reqregion(uintptr_t phys, u32 size, const char *description);
 
-/** @brief Un-request a region of physically contiguous memory
- *
- * This is used to release a regious of physically contiguous memory previously
- * requested through _mali_osk_mem_reqregion, so that other device drivers may
- * use it. This will be called at time of Mali device driver termination.
- *
- * It is a programming error to attempt to:
- * - unrequest a region twice
- * - unrequest only part of a range obtained through _mali_osk_mem_reqregion
- * - unrequest more than the range obtained through  _mali_osk_mem_reqregion
- * - unrequest an address range that was not successfully requested using
- * _mali_osk_mem_reqregion
- *
- * @param phys CPU-physical base address of the memory to un-request. This must
- * be aligned to the system's page size, which is assumed to be 4K
- * @param size the number of bytes of physically contiguous address space to
- * un-request.
- */
-void _mali_osk_mem_unreqregion(uintptr_t phys, u32 size);
-
 /** @brief Read from a location currently mapped in through
  * _mali_osk_mem_mapioregion
  *

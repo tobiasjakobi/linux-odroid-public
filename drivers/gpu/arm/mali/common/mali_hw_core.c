@@ -29,7 +29,6 @@ _mali_osk_errcode_t mali_hw_core_create(struct mali_hw_core *core, const _mali_o
 		} else {
 			MALI_PRINT_ERROR(("Failed to map memory region for core %s at phys_addr 0x%08X\n", core->description, core->phys_addr));
 		}
-		_mali_osk_mem_unreqregion(core->phys_addr, core->size);
 	} else {
 		MALI_PRINT_ERROR(("Failed to request memory region for core %s at phys_addr 0x%08X\n", core->description, core->phys_addr));
 	}
@@ -43,5 +42,4 @@ void mali_hw_core_delete(struct mali_hw_core *core)
 		_mali_osk_mem_unmapioregion(core->phys_addr, core->size, core->mapped_registers);
 		core->mapped_registers = NULL;
 	}
-	_mali_osk_mem_unreqregion(core->phys_addr, core->size);
 }
