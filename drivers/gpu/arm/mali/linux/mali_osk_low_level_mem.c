@@ -51,11 +51,6 @@ void inline _mali_osk_mem_iowrite32(volatile mali_io_address addr, u32 offset, u
 	iowrite32(val, ((u8 *)addr) + offset);
 }
 
-void _mali_osk_cache_ensure_uncached_range_flushed(void *uncached_mapping, u32 offset, u32 size)
-{
-	wmb();
-}
-
 u32 _mali_osk_mem_write_safe(void __user *dest, const void __user *src, u32 size)
 {
 #define MALI_MEM_SAFE_COPY_BLOCK_SIZE 4096

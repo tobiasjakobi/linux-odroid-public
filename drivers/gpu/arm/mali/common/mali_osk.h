@@ -463,17 +463,6 @@ void _mali_osk_mem_iowrite32_relaxed(volatile mali_io_address addr, u32 offset, 
  */
 void _mali_osk_mem_iowrite32(volatile mali_io_address mapping, u32 offset, u32 val);
 
-/** @brief Flush any caches necessary for the CPU and MALI to have the same view of a range of uncached mapped memory
- *
- * This should only be implemented if your OS doesn't do a full cache flush (inner & outer)
- * after allocating uncached mapped memory.
- *
- * Some OS do not perform a full cache flush (including all outer caches) for uncached mapped memory.
- * They zero the memory through a cached mapping, then flush the inner caches but not the outer caches.
- * This is required for MALI to have the correct view of the memory.
- */
-void _mali_osk_cache_ensure_uncached_range_flushed(void *uncached_mapping, u32 offset, u32 size);
-
 /** @brief Safely copy as much data as possible from src to dest
  *
  * Do not crash if src or dest isn't available.
