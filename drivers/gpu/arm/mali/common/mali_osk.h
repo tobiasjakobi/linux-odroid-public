@@ -20,10 +20,6 @@
 #include "mali_osk_specific.h"           /* include any per-os specifics */
 #include "mali_osk_locks.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * @addtogroup uddapi Unified Device Driver (UDD) APIs
  *
@@ -1117,10 +1113,6 @@ void _mali_osk_pm_dev_barrier(void);
 /** @} */ /* end group uddapi */
 
 
-
-#ifdef __cplusplus
-}
-#endif
 
 /* Check standard inlines */
 #ifndef MALI_STATIC_INLINE

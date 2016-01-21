@@ -11,10 +11,6 @@
 #ifndef __MALI_USER_SETTINGS_DB_H__
 #define __MALI_USER_SETTINGS_DB_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "mali_uk_types.h"
 
 /** @brief Set Mali user setting in DB
@@ -33,7 +29,4 @@ void mali_set_user_setting(_mali_uk_user_setting_t setting, u32 value);
  */
 u32 mali_get_user_setting(_mali_uk_user_setting_t setting);
 
-#ifdef __cplusplus
-}
-#endif
 #endif  /* __MALI_KERNEL_USER_SETTING__ */

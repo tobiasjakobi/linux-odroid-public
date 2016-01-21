@@ -16,10 +16,6 @@
 #ifndef __MALI_OSK_TYPES_H__
 #define __MALI_OSK_TYPES_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * @addtogroup uddapi Unified Device Driver (UDD) APIs
  *
@@ -427,9 +423,5 @@ typedef struct _mali_osk_wait_queue_t_struct _mali_osk_wait_queue_t;
 /** @brief Mali print ctx type which uses seq_file
   */
 typedef struct seq_file _mali_osk_print_ctx;
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* __MALI_OSK_TYPES_H__ */

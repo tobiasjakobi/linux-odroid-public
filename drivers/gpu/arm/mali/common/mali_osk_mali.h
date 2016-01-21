@@ -19,10 +19,6 @@
 #include <linux/mali/mali_utgard.h>
 #include <mali_osk.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /** @addtogroup _mali_osk_miscellaneous
  * @{ */
 
@@ -83,9 +79,5 @@ u32 _mali_osk_get_pmu_switch_delay(void);
 mali_bool _mali_osk_shared_interrupts(void);
 
 /** @} */ /* end group _mali_osk_miscellaneous */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* __MALI_OSK_MALI_H__ */

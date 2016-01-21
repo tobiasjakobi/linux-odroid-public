@@ -19,10 +19,6 @@
 #include "mali_osk.h"
 #include "mali_kernel_common.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 MALI_STATIC_INLINE void __mali_osk_list_add(_mali_osk_list_t *new_entry, _mali_osk_list_t *prev, _mali_osk_list_t *next)
 {
 	next->prev = new_entry;
@@ -265,9 +261,5 @@ MALI_STATIC_INLINE void _mali_osk_list_move_list(_mali_osk_list_t *old_list, _ma
 	     tmp = _MALI_OSK_LIST_ENTRY(tmp->member.prev, type, member))
 
 /** @} */ /* end group _mali_osk_list */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* __MALI_OSK_LIST_H__ */

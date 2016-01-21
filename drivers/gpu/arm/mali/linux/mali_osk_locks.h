@@ -23,10 +23,6 @@
 
 #include "mali_osk_types.h"
 
-#ifdef _cplusplus
-extern "C" {
-#endif
-
 	/* When DEBUG is enabled, this struct will be used to track owner, mode and order checking */
 #ifdef DEBUG
 	struct _mali_osk_lock_debug_s {
@@ -318,9 +314,5 @@ extern "C" {
 		/* Linux requires no explicit termination of spinlocks, semaphores, or rw_semaphores */
 		kfree(lock);
 	}
-
-#ifdef _cplusplus
-}
-#endif
 
 #endif

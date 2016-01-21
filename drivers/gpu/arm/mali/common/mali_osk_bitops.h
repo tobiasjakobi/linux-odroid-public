@@ -16,10 +16,6 @@
 #ifndef __MALI_OSK_BITOPS_H__
 #define __MALI_OSK_BITOPS_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 MALI_STATIC_INLINE void _mali_internal_clear_bit(u32 bit, u32 *addr)
 {
 	MALI_DEBUG_ASSERT(bit < 32);
@@ -154,9 +150,5 @@ MALI_STATIC_INLINE u32 _mali_osk_find_first_zero_bit(const u32 *addr, u32 maxbit
 	return total; /* either the found bit nr, or maxbit if not found */
 }
 /** @} */ /* end group _mali_osk_bitops */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* __MALI_OSK_BITOPS_H__ */

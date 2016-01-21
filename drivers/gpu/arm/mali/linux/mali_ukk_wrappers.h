@@ -19,10 +19,6 @@
 #include "mali_uk_types.h"
 #include "mali_osk.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 int wait_for_notification_wrapper(struct mali_session_data *session_data, _mali_uk_wait_for_notification_s __user *uargs);
 int get_api_version_wrapper(struct mali_session_data *session_data, _mali_uk_get_api_version_s __user *uargs);
 int get_api_version_v2_wrapper(struct mali_session_data *session_data, _mali_uk_get_api_version_v2_s __user *uargs);
@@ -60,9 +56,5 @@ int vsync_event_report_wrapper(struct mali_session_data *session_data, _mali_uk_
 
 
 int map_errcode(_mali_osk_errcode_t err);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* __MALI_UKK_WRAPPERS_H__ */

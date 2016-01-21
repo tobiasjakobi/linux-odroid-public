@@ -19,10 +19,6 @@
 #include "mali_osk.h"
 #include "mali_uk_types.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * @addtogroup uddapi Unified Device Driver (UDD) APIs
  *
@@ -545,9 +541,5 @@ u32 _mali_ukk_utilization_gp_pp(void);
 u32 _mali_ukk_utilization_gp(void);
 
 u32 _mali_ukk_utilization_pp(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* __MALI_UKK_H__ */

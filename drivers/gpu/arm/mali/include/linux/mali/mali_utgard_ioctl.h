@@ -15,10 +15,6 @@
 #include <linux/ioctl.h>
 #include <linux/fs.h>       /* file system operations */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * @file mali_kernel_ioctl.h
  * Interface to the Linux device driver.
@@ -76,9 +72,5 @@ extern "C" {
 #define MALI_IOC_PROFILING_MEMORY_USAGE_GET _IOR(MALI_IOC_PROFILING_BASE, _MALI_UK_PROFILING_MEMORY_USAGE_GET, _mali_uk_profiling_memory_usage_get_s)
 
 #define MALI_IOC_VSYNC_EVENT_REPORT         _IOW (MALI_IOC_VSYNC_BASE, _MALI_UK_VSYNC_EVENT_REPORT, _mali_uk_vsync_event_report_s)
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* __MALI_UTGARD_IOCTL_H__ */

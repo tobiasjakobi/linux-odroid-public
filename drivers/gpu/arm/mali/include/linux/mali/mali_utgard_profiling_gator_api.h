@@ -11,10 +11,6 @@
 #ifndef __MALI_UTGARD_PROFILING_GATOR_API_H__
 #define __MALI_UTGARD_PROFILING_GATOR_API_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define MALI_PROFILING_API_VERSION 4
 
 #define MAX_NUM_L2_CACHE_CORES 3
@@ -189,9 +185,5 @@ int _mali_profiling_set_event(u32 counter_id, s32 event_id);
 u32 _mali_profiling_get_api_version(void);
 
 void _mali_profiling_get_mali_version(struct _mali_profiling_mali_version *values);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* __MALI_UTGARD_PROFILING_GATOR_API_H__ */

@@ -11,17 +11,9 @@
 #ifndef __MALI_KERNEL_LINUX_H__
 #define __MALI_KERNEL_LINUX_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <linux/cdev.h>     /* character device definitions */
 #include "mali_osk_types.h"
 
 extern struct platform_device *mali_platform_device;
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* __MALI_KERNEL_LINUX_H__ */
