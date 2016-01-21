@@ -477,13 +477,6 @@ void _mali_osk_mem_iowrite32_relaxed(volatile mali_io_address addr, u32 offset, 
  */
 void _mali_osk_mem_iowrite32(volatile mali_io_address mapping, u32 offset, u32 val);
 
-/** @brief Flush all CPU caches
- *
- * This should only be implemented if flushing of the cache is required for
- * memory mapped in through _mali_osk_mem_mapregion.
- */
-void _mali_osk_cache_flushall(void);
-
 /** @brief Flush any caches necessary for the CPU and MALI to have the same view of a range of uncached mapped memory
  *
  * This should only be implemented if your OS doesn't do a full cache flush (inner & outer)

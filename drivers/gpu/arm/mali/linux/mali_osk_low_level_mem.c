@@ -61,11 +61,6 @@ void inline _mali_osk_mem_iowrite32(volatile mali_io_address addr, u32 offset, u
 	iowrite32(val, ((u8 *)addr) + offset);
 }
 
-void _mali_osk_cache_flushall(void)
-{
-	/** @note Cached memory is not currently supported in this implementation */
-}
-
 void _mali_osk_cache_ensure_uncached_range_flushed(void *uncached_mapping, u32 offset, u32 size)
 {
 	_mali_osk_write_mem_barrier();
