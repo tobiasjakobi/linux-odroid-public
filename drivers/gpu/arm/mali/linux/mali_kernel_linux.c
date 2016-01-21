@@ -19,7 +19,6 @@
 #include <linux/mali/mali_utgard_ioctl.h>
 #include <linux/version.h>
 #include <linux/device.h>
-#include "mali_kernel_license.h"
 #include <linux/platform_device.h>
 #include <linux/miscdevice.h>
 #include <linux/bug.h>
@@ -35,7 +34,6 @@
 #include "mali_ukk_wrappers.h"
 #include "mali_kernel_sysfs.h"
 #include "mali_pm.h"
-#include "mali_kernel_license.h"
 #include "mali_memory.h"
 #include "mali_memory_dma_buf.h"
 #if defined(CONFIG_MALI400_INTERNAL_PROFILING)
@@ -864,6 +862,6 @@ static int mali_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, 
 module_init(mali_module_init);
 module_exit(mali_module_exit);
 
-MODULE_LICENSE(MALI_KERNEL_LINUX_LICENSE);
+MODULE_LICENSE("GPL");
 MODULE_AUTHOR("ARM Ltd.");
 MODULE_VERSION(SVN_REV_STRING);

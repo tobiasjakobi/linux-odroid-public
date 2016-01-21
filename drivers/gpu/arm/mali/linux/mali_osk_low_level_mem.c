@@ -43,19 +43,10 @@ void _mali_osk_mem_unmapioregion(uintptr_t phys, u32 size, mali_io_address virt)
 
 _mali_osk_errcode_t inline _mali_osk_mem_reqregion(uintptr_t phys, u32 size, const char *description)
 {
-#if MALI_LICENSE_IS_GPL
 	return _MALI_OSK_ERR_OK; /* GPL driver gets the mem region for the resources registered automatically */
-#else
-	return ((NULL == request_mem_region(phys, size, description)) ? _MALI_OSK_ERR_NOMEM : _MALI_OSK_ERR_OK);
-#endif
 }
 
-void inline _mali_osk_mem_unreqregion(uintptr_t phys, u32 size)
-{
-#if !MALI_LICENSE_IS_GPL
-	release_mem_region(phys, size);
-#endif
-}
+void inline _mali_osk_mem_unreqregion(uintptr_t phys, u32 size) {}
 
 void inline _mali_osk_mem_iowrite32_relaxed(volatile mali_io_address addr, u32 offset, u32 val)
 {

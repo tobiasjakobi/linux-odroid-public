@@ -16,7 +16,6 @@ extern "C" {
 #endif
 
 #include <linux/cdev.h>     /* character device definitions */
-#include "mali_kernel_license.h"
 #include "mali_osk_types.h"
 
 extern struct platform_device *mali_platform_device;

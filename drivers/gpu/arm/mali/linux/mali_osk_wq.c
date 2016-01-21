@@ -20,7 +20,6 @@
 
 #include "mali_osk.h"
 #include "mali_kernel_common.h"
-#include "mali_kernel_license.h"
 #include "mali_kernel_linux.h"
 
 typedef struct _mali_osk_wq_work_s {
@@ -36,16 +35,13 @@ typedef struct _mali_osk_wq_delayed_work_s {
 	struct delayed_work work;
 } mali_osk_wq_delayed_work_object_t;
 
-#if MALI_LICENSE_IS_GPL
 static struct workqueue_struct *mali_wq_normal = NULL;
 static struct workqueue_struct *mali_wq_high = NULL;
-#endif
 
 static void _mali_osk_wq_work_func(struct work_struct *work);
 
 _mali_osk_errcode_t _mali_osk_wq_init(void)
 {
-#if MALI_LICENSE_IS_GPL
 	MALI_DEBUG_ASSERT(NULL == mali_wq_normal);
 	MALI_DEBUG_ASSERT(NULL == mali_wq_high);
 
@@ -63,24 +59,18 @@ _mali_osk_errcode_t _mali_osk_wq_init(void)
 
 		return _MALI_OSK_ERR_FAULT;
 	}
-#endif /* MALI_LICENSE_IS_GPL */
 
 	return _MALI_OSK_ERR_OK;
 }
 
 void _mali_osk_wq_flush(void)
 {
-#if MALI_LICENSE_IS_GPL
 	flush_workqueue(mali_wq_high);
 	flush_workqueue(mali_wq_normal);
-#else
-	flush_scheduled_work();
-#endif
 }
 
 void _mali_osk_wq_term(void)
 {
-#if MALI_LICENSE_IS_GPL
 	MALI_DEBUG_ASSERT(NULL != mali_wq_normal);
 	MALI_DEBUG_ASSERT(NULL != mali_wq_high);
 
@@ -92,9 +82,6 @@ void _mali_osk_wq_term(void)
 
 	mali_wq_normal = NULL;
 	mali_wq_high   = NULL;
-#else
-	flush_scheduled_work();
-#endif
 }
 
 _mali_osk_wq_work_t *_mali_osk_wq_create_work(_mali_osk_wq_work_handler_t handler, void *data)
@@ -143,21 +130,13 @@ void _mali_osk_wq_delete_work_nonflush(_mali_osk_wq_work_t *work)
 void _mali_osk_wq_schedule_work(_mali_osk_wq_work_t *work)
 {
 	mali_osk_wq_work_object_t *work_object = (mali_osk_wq_work_object_t *)work;
-#if MALI_LICENSE_IS_GPL
 	queue_work(mali_wq_normal, &work_object->work_handle);
-#else
-	schedule_work(&work_object->work_handle);
-#endif
 }
 
 void _mali_osk_wq_schedule_work_high_pri(_mali_osk_wq_work_t *work)
 {
 	mali_osk_wq_work_object_t *work_object = (mali_osk_wq_work_object_t *)work;
-#if MALI_LICENSE_IS_GPL
 	queue_work(mali_wq_high, &work_object->work_handle);
-#else
-	schedule_work(&work_object->work_handle);
-#endif
 }
 
 static void _mali_osk_wq_work_func(struct work_struct *work)
@@ -213,10 +192,5 @@ void _mali_osk_wq_delayed_schedule_work(_mali_osk_wq_delayed_work_t *work, u32 d
 {
 	mali_osk_wq_delayed_work_object_t *work_object = (mali_osk_wq_delayed_work_object_t *)work;
 
-#if MALI_LICENSE_IS_GPL
 	queue_delayed_work(mali_wq_normal, &work_object->work, delay);
-#else
-	schedule_delayed_work(&work_object->work, delay);
-#endif
-
 }

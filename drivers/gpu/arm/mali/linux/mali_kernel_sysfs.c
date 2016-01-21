@@ -18,11 +18,8 @@
 #include <linux/fs.h>
 #include <linux/device.h>
 #include <linux/module.h>
-#include "mali_kernel_license.h"
 #include "mali_kernel_common.h"
 #include "mali_ukk.h"
-
-#if MALI_LICENSE_IS_GPL
 
 #include <linux/seq_file.h>
 #include <linux/debugfs.h>
@@ -566,7 +563,6 @@ static int mali_seq_internal_state_show(struct seq_file *seq_file, void *v)
 
 	/* Create the internal state dump. */
 	len  = snprintf(buf + len, size - len, "Mali device driver %s\n", SVN_REV_STRING);
-	len += snprintf(buf + len, size - len, "License: %s\n\n", MALI_KERNEL_LINUX_LICENSE);
 
 	len += _mali_kernel_core_dump_state(buf + len, size - len);
 
@@ -1382,19 +1378,3 @@ int mali_sysfs_unregister(void)
 	}
 	return 0;
 }
-
-#else /* MALI_LICENSE_IS_GPL */
-
-/* Dummy implementations for non-GPL */
-
-int mali_sysfs_register(struct mali_dev *device, dev_t dev, const char *mali_dev_name)
-{
-	return 0;
-}
-
-int mali_sysfs_unregister(void)
-{
-	return 0;
-}
-
-#endif /* MALI_LICENSE_IS_GPL */
