@@ -109,7 +109,7 @@ static _mali_osk_errcode_t fill_page(mali_io_address mapping, u32 data)
 	for (i = 0; i < MALI_MMU_PAGE_SIZE / 4; i++) {
 		_mali_osk_mem_iowrite32_relaxed(mapping, i * sizeof(u32), data);
 	}
-	_mali_osk_mem_barrier();
+	mb();
 	MALI_SUCCESS;
 }
 
@@ -149,7 +149,7 @@ _mali_osk_errcode_t mali_mmu_pagedir_map(struct mali_page_directory *pagedir, u3
 			pagedir->page_entries_usage_count[i]++;
 		}
 	}
-	_mali_osk_write_mem_barrier();
+	wmb();
 
 	return _MALI_OSK_ERR_OK;
 }
@@ -230,7 +230,7 @@ _mali_osk_errcode_t mali_mmu_pagedir_unmap(struct mali_page_directory *pagedir, 
 		left -= size_in_pde;
 		mali_address += size_in_pde;
 	}
-	_mali_osk_write_mem_barrier();
+	wmb();
 
 	/* L2 pages invalidation */
 	if (MALI_TRUE == pd_changed) {
@@ -293,7 +293,7 @@ void mali_mmu_pagedir_free(struct mali_page_directory *pagedir)
 			mali_mmu_release_table_page(phys, pagedir->page_entries_mapped[i]);
 		}
 	}
-	_mali_osk_write_mem_barrier();
+	wmb();
 
 	/* Free the page directory page. */
 	mali_mmu_release_table_page(pagedir->page_directory, pagedir->page_directory_mapped);

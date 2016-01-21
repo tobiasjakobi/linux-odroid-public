@@ -227,7 +227,7 @@ void mali_gp_job_start(struct mali_gp_core *core, struct mali_gp_job *job)
 	mali_hw_core_register_write_relaxed(&core->hw_core, MALIGP2_REG_ADDR_MGMT_CMD, MALIGP2_REG_VAL_CMD_UPDATE_PLBU_ALLOC);
 
 	/* Barrier to make sure the previous register write is finished */
-	_mali_osk_write_mem_barrier();
+	wmb();
 
 	/* This is the command that starts the core.
 	 *
@@ -251,7 +251,7 @@ void mali_gp_job_start(struct mali_gp_core *core, struct mali_gp_job *job)
 #endif
 
 	/* Barrier to make sure the previous register write is finished */
-	_mali_osk_write_mem_barrier();
+	wmb();
 }
 
 void mali_gp_resume_with_new_heap(struct mali_gp_core *core, u32 start_addr, u32 end_addr)
@@ -271,7 +271,7 @@ void mali_gp_resume_with_new_heap(struct mali_gp_core *core, u32 start_addr, u32
 		MALI_DEBUG_PRINT(3, ("Mali GP: Resuming job\n"));
 
 		mali_hw_core_register_write(&core->hw_core, MALIGP2_REG_ADDR_MGMT_CMD, MALIGP2_REG_VAL_CMD_UPDATE_PLBU_ALLOC);
-		_mali_osk_write_mem_barrier();
+		wmb();
 	}
 	/*
 	 * else: core has been reset between PLBU_OUT_OF_MEM interrupt and this new heap response.
@@ -297,7 +297,7 @@ static void mali_gp_irq_probe_trigger(void *data)
 
 	mali_hw_core_register_write(&core->hw_core, MALIGP2_REG_ADDR_MGMT_INT_MASK, MALIGP2_REG_VAL_IRQ_MASK_USED);
 	mali_hw_core_register_write(&core->hw_core, MALIGP2_REG_ADDR_MGMT_INT_RAWSTAT, MALIGP2_REG_VAL_CMD_FORCE_HANG);
-	_mali_osk_mem_barrier();
+	mb();
 }
 
 static _mali_osk_errcode_t mali_gp_irq_probe_ack(void *data)
@@ -308,7 +308,7 @@ static _mali_osk_errcode_t mali_gp_irq_probe_ack(void *data)
 	irq_readout = mali_hw_core_register_read(&core->hw_core, MALIGP2_REG_ADDR_MGMT_INT_STAT);
 	if (MALIGP2_REG_VAL_IRQ_FORCE_HANG & irq_readout) {
 		mali_hw_core_register_write(&core->hw_core, MALIGP2_REG_ADDR_MGMT_INT_CLEAR, MALIGP2_REG_VAL_IRQ_FORCE_HANG);
-		_mali_osk_mem_barrier();
+		mb();
 		return _MALI_OSK_ERR_OK;
 	}
 

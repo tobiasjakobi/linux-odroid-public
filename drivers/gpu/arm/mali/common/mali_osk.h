@@ -313,20 +313,6 @@ void _mali_osk_irq_term(_mali_osk_irq_t *irq);
 /** @addtogroup _mali_osk_low_level_memory
  * @{ */
 
-/** @brief Issue a memory barrier
- *
- * This defines an arbitrary memory barrier operation, which forces an ordering constraint
- * on memory read and write operations.
- */
-void _mali_osk_mem_barrier(void);
-
-/** @brief Issue a write memory barrier
- *
- * This defines an write memory barrier operation which forces an ordering constraint
- * on memory write operations.
- */
-void _mali_osk_write_mem_barrier(void);
-
 /** @brief Map a physically contiguous region into kernel space
  *
  * This is primarily used for mapping in registers from resources, and Mali-MMU

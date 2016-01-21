@@ -369,7 +369,7 @@ void mali_pp_job_start(struct mali_pp_core *core, struct mali_pp_job *job, u32 s
 	MALI_DEBUG_PRINT(3, ("Mali PP: Starting job 0x%08X part %u/%u on PP core %s\n", job, sub_job + 1, mali_pp_job_get_sub_job_count(job), core->hw_core.description));
 
 	/* Adding barrier to make sure all rester writes are finished */
-	_mali_osk_write_mem_barrier();
+	wmb();
 
 	/* This is the command that starts the core.
 	 *
@@ -383,7 +383,7 @@ void mali_pp_job_start(struct mali_pp_core *core, struct mali_pp_job *job, u32 s
 #endif
 
 	/* Adding barrier to make sure previous rester writes is finished */
-	_mali_osk_write_mem_barrier();
+	wmb();
 }
 
 u32 mali_pp_core_get_version(struct mali_pp_core *core)
@@ -412,7 +412,7 @@ static void mali_pp_irq_probe_trigger(void *data)
 	struct mali_pp_core *core = (struct mali_pp_core *)data;
 	mali_hw_core_register_write(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_MASK, MALI200_REG_VAL_IRQ_MASK_USED);
 	mali_hw_core_register_write(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_RAWSTAT, MALI200_REG_VAL_IRQ_FORCE_HANG);
-	_mali_osk_mem_barrier();
+	mb();
 }
 
 static _mali_osk_errcode_t mali_pp_irq_probe_ack(void *data)
@@ -423,7 +423,7 @@ static _mali_osk_errcode_t mali_pp_irq_probe_ack(void *data)
 	irq_readout = mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_STATUS);
 	if (MALI200_REG_VAL_IRQ_FORCE_HANG & irq_readout) {
 		mali_hw_core_register_write(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_CLEAR, MALI200_REG_VAL_IRQ_FORCE_HANG);
-		_mali_osk_mem_barrier();
+		mb();
 		return _MALI_OSK_ERR_OK;
 	}
 

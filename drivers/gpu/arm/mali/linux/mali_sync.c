@@ -295,7 +295,7 @@ void mali_sync_flag_signal(struct mali_sync_flag *flag, int error)
 	MALI_DEBUG_ASSERT(0 == flag->status);
 	flag->status = (0 > error) ? error : 1;
 
-	_mali_osk_write_mem_barrier();
+	wmb();
 
 	sync_timeline_signal(flag->sync_tl);
 }

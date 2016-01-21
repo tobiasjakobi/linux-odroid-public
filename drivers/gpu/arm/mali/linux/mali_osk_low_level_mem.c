@@ -21,16 +21,6 @@
 #include "mali_osk.h"
 #include "mali_ukk.h"
 
-void _mali_osk_mem_barrier(void)
-{
-	mb();
-}
-
-void _mali_osk_write_mem_barrier(void)
-{
-	wmb();
-}
-
 mali_io_address _mali_osk_mem_mapioregion(uintptr_t phys, u32 size, const char *description)
 {
 	return (mali_io_address)ioremap_nocache(phys, size);
@@ -63,7 +53,7 @@ void inline _mali_osk_mem_iowrite32(volatile mali_io_address addr, u32 offset, u
 
 void _mali_osk_cache_ensure_uncached_range_flushed(void *uncached_mapping, u32 offset, u32 size)
 {
-	_mali_osk_write_mem_barrier();
+	wmb();
 }
 
 u32 _mali_osk_mem_write_safe(void __user *dest, const void __user *src, u32 size)
