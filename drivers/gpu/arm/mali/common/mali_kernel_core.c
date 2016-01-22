@@ -140,7 +140,7 @@ static _mali_osk_errcode_t mali_parse_product_info(void)
 					global_product_id = _MALI_PRODUCT_ID_MALI200;
 					MALI_DEBUG_PRINT(2, ("Found Mali GPU Mali-200 r%up%u\n", global_gpu_major_version, global_gpu_minor_version));
 					MALI_PRINT_ERROR(("Mali-200 is not supported by this driver.\n"));
-					_mali_osk_abort();
+					return _MALI_OSK_ERR_FAULT;
 					break;
 				case MALI300_PP_PRODUCT_ID:
 					global_product_id = _MALI_PRODUCT_ID_MALI300;
