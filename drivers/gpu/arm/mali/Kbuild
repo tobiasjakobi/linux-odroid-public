@@ -22,13 +22,16 @@ MALI_PP_SCHEDULER_FORCE_NO_JOB_OVERLAP_BETWEEN_APPS ?= 0
 MALI_UPPER_HALF_SCHEDULING ?= 1
 MALI_ENABLE_CPU_CYCLES ?= 0
 
-ifneq ($(CONFIG_MALI_TARGET_PLATFORM),)
-    MALI_PLATFORM = $(patsubst "%",%,$(CONFIG_MALI_TARGET_PLATFORM))
-else
-    $(error No Mali target platform selected)
-endif
+# Skip inclusion of target platform specific sources when cleaning.
+ifneq ($(PHONY),__clean)
+    ifneq ($(CONFIG_MALI_TARGET_PLATFORM),)
+        MALI_PLATFORM = $(patsubst "%",%,$(CONFIG_MALI_TARGET_PLATFORM))
+    else
+        $(error No Mali target platform selected)
+    endif
 
-MALI_PLATFORM_FILES = $(notdir $(wildcard $(src)/platform/$(MALI_PLATFORM)/*.c))
+    MALI_PLATFORM_FILES = $(notdir $(wildcard $(src)/platform/$(MALI_PLATFORM)/*.c))
+endif
 
 ifeq ($(USING_GPU_UTILIZATION), 1)
     ifeq ($(USING_DVFS), 1)
@@ -102,6 +105,9 @@ mali-y += \
 ifneq ($(MALI_PLATFORM_FILES),)
     mali-y += $(addprefix platform/$(MALI_PLATFORM)/,$(MALI_PLATFORM_FILES:.c=.o))
 endif
+
+# Clean object files from all taget platforms.
+clean-files := $(wildcard $(src)/platform/*/*.o)
 
 mali-$(CONFIG_MALI400_PROFILING) += linux/mali_ukk_profiling.o
 mali-$(CONFIG_MALI400_PROFILING) += linux/mali_osk_profiling.o
