@@ -99,6 +99,7 @@
 #define MXR_CFG_GRP1_ENABLE		(1 << 5)
 #define MXR_CFG_GRP0_ENABLE		(1 << 4)
 #define MXR_CFG_VP_ENABLE		(1 << 3)
+#define MXR_CFG_ENABLE_MASK		(0x7 << 3)
 #define MXR_CFG_SCAN_INTERLACE		(0 << 2)
 #define MXR_CFG_SCAN_PROGRESSIVE	(1 << 2)
 #define MXR_CFG_SCAN_NTSC		(0 << 1)
@@ -153,6 +154,7 @@
 #define MXR_LAYER_CFG_GRP0_MASK		MXR_LAYER_CFG_GRP0_VAL(~0)
 #define MXR_LAYER_CFG_VP_VAL(x)		MXR_MASK_VAL(x, 3, 0)
 #define MXR_LAYER_CFG_VP_MASK		MXR_LAYER_CFG_VP_VAL(~0)
+#define MXR_LAYER_CFG_MASK		0xFFF
 
 /* bits for MXR_CM_COEFF_Y */
 #define MXR_CM_COEFF_RGB_FULL		(1 << 30)
