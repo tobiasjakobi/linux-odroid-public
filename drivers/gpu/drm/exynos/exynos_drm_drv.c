@@ -92,6 +92,8 @@ static const struct drm_ioctl_desc exynos_ioctls[] = {
 			DRM_AUTH),
 	DRM_IOCTL_DEF_DRV(EXYNOS_G2D_GET_VER2, exynos_g2d_get_ver2_ioctl,
 			DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(EXYNOS_G2D_SET_CMDLIST2, exynos_g2d_set_cmdlist2_ioctl,
+			DRM_RENDER_ALLOW),
 	DRM_IOCTL_DEF_DRV(EXYNOS_G2D_EXEC, exynos_g2d_exec_ioctl,
 			DRM_RENDER_ALLOW),
 	DRM_IOCTL_DEF_DRV(EXYNOS_G2D_USERPTR, exynos_g2d_userptr_ioctl,

@@ -2023,7 +2023,7 @@ int exynos_g2d_get_ver2_ioctl(struct drm_device *drm_dev, void *data,
 
 	ver->major = G2D_HW_MAJOR_VER;
 	ver->minor = G2D_HW_MINOR_VER;
-	ver->caps = 0;
+	ver->caps = G2D_CAP_CMDLIST2;
 
 	/*
 	 * We can only properly support userptr functionality when
@@ -2033,6 +2033,147 @@ int exynos_g2d_get_ver2_ioctl(struct drm_device *drm_dev, void *data,
 		ver->caps |= G2D_CAP_USERPTR;
 
 	return 0;
+}
+
+int exynos_g2d_set_cmdlist2_ioctl(struct drm_device *drm_dev, void *data,
+				 struct drm_file *file)
+{
+	struct drm_exynos_file_private *file_priv = file->driver_priv;
+	struct exynos_drm_private *priv = drm_dev->dev_private;
+	struct g2d_data *g2d = dev_get_drvdata(priv->g2d_dev);
+
+	struct drm_exynos_g2d_set_cmdlist2 *req = data;
+	struct g2d_cmdlist_node *node;
+	struct g2d_cmdlist *cmdlist;
+
+	unsigned long size;
+	bool event;
+	int ret;
+
+	node = g2d_get_cmdlist(g2d);
+	if (unlikely(!node))
+		return -ENOMEM;
+
+	/*
+	 * To avoid an integer overflow for the later size computations, we
+	 * enforce a maximum number of submitted commands here. This limit is
+	 * sufficient for all conceivable usage cases of the G2D.
+	 */
+	if (req->cmd_base_nr > G2D_CMDLIST_DATA_NUM ||
+	    req->cmd_nr > G2D_CMDLIST_DATA_NUM) {
+		dev_err(g2d->dev, "number of submitted G2D commands exceeds limit\n");
+		return -EINVAL;
+	}
+
+	event = (req->event_type != G2D_EVENT_NOT);
+
+	g2d_init_node(node);
+
+	cmdlist = node->cmdlist;
+	g2d_cmdlist_prolog(cmdlist, event);
+
+	/* Check if adding incoming commands exceed the size of the cmdlist. */
+	size = cmdlist->last + req->cmd_base_nr * 2 + req->cmd_nr * 2;
+	if (unlikely(size > G2D_CMDLIST_DATA_NUM)) {
+		dev_err(g2d->dev, "cmdlist size %lu is out of bounds %lu\n",
+			size, G2D_CMDLIST_DATA_NUM);
+		ret = -EINVAL;
+		goto err;
+	}
+
+	/* Copy base commands from userspace and validate them. */
+	if (req->cmd_base_nr) {
+		const void __user *cmd;
+
+		cmd = (const void __user *)(unsigned long)req->cmd_base;
+
+		if (unlikely(copy_from_user(cmdlist->data + cmdlist->last,
+					cmd, sizeof(struct drm_exynos_g2d_cmd) *
+					req->cmd_base_nr))) {
+			ret = -EFAULT;
+			goto err;
+		}
+		cmdlist->last += req->cmd_base_nr * 2;
+
+		ret = g2d_validate_base_cmds(g2d, node, req->cmd_base_nr);
+		if (unlikely(ret < 0))
+			goto err;
+	} else {
+		dev_err(g2d->dev, "no base commands given\n");
+		ret = -EINVAL;
+		goto err;
+	}
+
+	/* Validate YCbCr configuration if any buffers use that color format. */
+	ret = g2d_validate_ycbcr(g2d, node);
+	if (unlikely(ret < 0))
+		goto err;
+
+	/* Map the buffers that are used by the cmdlist. */
+	ret = g2d_map_cmdlist_buffers(g2d, node, drm_dev, file);
+	if (unlikely(ret < 0))
+		goto err;
+
+	if (req->cmd_nr) {
+		const void __user *cmd;
+
+		cmd = (const void __user *)(unsigned long)req->cmd;
+
+		if (unlikely(copy_from_user(cmdlist->data + cmdlist->last,
+					cmd, sizeof(struct drm_exynos_g2d_cmd) *
+					req->cmd_nr))) {
+			ret = -EFAULT;
+			goto err_unmap;
+		}
+		cmdlist->last += req->cmd_nr * 2;
+
+		ret = g2d_validate_cmds(g2d, node, req->cmd_nr);
+		if (unlikely(ret < 0))
+			goto err_unmap;
+	} else {
+		dev_err(g2d->dev, "no regular commands given\n");
+		ret = -EINVAL;
+		goto err_unmap;
+	}
+
+	/* head */
+	cmdlist->head = cmdlist->last / 2;
+
+	/* tail */
+	cmdlist->data[cmdlist->last] = 0;
+
+	if (event) {
+		struct drm_exynos_pending_g2d_event *e;
+
+		e = kzalloc(sizeof(*node->event), GFP_KERNEL);
+		if (unlikely(!e)) {
+			ret = -ENOMEM;
+			goto err;
+		}
+
+		e->event.base.type = DRM_EXYNOS_G2D_EVENT;
+		e->event.base.length = sizeof(e->event);
+		e->event.user_data = req->user_data;
+
+		ret = drm_event_reserve_init(drm_dev, file, &e->base, &e->event.base);
+		if (ret) {
+			kfree(e);
+			goto err;
+		}
+
+		node->event = e;
+	}
+
+	g2d_add_cmdlist_to_inuse(file_priv, node);
+
+	return 0;
+
+err_unmap:
+	g2d_unmap_cmdlist_buffers(g2d, node, file);
+
+err:
+	g2d_put_cmdlist(g2d, node);
+	return ret;
 }
 
 int exynos_g2d_exec_ioctl(struct drm_device *drm_dev, void *data,
