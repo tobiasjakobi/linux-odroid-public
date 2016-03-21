@@ -1345,6 +1345,132 @@ out:
 	mutex_unlock(&g2d->runqueue_mutex);
 }
 
+static int g2d_validate_base_cmds(struct g2d_data *g2d,
+				struct g2d_cmdlist_node *node,
+				unsigned int nr)
+{
+	struct g2d_cmdlist *cmdlist = node->cmdlist;
+	unsigned int reg_offset = 0;
+	u32 index;
+
+	for (index = cmdlist->last - 2 * nr; index < cmdlist->last; index += 2) {
+		struct g2d_buf_info *buf_info;
+		enum g2d_reg_type reg_type;
+		unsigned long fmt;
+
+		reg_offset = cmdlist->data[index] & 0x0fff;
+		if (unlikely(reg_offset < G2D_VALID_START ||
+				reg_offset > G2D_VALID_END))
+			goto err;
+		if (unlikely(reg_offset & 0x3))
+			goto err;
+
+		reg_offset >>= 2;
+
+		switch (reg_offset) {
+		case G2D_SRC_BASE_ADDR:
+		case G2D_SRC_PLANE2_BASE_ADDR:
+		case G2D_DST_BASE_ADDR:
+		case G2D_DST_PLANE2_BASE_ADDR:
+		case G2D_PAT_BASE_ADDR:
+		case G2D_MSK_BASE_ADDR:
+			reg_type = g2d_get_reg_type(g2d, reg_offset);
+			buf_info = &node->buf_info[reg_type];
+
+			/* check userptr buffer type. */
+			if (cmdlist->data[index] & G2D_BUF_USERPTR) {
+				buf_info->is_userptr = true;
+				cmdlist->data[index] &= ~G2D_BUF_USERPTR;
+			}
+
+			/*
+			 * Store pointer to the current command here, so we can patch
+			 * the buffer handle later in g2d_map_cmdlist_buffers().
+			 */
+			buf_info->data = &cmdlist->data[index];
+			break;
+
+		case G2D_SRC_STRIDE:
+		case G2D_DST_STRIDE:
+		case G2D_PAT_STRIDE:
+		case G2D_MSK_STRIDE:
+			reg_type = g2d_get_reg_type(g2d, reg_offset);
+			buf_info = &node->buf_info[reg_type];
+
+			/*
+			 * The hardware allows for signed strides for certain
+			 * format, but we currently lack the infrastructure
+			 * to properly handle this case.
+			 */
+			if (cmdlist->data[index + 1] & BIT(15))
+				goto err;
+
+			buf_info->stride = cmdlist->data[index + 1] & 0x7fff;
+			break;
+
+		case G2D_SRC_COLOR_MODE:
+		case G2D_DST_COLOR_MODE:
+			reg_type = g2d_get_reg_type(g2d, reg_offset);
+			buf_info = &node->buf_info[reg_type];
+
+			buf_info->format = cmdlist->data[index + 1];
+			fmt = buf_info->format & G2D_FMT_MASK;
+
+			/*
+			 * The color type part of the format field is 4 bits wide, allowing for
+			 * a total of 16 entries. But apparantly not all entries are valid.
+			 * Some sources however suggest that b1101 and b1110 map to a 1-bit and
+			 * a 4-bit format format respectively, but tests show that the engine
+			 * just hangs when using these.
+			 * Make sure that we only pass valid entries to the engine.
+			 */
+			if (fmt >= G2D_FMT_MAX)
+				goto err;
+
+			buf_info->bpp = g2d_get_buf_bpp(fmt);
+			buf_info->is_ycbcr = g2d_is_ycbcr_fmt(fmt);
+			break;
+
+		case G2D_PAT_COLOR_MODE:
+			buf_info = &node->buf_info[REG_TYPE_PAT];
+
+			buf_info->format = cmdlist->data[index + 1];
+			fmt = buf_info->format & G2D_FMT_MASK;
+
+			if (fmt >= G2D_FMT_MAX)
+				goto err;
+
+			if (g2d_is_ycbcr_fmt(fmt) || g2d_is_lumi_alpha_fmt(fmt))
+				goto err;
+
+			buf_info->bpp = g2d_get_buf_bpp(fmt);
+			break;
+
+		case G2D_MSK_MODE:
+			buf_info = &node->buf_info[REG_TYPE_MSK];
+
+			buf_info->format = cmdlist->data[index + 1];
+			fmt = buf_info->format & G2D_MSK_MASK;
+
+			if (fmt >= G2D_MSK_MAX)
+				goto err;
+
+			buf_info->bpp = g2d_get_msk_bpp(fmt);
+			break;
+
+		default:
+			goto err;
+			break;
+		}
+	}
+
+	return 0;
+
+err:
+	dev_err(g2d->dev, "invalid base command: 0x%x\n", reg_offset);
+	return -EINVAL;
+}
+
 static void g2d_cmdlist_prolog(struct g2d_cmdlist *cmdlist, bool event)
 
 {
