@@ -227,6 +227,12 @@ struct g2d_cmdlist {
 	u32		last;	/* last data offset */
 };
 
+/* Basic G2D rectangle structure. */
+struct g2d_rect {
+	unsigned long	left_top;
+	unsigned long	right_bottom;
+};
+
 struct drm_exynos_pending_g2d_event {
 	struct drm_pending_event	base;
 	struct drm_exynos_g2d_event	event;
