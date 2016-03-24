@@ -329,6 +329,8 @@ struct g2d_cmdlist_node {
 	struct list_head	list;
 	struct g2d_cmdlist	*cmdlist;
 	dma_addr_t		dma_addr;
+	struct g2d_buf_info	buf_info[MAX_REG_TYPE_NR];
+	struct g2d_bitblt_info	bitblt_info;
 
 	struct drm_exynos_pending_g2d_event	*event;
 };
