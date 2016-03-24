@@ -233,6 +233,37 @@ struct g2d_rect {
 	unsigned long	right_bottom;
 };
 
+/*
+ * Structure describing a buffer used in a G2D operation.
+ *
+ * @data: location of the buffer definition in the cmdlist
+ * @format: color format of the buffer
+ * @bpp: bits per pixel
+ * @stride: buffer stride/pitch in bytes
+ *
+ * @obj: pointer to actual buffer object
+ * @size: total size in bytes of the associated buffer object
+ *
+ * @is_userptr: 'true' if the buffer object is a userspace pointer
+ * @is_ycbcr: 'true' if the buffer format is YCbCr
+ *
+ * For plane2 buffers the format, bpp and stride fields are not
+ * set. The information is provided by the corresponding source
+ * and destination buffers.
+ */
+struct g2d_buf_info {
+	unsigned long	*data;
+	unsigned int	format;
+	unsigned int	bpp;
+	unsigned int	stride;
+
+	void		*obj;
+	unsigned int	size;
+
+	bool		is_userptr;
+	bool		is_ycbcr;
+};
+
 struct drm_exynos_pending_g2d_event {
 	struct drm_pending_event	base;
 	struct drm_exynos_g2d_event	event;
