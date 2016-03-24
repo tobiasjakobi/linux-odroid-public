@@ -33,34 +33,95 @@
 #define G2D_VALID_START			0x0104
 #define G2D_VALID_END			0x0880
 
-/* general registers */
-#define G2D_SOFT_RESET			0x0000
-#define G2D_INTEN			0x0004
-#define G2D_INTC_PEND			0x000C
-#define G2D_AXI_MODE			0x001C
-#define G2D_DMA_SFR_BASE_ADDR		0x0080
-#define G2D_DMA_COMMAND			0x0084
-#define G2D_DMA_STATUS			0x008C
-#define G2D_DMA_HOLD_CMD		0x0090
+enum g2d_hw_registers {
+	/* general */
+	G2D_SOFT_RESET			= 0x0000,
+	G2D_INTEN			= 0x0004,
+	G2D_INTC_PEND			= 0x000C,
+	G2D_FIFO_STAT			= 0x0010,
+	G2D_AXI_MODE			= 0x001C,
+	G2D_DMA_SFR_BASE_ADDR		= 0x0080,
+	G2D_DMA_COMMAND			= 0x0084,
+	G2D_DMA_EXE_LIST_NUM		= 0x0088,
+	G2D_DMA_STATUS			= 0x008C,
+	G2D_DMA_HOLD_CMD		= 0x0090,
 
-/* command registers */
-#define G2D_BITBLT_START		0x0100
+	/* command */
+	G2D_BITBLT_START		= 0x0100,
+	G2D_BITBLT_COMMAND		= 0x0104,
+	G2D_BLEND_FUNCTION		= 0x0108,
+	G2D_ROUND_MODE			= 0x010C,
 
-/* registers for base address */
-#define G2D_SRC_BASE_ADDR		0x0304
-#define G2D_SRC_STRIDE			0x0308
-#define G2D_SRC_COLOR_MODE		0x030C
-#define G2D_SRC_LEFT_TOP		0x0310
-#define G2D_SRC_RIGHT_BOTTOM		0x0314
-#define G2D_SRC_PLANE2_BASE_ADDR	0x0318
-#define G2D_DST_BASE_ADDR		0x0404
-#define G2D_DST_STRIDE			0x0408
-#define G2D_DST_COLOR_MODE		0x040C
-#define G2D_DST_LEFT_TOP		0x0410
-#define G2D_DST_RIGHT_BOTTOM		0x0414
-#define G2D_DST_PLANE2_BASE_ADDR	0x0418
-#define G2D_PAT_BASE_ADDR		0x0500
-#define G2D_MSK_BASE_ADDR		0x0520
+	/* parameter settings */
+	G2D_ROTATE			= 0x0200,
+	G2D_SRC_MASK_DIRECT		= 0x0204,
+	G2D_DST_PAT_DIRECT		= 0x0208,
+
+	/* source */
+	G2D_SRC_SELECT			= 0x0300,
+	G2D_SRC_BASE_ADDR		= 0x0304,
+	G2D_SRC_STRIDE			= 0x0308,
+	G2D_SRC_COLOR_MODE		= 0x030C,
+	G2D_SRC_LEFT_TOP		= 0x0310,
+	G2D_SRC_RIGHT_BOTTOM		= 0x0314,
+	G2D_SRC_PLANE2_BASE_ADDR	= 0x0318,
+	G2D_SRC_REPEAT_MODE		= 0x031C,
+	G2D_SRC_PAD_VALUE		= 0x0320,
+	G2D_SRC_A8_RGB_EXT		= 0x0324,
+	G2D_SRC_SCALE_CTRL		= 0x0328,
+	G2D_SRC_XSCALE			= 0x032C,
+	G2D_SRC_YSCALE			= 0x0330,
+
+	/* destination */
+	G2D_DST_SELECT			= 0x0400,
+	G2D_DST_BASE_ADDR		= 0x0404,
+	G2D_DST_STRIDE			= 0x0408,
+	G2D_DST_COLOR_MODE		= 0x040C,
+	G2D_DST_LEFT_TOP		= 0x0410,
+	G2D_DST_RIGHT_BOTTOM		= 0x0414,
+	G2D_DST_PLANE2_BASE_ADDR	= 0x0418,
+	G2D_DST_A8_RGB_EXT		= 0x041C,
+
+	/* pattern */
+	G2D_PAT_BASE_ADDR		= 0x0500,
+	G2D_PAT_SIZE			= 0x0504,
+	G2D_PAT_COLOR_MODE		= 0x0508,
+	G2D_PAT_OFFSET			= 0x050C,
+	G2D_PAT_STRIDE			= 0x0510,
+
+	/* mask */
+	G2D_MSK_BASE_ADDR		= 0x0520,
+	G2D_MSK_STRIDE			= 0x0524,
+	G2D_MSK_LEFT_TOP		= 0x0528,
+	G2D_MSK_RIGHT_BOTTOM		= 0x052C,
+	G2D_MSK_MODE			= 0x0530,
+	G2D_MSK_REPEAT_MODE		= 0x0534,
+	G2D_MSK_PAD_VALUE		= 0x0538,
+	G2D_MSK_SCALE_CTRL		= 0x053C,
+	G2D_MSK_XSCALE			= 0x0540,
+	G2D_MSK_YSCALE			= 0x0544,
+
+	/* clipping window */
+	G2D_CW_LEFT_TOP			= 0x0600,
+	G2D_CW_RIGHT_BOTTOM		= 0x0604,
+
+	/* third operand, ROP and alpha setting */
+	G2D_THIRD_OPERAND		= 0x0610,
+	G2D_ROP4			= 0x0614,
+	G2D_ALPHA			= 0x0618,
+
+	/* color settings */
+	G2D_FG_COLOR			= 0x0700,
+	G2D_BG_COLOR			= 0x0704,
+	G2D_BS_COLOR			= 0x0708,
+	G2D_SF_COLOR			= 0x070C,
+
+	/*
+	 * There are more HW registers for colorkeying and gamma table
+	 * in the range 0x0710~0x880. But we're not using them at
+	 * the moment, so omit them for now.
+	 */
+};
 
 /* G2D_SOFT_RESET */
 #define G2D_SFRCLEAR			(1 << 1)
