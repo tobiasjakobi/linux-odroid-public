@@ -95,11 +95,6 @@ enum e_drm_exynos_gem_mem_type {
 					EXYNOS_BO_WC
 };
 
-struct drm_exynos_g2d_get_ver {
-	__u32	major;
-	__u32	minor;
-};
-
 struct drm_exynos_g2d_get_ver2 {
 	__u32	major;
 	__u32	minor;
@@ -361,7 +356,6 @@ struct drm_exynos_ioctl_ipp_commit {
 #define DRM_EXYNOS_VIDI_CONNECTION	0x07
 
 /* G2D */
-#define DRM_EXYNOS_G2D_GET_VER		0x20
 #define DRM_EXYNOS_G2D_SET_CMDLIST	0x21
 #define DRM_EXYNOS_G2D_EXEC		0x22
 #define DRM_EXYNOS_G2D_GET_VER2		0x23
@@ -383,8 +377,6 @@ struct drm_exynos_ioctl_ipp_commit {
 #define DRM_IOCTL_EXYNOS_VIDI_CONNECTION	DRM_IOWR(DRM_COMMAND_BASE + \
 		DRM_EXYNOS_VIDI_CONNECTION, struct drm_exynos_vidi_connection)
 
-#define DRM_IOCTL_EXYNOS_G2D_GET_VER		DRM_IOWR(DRM_COMMAND_BASE + \
-		DRM_EXYNOS_G2D_GET_VER, struct drm_exynos_g2d_get_ver)
 #define DRM_IOCTL_EXYNOS_G2D_GET_VER2		DRM_IOWR(DRM_COMMAND_BASE + \
 		DRM_EXYNOS_G2D_GET_VER2, struct drm_exynos_g2d_get_ver2)
 #define DRM_IOCTL_EXYNOS_G2D_SET_CMDLIST	DRM_IOWR(DRM_COMMAND_BASE + \
