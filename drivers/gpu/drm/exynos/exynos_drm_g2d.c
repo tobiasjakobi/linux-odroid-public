@@ -1158,17 +1158,6 @@ static void g2d_cmdlist_prolog(struct g2d_cmdlist *cmdlist, bool event)
 }
 
 /* ioctl functions */
-int exynos_g2d_get_ver_ioctl(struct drm_device *drm_dev, void *data,
-			     struct drm_file *file)
-{
-	struct drm_exynos_g2d_get_ver *ver = data;
-
-	ver->major = G2D_HW_MAJOR_VER;
-	ver->minor = G2D_HW_MINOR_VER;
-
-	return 0;
-}
-
 int exynos_g2d_get_ver2_ioctl(struct drm_device *drm_dev, void *data,
 			     struct drm_file *file)
 {
