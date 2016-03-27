@@ -1169,6 +1169,18 @@ int exynos_g2d_get_ver_ioctl(struct drm_device *drm_dev, void *data,
 	return 0;
 }
 
+int exynos_g2d_get_ver2_ioctl(struct drm_device *drm_dev, void *data,
+			     struct drm_file *file)
+{
+	struct drm_exynos_g2d_get_ver2 *ver = data;
+
+	ver->major = G2D_HW_MAJOR_VER;
+	ver->minor = G2D_HW_MINOR_VER;
+	ver->caps = 0;
+
+	return 0;
+}
+
 int exynos_g2d_set_cmdlist_ioctl(struct drm_device *drm_dev, void *data,
 				 struct drm_file *file)
 {
