@@ -165,7 +165,7 @@ enum g2d_hw_registers {
 
 /* G2D_BITBLT_START */
 #define G2D_START_CASESEL		(1 << 2)
-#define G2D_START_NHOLT			(1 << 1)
+#define G2D_START_N_HOLD		(1 << 1)
 #define G2D_START_BITBLT		(1 << 0)
 
 /* buffer color format */
