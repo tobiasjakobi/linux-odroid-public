@@ -247,24 +247,6 @@ struct g2d_buf_desc {
 	unsigned int	bottom_y;
 };
 
-/*
- * A structure of buffer information
- *
- * @map_nr: manages the number of mapped buffers
- * @reg_types: stores regitster type in the order of requested command
- * @handles: stores buffer handle in its reg_type position
- * @types: stores buffer type in its reg_type position
- * @descs: stores buffer description in its reg_type position
- *
- */
-struct g2d_buf_info {
-	unsigned int		map_nr;
-	enum g2d_reg_type	reg_types[MAX_REG_TYPE_NR];
-	void			*obj[MAX_REG_TYPE_NR];
-	unsigned int		types[MAX_REG_TYPE_NR];
-	struct g2d_buf_desc	descs[MAX_REG_TYPE_NR];
-};
-
 struct drm_exynos_pending_g2d_event {
 	struct drm_pending_event	base;
 	struct drm_exynos_g2d_event	event;
@@ -286,7 +268,6 @@ struct g2d_cmdlist_node {
 	struct list_head	list;
 	struct g2d_cmdlist	*cmdlist;
 	dma_addr_t		dma_addr;
-	struct g2d_buf_info	buf_info;
 
 	struct drm_exynos_pending_g2d_event	*event;
 };
@@ -403,7 +384,6 @@ static int g2d_init_cmdlist(struct g2d_data *g2d)
 	struct g2d_cmdlist_node *node;
 	int nr;
 	int ret;
-	struct g2d_buf_info *buf_info;
 
 	g2d->cmdlist_dma_attrs = DMA_ATTR_WRITE_COMBINE;
 
@@ -423,16 +403,10 @@ static int g2d_init_cmdlist(struct g2d_data *g2d)
 	}
 
 	for (nr = 0; nr < G2D_CMDLIST_NUM; nr++) {
-		unsigned int i;
-
 		node[nr].cmdlist =
 			g2d->cmdlist_pool_virt + nr * G2D_CMDLIST_SIZE;
 		node[nr].dma_addr =
 			g2d->cmdlist_pool + nr * G2D_CMDLIST_SIZE;
-
-		buf_info = &node[nr].buf_info;
-		for (i = 0; i < MAX_REG_TYPE_NR; i++)
-			buf_info->reg_types[i] = REG_TYPE_NONE;
 
 		list_add_tail(&node[nr].list, &g2d->free_cmdlist);
 	}
