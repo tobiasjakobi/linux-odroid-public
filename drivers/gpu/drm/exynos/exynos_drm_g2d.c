@@ -227,26 +227,6 @@ struct g2d_cmdlist {
 	u32		last;	/* last data offset */
 };
 
-/*
- * A structure of buffer description
- *
- * @format: color format
- * @stride: buffer stride/pitch in bytes
- * @left_x: the x coordinates of left top corner
- * @top_y: the y coordinates of left top corner
- * @right_x: the x coordinates of right bottom corner
- * @bottom_y: the y coordinates of right bottom corner
- *
- */
-struct g2d_buf_desc {
-	unsigned int	format;
-	unsigned int	stride;
-	unsigned int	left_x;
-	unsigned int	top_y;
-	unsigned int	right_x;
-	unsigned int	bottom_y;
-};
-
 struct drm_exynos_pending_g2d_event {
 	struct drm_pending_event	base;
 	struct drm_exynos_g2d_event	event;
