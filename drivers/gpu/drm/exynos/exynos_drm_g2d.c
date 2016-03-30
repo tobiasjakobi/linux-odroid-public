@@ -29,8 +29,8 @@
 #define G2D_HW_MAJOR_VER		4
 #define G2D_HW_MINOR_VER		1
 
-/* valid register range set for user: 0x0104 ~ 0x0880 */
-#define G2D_VALID_START			0x0104
+/* valid register range set for user: 0x0100 ~ 0x0880 */
+#define G2D_VALID_START			0x0100
 #define G2D_VALID_END			0x0880
 
 /*
