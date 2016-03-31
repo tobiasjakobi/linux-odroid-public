@@ -174,6 +174,33 @@ enum g2d_hw_registers {
 #define G2D_START_N_HOLD		(1 << 1)
 #define G2D_START_BITBLT		(1 << 0)
 
+/* G2D_BITBLT_COMMAND */
+#define G2D_BITBLT_MASK_ROP4		(1 << 0)
+#define G2D_BITBLT_MASK_NORMAL		(1 << 1)
+#define G2D_BITBLT_ENABLE_CW		(1 << 8)
+#define G2D_BITBLT_SOLID_FILL		(1 << 28)
+
+/* G2D_SRC_SELECT */
+#define G2D_SRC_SEL_DEFAULT		0x1
+
+/* G2D_PAT_SIZE */
+#define G2D_PAT_SIZE_MASK		0x1FFF
+#define G2D_PAT_HEIGHT_SHIFT		13
+#define G2D_PAT_OFFSET_MASK		0x1FFF
+#define G2D_PAT_YOFFSET_SHIFT		13
+#define G2D_PAT_DEFAULT			1
+
+/* ROP3 masks for G2D_ROP4 */
+#define G2D_ROP4_UNMASKED_ROP3		(0xFF << 0)
+#define G2D_ROP4_MASKED_ROP3		(0xFF << 8)
+#define G2D_ROP4_MASKED_SHIFT		8
+#define G2D_ROP4_DEFAULT		0xCC
+
+/* select masks for G2D_THIRD_OPERAND */
+#define G2D_THIRD_OP_MASK_UNMASKED	0x0003
+#define G2D_THIRD_OP_MASK_MASKED	0x0030
+#define G2D_THIRD_OP_DEFAULT		0x0011
+
 /* buffer color format */
 #define G2D_FMT_XRGB8888		0
 #define G2D_FMT_ARGB8888		1
