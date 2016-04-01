@@ -1576,6 +1576,76 @@ err:
 	return -EINVAL;
 }
 
+static int g2d_validate_bitblt_start(unsigned long value,
+				const struct g2d_cmdlist_node *node)
+{
+	const struct g2d_bitblt_info* bitblt = &node->bitblt_info;
+	const struct g2d_buf_info* buf = node->buf_info;
+
+	unsigned int rop3;
+	bool need_mask, need_pattern;
+
+	if (!(value & G2D_START_BITBLT))
+		goto fail;
+
+	/* We need a valid destination rectangle for _every_ blit operation. */
+	if (!g2d_is_rect_valid(&bitblt->rects[RECT_TYPE_DST], &buf[BUF_TYPE_DST]))
+		goto fail;
+
+	/* If we're doing a solid fill operation, all other BitBLT parameters are ignored. */
+	if (bitblt->bitblt_command & G2D_BITBLT_SOLID_FILL)
+		return 0;
+
+	/* TODO: Clipping window functionality is not implemented yet. */
+	if (bitblt->bitblt_command & G2D_BITBLT_ENABLE_CW)
+		goto fail;
+
+	/* TODO: Rotation is not implemented yet. */
+	if (bitblt->rotate)
+		goto fail;
+
+	/* If the source uses a buffer in memory, then we need a valid source rectangle. */
+	if (!(bitblt->src_select & 0x3) &&
+	    !(g2d_is_rect_valid(&bitblt->rects[RECT_TYPE_SRC], &buf[BUF_TYPE_SRC])))
+		goto fail;
+
+	need_mask = false;
+	need_pattern = false;
+
+	/*
+	 * If the unmasked ROP4 is using the third operand register, and the
+	 * third operand uses the pattern, then we need a valid pattern rectangle.
+	 */
+	rop3 = bitblt->rop4 & G2D_ROP4_UNMASKED_ROP3;
+	if ((rop3 & 0xf0) && !(bitblt->third_operand & G2D_THIRD_OP_MASK_UNMASKED))
+		need_pattern = true;
+
+	/* If the bitblt command uses a mask we need a valid mask rectangle. */
+	if (bitblt->bitblt_command & G2D_BITBLT_MASK_NORMAL)
+		need_mask = true;
+
+	/* Check for third operand / pattern in masked ROP4s. */
+	if (bitblt->bitblt_command & G2D_BITBLT_MASK_ROP4) {
+		need_mask = true;
+
+		/* Do the same check as above, only for masked ROP4 + third operand. */
+		rop3 = (bitblt->rop4 & G2D_ROP4_MASKED_ROP3) >> G2D_ROP4_MASKED_SHIFT;
+		if ((rop3 & 0xf0) && !(bitblt->third_operand & G2D_THIRD_OP_MASK_MASKED))
+			need_pattern = true;
+	}
+
+	if (need_mask && !g2d_is_rect_valid(&bitblt->rects[RECT_TYPE_MSK], &buf[BUF_TYPE_MSK]))
+		goto fail;
+
+	if (need_pattern && !g2d_is_pattern_valid(bitblt, &buf[BUF_TYPE_PAT]))
+		goto fail;
+
+	return 0;
+
+fail:
+	return -EINVAL;
+}
+
 static void g2d_cmdlist_prolog(struct g2d_cmdlist *cmdlist, bool event)
 
 {
