@@ -201,17 +201,29 @@ enum g2d_hw_registers {
 #define G2D_THIRD_OP_MASK_MASKED	0x0030
 #define G2D_THIRD_OP_DEFAULT		0x0011
 
-/* buffer color format */
-#define G2D_FMT_XRGB8888		0
-#define G2D_FMT_ARGB8888		1
-#define G2D_FMT_RGB565			2
-#define G2D_FMT_XRGB1555		3
-#define G2D_FMT_ARGB1555		4
-#define G2D_FMT_XRGB4444		5
-#define G2D_FMT_ARGB4444		6
-#define G2D_FMT_PACKED_RGB888		7
-#define G2D_FMT_A8			11
-#define G2D_FMT_L8			12
+/*
+ * buffer color format
+ * - for source and destination all formats are valid
+ * - for pattern all but the YCbCr/alpha/luminance ones are valid
+ */
+enum g2d_color_format {
+	G2D_FMT_XRGB8888,
+	G2D_FMT_ARGB8888,
+	G2D_FMT_RGB565,
+	G2D_FMT_XRGB1555,
+	G2D_FMT_ARGB1555,
+	G2D_FMT_XRGB4444,
+	G2D_FMT_ARGB4444,
+	G2D_FMT_PACKED_RGB888,
+	G2D_FMT_YCbCr444,
+	G2D_FMT_YCbCr422,
+	G2D_FMT_YCbCr420,
+	G2D_FMT_A8,
+	G2D_FMT_L8,
+	G2D_FMT_MAX,
+	G2D_FMT_MASK = 0xF,
+	G2D_FMT_YCbCr_2PLANE = (1 << 8),
+};
 
 /* buffer valid length */
 #define G2D_LEN_MIN			1
