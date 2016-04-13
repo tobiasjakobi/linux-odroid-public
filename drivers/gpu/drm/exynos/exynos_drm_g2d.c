@@ -1067,6 +1067,23 @@ static unsigned int g2d_get_msk_bpp(unsigned int format)
 	return bpp;
 }
 
+static bool g2d_is_lumi_alpha_fmt(unsigned int format)
+{
+	return (format == G2D_FMT_A8 || format == G2D_FMT_L8);
+}
+
+static bool g2d_is_ycbcr_fmt(unsigned int format)
+{
+	switch (format) {
+	case G2D_FMT_YCbCr444:
+	case G2D_FMT_YCbCr422:
+	case G2D_FMT_YCbCr420:
+		return true;
+	default:
+		return false;
+	}
+}
+
 /* Check if a normal / non-YCbCr rectangle is valid. */
 static bool g2d_is_normal_rect_valid(const struct g2d_rect *rect,
 				const struct g2d_buf_info *buf_info)
