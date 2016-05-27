@@ -33,88 +33,94 @@
 #define G2D_VALID_START			0x0104
 #define G2D_VALID_END			0x0880
 
+/*
+ * G2D hardware register positions are always a multiple of four.
+ * This enumerator stores the 'normalized' positions.
+ * The reason behind this is to allow the compiler to better
+ * optimize switch statements during commandlist validation.
+ */
 enum g2d_hw_registers {
 	/* general */
-	G2D_SOFT_RESET			= 0x0000,
-	G2D_INTEN			= 0x0004,
-	G2D_INTC_PEND			= 0x000C,
-	G2D_FIFO_STAT			= 0x0010,
-	G2D_AXI_MODE			= 0x001C,
-	G2D_DMA_SFR_BASE_ADDR		= 0x0080,
-	G2D_DMA_COMMAND			= 0x0084,
-	G2D_DMA_EXE_LIST_NUM		= 0x0088,
-	G2D_DMA_STATUS			= 0x008C,
-	G2D_DMA_HOLD_CMD		= 0x0090,
+	G2D_SOFT_RESET			= 0x000,
+	G2D_INTEN			= 0x001,
+	G2D_INTC_PEND			= 0x003,
+	G2D_FIFO_STAT			= 0x004,
+	G2D_AXI_MODE			= 0x007,
+	G2D_DMA_SFR_BASE_ADDR		= 0x020,
+	G2D_DMA_COMMAND			= 0x021,
+	G2D_DMA_EXE_LIST_NUM		= 0x022,
+	G2D_DMA_STATUS			= 0x023,
+	G2D_DMA_HOLD_CMD		= 0x024,
 
 	/* command */
-	G2D_BITBLT_START		= 0x0100,
-	G2D_BITBLT_COMMAND		= 0x0104,
-	G2D_BLEND_FUNCTION		= 0x0108,
-	G2D_ROUND_MODE			= 0x010C,
+	G2D_BITBLT_START		= 0x040,
+	G2D_BITBLT_COMMAND		= 0x041,
+	G2D_BLEND_FUNCTION		= 0x042,
+	G2D_ROUND_MODE			= 0x043,
 
 	/* parameter settings */
-	G2D_ROTATE			= 0x0200,
-	G2D_SRC_MASK_DIRECT		= 0x0204,
-	G2D_DST_PAT_DIRECT		= 0x0208,
+	G2D_ROTATE			= 0x080,
+	G2D_SRC_MASK_DIRECT		= 0x081,
+	G2D_DST_PAT_DIRECT		= 0x082,
 
 	/* source */
-	G2D_SRC_SELECT			= 0x0300,
-	G2D_SRC_BASE_ADDR		= 0x0304,
-	G2D_SRC_STRIDE			= 0x0308,
-	G2D_SRC_COLOR_MODE		= 0x030C,
-	G2D_SRC_LEFT_TOP		= 0x0310,
-	G2D_SRC_RIGHT_BOTTOM		= 0x0314,
-	G2D_SRC_PLANE2_BASE_ADDR	= 0x0318,
-	G2D_SRC_REPEAT_MODE		= 0x031C,
-	G2D_SRC_PAD_VALUE		= 0x0320,
-	G2D_SRC_A8_RGB_EXT		= 0x0324,
-	G2D_SRC_SCALE_CTRL		= 0x0328,
-	G2D_SRC_XSCALE			= 0x032C,
-	G2D_SRC_YSCALE			= 0x0330,
+	G2D_SRC_SELECT			= 0x0C0,
+	G2D_SRC_BASE_ADDR		= 0x0C1,
+	G2D_SRC_STRIDE			= 0x0C2,
+	G2D_SRC_COLOR_MODE		= 0x0C3,
+	G2D_SRC_LEFT_TOP		= 0x0C4,
+	G2D_SRC_RIGHT_BOTTOM		= 0x0C5,
+	G2D_SRC_PLANE2_BASE_ADDR	= 0x0C6,
+	G2D_SRC_REPEAT_MODE		= 0x0C7,
+	G2D_SRC_PAD_VALUE		= 0x0C8,
+	G2D_SRC_A8_RGB_EXT		= 0x0C9,
+	G2D_SRC_SCALE_CTRL		= 0x0CA,
+	G2D_SRC_XSCALE			= 0x0CB,
+	G2D_SRC_YSCALE			= 0x0CC,
 
 	/* destination */
-	G2D_DST_SELECT			= 0x0400,
-	G2D_DST_BASE_ADDR		= 0x0404,
-	G2D_DST_STRIDE			= 0x0408,
-	G2D_DST_COLOR_MODE		= 0x040C,
-	G2D_DST_LEFT_TOP		= 0x0410,
-	G2D_DST_RIGHT_BOTTOM		= 0x0414,
-	G2D_DST_PLANE2_BASE_ADDR	= 0x0418,
-	G2D_DST_A8_RGB_EXT		= 0x041C,
+	G2D_DST_SELECT			= 0x100,
+	G2D_DST_BASE_ADDR		= 0x101,
+	G2D_DST_STRIDE			= 0x102,
+	G2D_DST_COLOR_MODE		= 0x103,
+	G2D_DST_LEFT_TOP		= 0x104,
+	G2D_DST_RIGHT_BOTTOM		= 0x105,
+	G2D_DST_PLANE2_BASE_ADDR	= 0x106,
+	G2D_DST_A8_RGB_EXT		= 0x107,
 
 	/* pattern */
-	G2D_PAT_BASE_ADDR		= 0x0500,
-	G2D_PAT_SIZE			= 0x0504,
-	G2D_PAT_COLOR_MODE		= 0x0508,
-	G2D_PAT_OFFSET			= 0x050C,
-	G2D_PAT_STRIDE			= 0x0510,
+	G2D_PAT_BASE_ADDR		= 0x140,
+	G2D_PAT_SIZE			= 0x141,
+	G2D_PAT_COLOR_MODE		= 0x142,
+	G2D_PAT_OFFSET			= 0x143,
+	G2D_PAT_STRIDE			= 0x144,
 
 	/* mask */
-	G2D_MSK_BASE_ADDR		= 0x0520,
-	G2D_MSK_STRIDE			= 0x0524,
-	G2D_MSK_LEFT_TOP		= 0x0528,
-	G2D_MSK_RIGHT_BOTTOM		= 0x052C,
-	G2D_MSK_MODE			= 0x0530,
-	G2D_MSK_REPEAT_MODE		= 0x0534,
-	G2D_MSK_PAD_VALUE		= 0x0538,
-	G2D_MSK_SCALE_CTRL		= 0x053C,
-	G2D_MSK_XSCALE			= 0x0540,
-	G2D_MSK_YSCALE			= 0x0544,
+	G2D_MSK_BASE_ADDR		= 0x148,
+	G2D_MSK_STRIDE			= 0x149,
+	G2D_MSK_LEFT_TOP		= 0x14A,
+	G2D_MSK_RIGHT_BOTTOM		= 0x14B,
+	G2D_MSK_MODE			= 0x14C,
+	G2D_MSK_REPEAT_MODE		= 0x14D,
+	G2D_MSK_PAD_VALUE		= 0x14E,
+	G2D_MSK_SCALE_CTRL		= 0x14F,
+	G2D_MSK_XSCALE			= 0x150,
+	G2D_MSK_YSCALE			= 0x151,
 
 	/* clipping window */
-	G2D_CW_LEFT_TOP			= 0x0600,
-	G2D_CW_RIGHT_BOTTOM		= 0x0604,
+	G2D_CW_LEFT_TOP			= 0x180,
+	G2D_CW_RIGHT_BOTTOM		= 0x181,
 
 	/* third operand, ROP and alpha setting */
-	G2D_THIRD_OPERAND		= 0x0610,
-	G2D_ROP4			= 0x0614,
-	G2D_ALPHA			= 0x0618,
+	G2D_THIRD_OPERAND		= 0x184,
+	G2D_ROP4			= 0x185,
+	G2D_ALPHA			= 0x186,
 
 	/* color settings */
-	G2D_FG_COLOR			= 0x0700,
-	G2D_BG_COLOR			= 0x0704,
-	G2D_BS_COLOR			= 0x0708,
-	G2D_SF_COLOR			= 0x070C,
+	G2D_FG_COLOR			= 0x1C0,
+	G2D_BG_COLOR			= 0x1C1,
+	G2D_BS_COLOR			= 0x1C2,
+	G2D_SF_COLOR			= 0x1C3,
 
 	/*
 	 * There are more HW registers for colorkeying and gamma table
@@ -366,9 +372,26 @@ struct g2d_data {
 	struct mutex			userptr_mutex;
 };
 
+static inline u32 g2d_reg_read(struct g2d_data *g2d, u32 reg_id)
+{
+	return readl(g2d->regs + (reg_id << 2));
+}
+
+static inline void g2d_reg_write(struct g2d_data *g2d, u32 reg_id, u32 val)
+{
+	writel(val, g2d->regs + (reg_id << 2));
+}
+
+static inline void g2d_add_cmd(struct g2d_cmdlist *cmdlist, unsigned long cmd,
+	unsigned long val)
+{
+	cmdlist->data[cmdlist->last++] = cmd << 2;
+	cmdlist->data[cmdlist->last++] = val;
+}
+
 static inline void g2d_hw_reset(struct g2d_data *g2d)
 {
-	writel(G2D_R | G2D_SFRCLEAR, g2d->regs + G2D_SOFT_RESET);
+	g2d_reg_write(g2d, G2D_SOFT_RESET, G2D_R | G2D_SFRCLEAR);
 	clear_bit(G2D_BIT_ENGINE_BUSY, &g2d->flags);
 }
 
@@ -390,14 +413,14 @@ static void g2d_set_max_burst_length(struct g2d_data *g2d, unsigned len)
 	/* The default max burst length is two (no bits set). */
 	burst = len >> 2;
 
-	axi_mode = readl_relaxed(g2d->regs + G2D_AXI_MODE);
+	axi_mode = g2d_reg_read(g2d, G2D_AXI_MODE);
 
 	if ((axi_mode & G2D_MAX_BURST_LEN_MASK) == burst)
 		return;
 
 	axi_mode &= ~G2D_MAX_BURST_LEN_MASK;
 	axi_mode |= burst;
-	writel_relaxed(axi_mode, g2d->regs + G2D_AXI_MODE);
+	g2d_reg_write(g2d, G2D_AXI_MODE, axi_mode);
 }
 
 static void g2d_set_axi_mode(struct g2d_data *g2d, unsigned arcache,
@@ -405,7 +428,7 @@ static void g2d_set_axi_mode(struct g2d_data *g2d, unsigned arcache,
 {
 	u32 axi_mode;
 
-	axi_mode = readl_relaxed(g2d->regs + G2D_AXI_MODE);
+	axi_mode = g2d_reg_read(g2d, G2D_AXI_MODE);
 
 	axi_mode &= ~0x1F1FFF;
 
@@ -415,7 +438,7 @@ static void g2d_set_axi_mode(struct g2d_data *g2d, unsigned arcache,
 	axi_mode |= ((arusers & 0x1F) << G2D_AXI_ARUSERS_SHIFT);
 	axi_mode |= ((awusers & 0x1F) << G2D_AXI_AWUSERS_SHIFT);
 
-	writel_relaxed(axi_mode, g2d->regs + G2D_AXI_MODE);
+	g2d_reg_write(g2d, G2D_AXI_MODE, axi_mode);
 }
 
 static void g2d_dump_axi_mode_reg(struct g2d_data *g2d)
@@ -423,7 +446,7 @@ static void g2d_dump_axi_mode_reg(struct g2d_data *g2d)
 	struct device *dev = g2d->dev;
 	u32 axi_mode;
 
-	axi_mode = readl_relaxed(g2d->regs + G2D_AXI_MODE);
+	axi_mode = g2d_reg_read(g2d, G2D_AXI_MODE);
 
 	dev_info(dev, "AxCACHE = {0x%x, 0x%x}\n",
 		(axi_mode >> G2D_AXI_ARCACHE_SHIFT) & 0xF,
@@ -996,8 +1019,8 @@ static void g2d_dma_start(struct g2d_data *g2d,
 	g2d_set_axi_mode(g2d, 0x2, 0x2, 0x1, 0x1);
 
 	set_bit(G2D_BIT_ENGINE_BUSY, &g2d->flags);
-	writel_relaxed(node->dma_addr, g2d->regs + G2D_DMA_SFR_BASE_ADDR);
-	writel_relaxed(G2D_DMA_START, g2d->regs + G2D_DMA_COMMAND);
+	g2d_reg_write(g2d, G2D_DMA_SFR_BASE_ADDR, node->dma_addr);
+	g2d_reg_write(g2d, G2D_DMA_COMMAND, G2D_DMA_START);
 }
 
 static struct g2d_runqueue_node *g2d_get_runqueue_node(struct g2d_data *g2d)
@@ -1119,22 +1142,21 @@ static irqreturn_t g2d_irq_handler(int irq, void *dev_id)
 	struct g2d_data *g2d = dev_id;
 	u32 pending;
 
-	pending = readl_relaxed(g2d->regs + G2D_INTC_PEND);
+	pending = g2d_reg_read(g2d, G2D_INTC_PEND);
 	if (pending)
-		writel_relaxed(pending, g2d->regs + G2D_INTC_PEND);
+		g2d_reg_write(g2d, G2D_INTC_PEND, pending);
 
 	if (pending & G2D_INTP_GCMD_FIN) {
-		u32 cmdlist_no = readl_relaxed(g2d->regs + G2D_DMA_STATUS);
+		u32 cmdlist_no = g2d_reg_read(g2d, G2D_DMA_STATUS);
 
 		cmdlist_no = (cmdlist_no & G2D_DMA_LIST_DONE_COUNT) >>
 						G2D_DMA_LIST_DONE_COUNT_OFFSET;
 
 		g2d_finish_event(g2d, cmdlist_no);
 
-		writel_relaxed(0, g2d->regs + G2D_DMA_HOLD_CMD);
+		g2d_reg_write(g2d, G2D_DMA_HOLD_CMD, 0);
 		if (!(pending & G2D_INTP_ACMD_FIN)) {
-			writel_relaxed(G2D_DMA_CONTINUE,
-					g2d->regs + G2D_DMA_COMMAND);
+			g2d_reg_write(g2d, G2D_DMA_COMMAND, G2D_DMA_CONTINUE);
 		}
 	}
 
@@ -1205,6 +1227,7 @@ out:
 }
 
 static void g2d_cmdlist_prolog(struct g2d_cmdlist *cmdlist, bool event)
+
 {
 	cmdlist->last = 0;
 
@@ -1215,10 +1238,8 @@ static void g2d_cmdlist_prolog(struct g2d_cmdlist *cmdlist, bool event)
 	 * is executed rightly from next next command, so needs a dummy command
 	 * to next command of SFR clear command.
 	 */
-	cmdlist->data[cmdlist->last++] = G2D_SOFT_RESET;
-	cmdlist->data[cmdlist->last++] = G2D_SFRCLEAR;
-	cmdlist->data[cmdlist->last++] = G2D_SRC_BASE_ADDR;
-	cmdlist->data[cmdlist->last++] = 0;
+	g2d_add_cmd(cmdlist, G2D_SOFT_RESET, G2D_SFRCLEAR);
+	g2d_add_cmd(cmdlist, G2D_SRC_BASE_ADDR, 0);
 
 	/*
 	 * 'LIST_HOLD' command should be set to the DMA_HOLD_CMD_REG
@@ -1230,14 +1251,10 @@ static void g2d_cmdlist_prolog(struct g2d_cmdlist *cmdlist, bool event)
 	 * have been completed.
 	 */
 	if (event) {
-		cmdlist->data[cmdlist->last++] = G2D_INTEN;
-		cmdlist->data[cmdlist->last++] = G2D_INTEN_ACF | G2D_INTEN_GCF;
-		cmdlist->data[cmdlist->last++] = G2D_DMA_HOLD_CMD;
-		cmdlist->data[cmdlist->last++] = G2D_LIST_HOLD;
-	} else {
-		cmdlist->data[cmdlist->last++] = G2D_INTEN;
-		cmdlist->data[cmdlist->last++] = G2D_INTEN_ACF;
-	}
+		g2d_add_cmd(cmdlist, G2D_INTEN, G2D_INTEN_ACF | G2D_INTEN_GCF);
+		g2d_add_cmd(cmdlist, G2D_DMA_HOLD_CMD, G2D_LIST_HOLD);
+	} else
+		g2d_add_cmd(cmdlist, G2D_INTEN, G2D_INTEN_ACF);
 }
 
 /* ioctl functions */
