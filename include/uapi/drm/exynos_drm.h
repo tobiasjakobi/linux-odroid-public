@@ -139,6 +139,19 @@ enum e_drm_exynos_g2d_userptr_flags {
 		G2D_USERPTR_FLAG_READ | G2D_USERPTR_FLAG_WRITE
 };
 
+enum e_drm_exynos_g2d_exec_flags {
+	/* Execute commandlists asynchronously. */
+	G2D_EXEC_ASYNC			= (1 << 0),
+	/*
+	 * Issues a reset of the G2D driver context, i.e. does the following:
+	 * - flushes the current job that was executed with the 'exec' IOCTL
+	 * - discards the cmdlists that were submitted via the 'set_cmdlist2'
+	 *   IOCTL but were not executed yet
+	 * In case of a timeout during the flushing, the G2D hardware is reset.
+	 */
+	G2D_EXEC_RESET		= (1 << 1),
+};
+
 /*
  * Base commands:
  *
@@ -198,7 +211,7 @@ struct drm_exynos_g2d_set_cmdlist2 {
 };
 
 struct drm_exynos_g2d_exec {
-	__u64					async;
+	__u64					flags;
 };
 
 /**

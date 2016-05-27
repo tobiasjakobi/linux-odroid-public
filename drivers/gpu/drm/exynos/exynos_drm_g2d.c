@@ -2187,6 +2187,30 @@ int exynos_g2d_exec_ioctl(struct drm_device *drm_dev, void *data,
 	struct list_head *run_cmdlist;
 	struct list_head *event_list;
 
+	if (req->flags & G2D_EXEC_RESET) {
+		struct g2d_cmdlist_node *node, *n;
+
+		mutex_lock(&g2d->runqueue_mutex);
+		g2d_remove_runqueue_nodes(g2d, file);
+		mutex_unlock(&g2d->runqueue_mutex);
+
+		g2d_wait_finish(g2d, file);
+
+		mutex_lock(&g2d->cmdlist_mutex);
+		list_for_each_entry_safe(node, n, &file_priv->inuse_cmdlist, list) {
+			g2d_unmap_cmdlist_buffers(g2d, node, file);
+
+			list_move_tail(&node->list, &g2d->free_cmdlist);
+		}
+		mutex_unlock(&g2d->cmdlist_mutex);
+
+		/*
+		 * After removing all our runqueue nodes and freeing the cmdlists
+		 * there is nothing else to do, so extt here.
+		 */
+		goto out;
+	}
+
 	runqueue_node = kmem_cache_alloc(g2d->runqueue_slab, GFP_KERNEL);
 	if (unlikely(!runqueue_node))
 		return -ENOMEM;
@@ -2196,7 +2220,10 @@ int exynos_g2d_exec_ioctl(struct drm_device *drm_dev, void *data,
 	INIT_LIST_HEAD(run_cmdlist);
 	INIT_LIST_HEAD(event_list);
 	init_completion(&runqueue_node->complete);
-	runqueue_node->async = req->async;
+	runqueue_node->async = 0;
+
+	if (req->flags & G2D_EXEC_ASYNC)
+		runqueue_node->async = 1;
 
 	list_splice_init(&file_priv->inuse_cmdlist, run_cmdlist);
 	list_splice_init(&file_priv->event_list, event_list);
