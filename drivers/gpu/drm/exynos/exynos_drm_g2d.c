@@ -856,7 +856,7 @@ static void g2d_userptr_free_all(struct g2d_data *g2d, struct drm_file *filp)
 	mutex_unlock(&g2d->userptr_mutex);
 }
 
-static enum g2d_reg_type g2d_get_reg_type(struct g2d_data *g2d, int reg_offset)
+static enum g2d_reg_type g2d_get_reg_type(struct g2d_data *g2d, unsigned int reg_offset)
 {
 	enum g2d_reg_type reg_type;
 
@@ -864,8 +864,6 @@ static enum g2d_reg_type g2d_get_reg_type(struct g2d_data *g2d, int reg_offset)
 	case G2D_SRC_BASE_ADDR:
 	case G2D_SRC_STRIDE:
 	case G2D_SRC_COLOR_MODE:
-	case G2D_SRC_LEFT_TOP:
-	case G2D_SRC_RIGHT_BOTTOM:
 		reg_type = REG_TYPE_SRC;
 		break;
 	case G2D_SRC_PLANE2_BASE_ADDR:
@@ -874,8 +872,6 @@ static enum g2d_reg_type g2d_get_reg_type(struct g2d_data *g2d, int reg_offset)
 	case G2D_DST_BASE_ADDR:
 	case G2D_DST_STRIDE:
 	case G2D_DST_COLOR_MODE:
-	case G2D_DST_LEFT_TOP:
-	case G2D_DST_RIGHT_BOTTOM:
 		reg_type = REG_TYPE_DST;
 		break;
 	case G2D_DST_PLANE2_BASE_ADDR:
@@ -886,11 +882,6 @@ static enum g2d_reg_type g2d_get_reg_type(struct g2d_data *g2d, int reg_offset)
 		break;
 	case G2D_MSK_BASE_ADDR:
 		reg_type = REG_TYPE_MSK;
-		break;
-	default:
-		reg_type = REG_TYPE_NONE;
-		DRM_DEV_ERROR(g2d->dev, "Unknown register offset![%d]\n",
-			      reg_offset);
 		break;
 	}
 
