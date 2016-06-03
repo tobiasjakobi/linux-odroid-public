@@ -888,6 +888,33 @@ static enum g2d_reg_type g2d_get_reg_type(struct g2d_data *g2d, unsigned int reg
 	return reg_type;
 }
 
+static enum g2d_rect_type g2d_get_rect_type(unsigned int reg_offset)
+{
+	enum g2d_rect_type rect_type;
+
+	switch (reg_offset) {
+	case G2D_SRC_LEFT_TOP:
+	case G2D_SRC_RIGHT_BOTTOM:
+		rect_type = RECT_TYPE_SRC;
+		break;
+	case G2D_DST_LEFT_TOP:
+	case G2D_DST_RIGHT_BOTTOM:
+		rect_type = RECT_TYPE_DST;
+		break;
+	case G2D_MSK_LEFT_TOP:
+	case G2D_MSK_RIGHT_BOTTOM:
+		rect_type = RECT_TYPE_MSK;
+		break;
+	case G2D_CW_LEFT_TOP:
+	case G2D_CW_RIGHT_BOTTOM:
+	default:
+		rect_type = RECT_TYPE_CW;
+		break;
+	}
+
+	return rect_type;
+}
+
 static unsigned long g2d_get_buf_bpp(unsigned int format)
 {
 	unsigned long bpp;
