@@ -220,6 +220,14 @@ enum g2d_flag_bits {
 	G2D_BIT_ENGINE_BUSY,
 };
 
+enum g2d_rect_type {
+	RECT_TYPE_SRC,
+	RECT_TYPE_DST,
+	RECT_TYPE_MSK,
+	RECT_TYPE_CW,
+	MAX_RECT_TYPE_NR
+};
+
 /* cmdlist data structure */
 struct g2d_cmdlist {
 	u32		head;
@@ -262,6 +270,36 @@ struct g2d_buf_info {
 
 	bool		is_userptr;
 	bool		is_ycbcr;
+};
+
+/*
+ * Structure describing a BitBLT unit in a G2D operation.
+ *
+ * @rects: src, dst, msk and cw rectangle
+ *
+ * @pat_size: pattern size argument
+ * @pat_offset: pattern offset argument
+ *
+ * @src_select: source selection argument
+ * @bitblt_command: bitblt command argument
+ * @third_operand: third operand argument
+ * @rop4: ROP4 argument
+ * @rotate: rotate argument
+ *
+ * The structure is used to keep information necessary to
+ * validate the BitBLT unit.
+ */
+struct g2d_bitblt_info {
+	struct g2d_rect	rects[MAX_RECT_TYPE_NR];
+
+	unsigned long	pat_size;
+	unsigned long	pat_offset;
+
+	unsigned long	src_select;
+	unsigned long	bitblt_command;
+	unsigned long	third_operand;
+	unsigned long	rop4;
+	unsigned long	rotate;
 };
 
 struct drm_exynos_pending_g2d_event {
