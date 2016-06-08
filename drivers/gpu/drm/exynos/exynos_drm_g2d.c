@@ -949,27 +949,31 @@ static enum g2d_rect_type g2d_get_rect_type(unsigned int reg_offset)
 	return rect_type;
 }
 
-static unsigned long g2d_get_buf_bpp(unsigned int format)
+/*
+ * Returns the bits per pixel (bpp) value for a
+ * given G2D color format.
+ */
+static unsigned int g2d_get_buf_bpp(unsigned int format)
 {
-	unsigned long bpp;
+	unsigned int bpp;
 
 	switch (format) {
 	case G2D_FMT_XRGB8888:
 	case G2D_FMT_ARGB8888:
-		bpp = 4;
+		bpp = 32;
 		break;
 	case G2D_FMT_RGB565:
 	case G2D_FMT_XRGB1555:
 	case G2D_FMT_ARGB1555:
 	case G2D_FMT_XRGB4444:
 	case G2D_FMT_ARGB4444:
-		bpp = 2;
+		bpp = 16;
 		break;
 	case G2D_FMT_PACKED_RGB888:
-		bpp = 3;
+		bpp = 24;
 		break;
 	default:
-		bpp = 1;
+		bpp = 8;
 		break;
 	}
 
