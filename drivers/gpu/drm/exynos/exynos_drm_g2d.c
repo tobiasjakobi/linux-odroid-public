@@ -225,6 +225,19 @@ enum g2d_color_format {
 	G2D_FMT_YCbCr_2PLANE = (1 << 8),
 };
 
+enum g2d_mask_mode {
+	G2D_MSK_1BIT,
+	G2D_MSK_4BIT,
+	G2D_MSK_8BIT,
+	G2D_MSK_16BIT_565,
+	G2D_MSK_16BIT_1555,
+	G2D_MSK_16BIT_4444,
+	G2D_MSK_32BIT_8888,
+	G2D_MSK_4BIT_WINCE_AA_FONT,
+	G2D_MSK_MAX,
+	G2D_MSK_MASK = 0xF,
+};
+
 /* buffer valid length */
 #define G2D_LEN_MIN			1
 #define G2D_LEN_MAX			8000
@@ -1015,6 +1028,39 @@ static unsigned int g2d_get_buf_bpp(unsigned int format)
 		break;
 	default:
 		bpp = 8;
+		break;
+	}
+
+	return bpp;
+}
+
+/*
+ * Returns the bits per pixel (bpp) value for a
+ * given G2D mask mode.
+ */
+static unsigned int g2d_get_msk_bpp(unsigned int format)
+{
+	unsigned int bpp;
+
+	switch (format) {
+	case G2D_MSK_1BIT:
+		bpp = 1;
+		break;
+	case G2D_MSK_4BIT:
+	case G2D_MSK_4BIT_WINCE_AA_FONT:
+		bpp = 4;
+		break;
+	case G2D_MSK_8BIT:
+		bpp = 8;
+		break;
+	case G2D_MSK_16BIT_565:
+	case G2D_MSK_16BIT_1555:
+	case G2D_MSK_16BIT_4444:
+		bpp = 16;
+		break;
+	case G2D_MSK_32BIT_8888:
+	default:
+		bpp = 32;
 		break;
 	}
 
