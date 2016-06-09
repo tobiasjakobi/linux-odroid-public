@@ -1233,6 +1233,42 @@ static bool g2d_is_rect_valid(const struct g2d_rect *rect,
 	return ret;
 }
 
+static bool g2d_is_pattern_valid(const struct g2d_bitblt_info* info,
+				const struct g2d_buf_info *buf_info)
+{
+	unsigned int width, height, offset;
+	unsigned int last_row, last_pos;
+
+	width = info->pat_size & G2D_PAT_SIZE_MASK;
+	if (width == 0 || width > 8000)
+		goto err;
+
+	height = (info->pat_size >> G2D_PAT_HEIGHT_SHIFT) & G2D_PAT_SIZE_MASK;
+	if (height == 0 || height > 8000)
+		goto err;
+
+	offset = info->pat_offset & G2D_PAT_OFFSET_MASK;
+	if (offset >= 8000)
+		goto err;
+
+	offset = (info->pat_offset >> G2D_PAT_YOFFSET_SHIFT) & G2D_PAT_OFFSET_MASK;
+	if (offset >= 8000)
+		goto err;
+
+	/* For details on the computations see g2d_is_rect_valid() above. */
+	last_row = (width * buf_info->bpp + 7) / 8;
+	last_pos = (height - 1) * buf_info->stride + last_row;
+
+	if (last_pos >= buf_info->size)
+		goto err;
+
+	return true;
+
+err:
+	DRM_DEBUG_KMS("pattern is invalid\n");
+	return false;
+}
+
 static void g2d_dma_start(struct g2d_data *g2d,
 			  struct g2d_runqueue_node *runqueue_node)
 {
