@@ -1680,6 +1680,131 @@ fail:
 	return -EINVAL;
 }
 
+static int g2d_validate_cmds(struct g2d_data *g2d,
+				struct g2d_cmdlist_node *node,
+				unsigned int nr)
+{
+	struct g2d_cmdlist *cmdlist = node->cmdlist;
+	unsigned int reg_offset = 0;
+	u32 index;
+
+	for (index = cmdlist->last - 2 * nr; index < cmdlist->last; index += 2) {
+		enum g2d_rect_type rect_type;
+		struct g2d_rect *rect;
+
+		reg_offset = cmdlist->data[index] & 0x0fff;
+
+		if (unlikely(reg_offset < G2D_VALID_START ||
+				reg_offset > G2D_VALID_END))
+			goto err;
+		if (unlikely(reg_offset & 0x3))
+			goto err;
+
+		reg_offset >>= 2;
+
+		switch (reg_offset) {
+		/*
+		 * Coordinate registers.
+		 * These regs define the rectangles for src/dst/msk/cw.
+		 */
+		case G2D_SRC_LEFT_TOP:
+		case G2D_SRC_RIGHT_BOTTOM:
+		case G2D_DST_LEFT_TOP:
+		case G2D_DST_RIGHT_BOTTOM:
+		case G2D_MSK_LEFT_TOP:
+		case G2D_MSK_RIGHT_BOTTOM:
+		case G2D_CW_LEFT_TOP:
+		case G2D_CW_RIGHT_BOTTOM:
+			rect_type = g2d_get_rect_type(reg_offset);
+			rect = &node->bitblt_info.rects[rect_type];
+
+			if (g2d_is_left_top(reg_offset))
+				rect->left_top = cmdlist->data[index + 1];
+			else
+				rect->right_bottom = cmdlist->data[index + 1];
+			break;
+
+		/*
+		 * BitBLT start register.
+		 * Marks the end of the current BitBLT unit.
+		 */
+		case G2D_BITBLT_START:
+			if (g2d_validate_bitblt_start(cmdlist->data[index + 1], node) < 0)
+				goto err;
+			break;
+
+		/*
+		 * Vital registers.
+		 * These need to be stored to validate the BitBLT unit.
+		 */
+		case G2D_BITBLT_COMMAND:
+			node->bitblt_info.bitblt_command = cmdlist->data[index + 1];
+			break;
+		case G2D_ROTATE:
+			node->bitblt_info.rotate = cmdlist->data[index + 1];
+			break;
+		case G2D_SRC_SELECT:
+			node->bitblt_info.src_select = cmdlist->data[index + 1];
+			break;
+		case G2D_PAT_SIZE:
+			node->bitblt_info.pat_size = cmdlist->data[index + 1];
+			break;
+		case G2D_PAT_OFFSET:
+			node->bitblt_info.pat_offset = cmdlist->data[index + 1];
+			break;
+		case G2D_THIRD_OPERAND:
+			node->bitblt_info.third_operand = cmdlist->data[index + 1];
+			break;
+		case G2D_ROP4:
+			node->bitblt_info.rop4 = cmdlist->data[index + 1];
+			break;
+
+		/*
+		 * These registers don't need any specific validation.
+		 */
+		case G2D_BLEND_FUNCTION:
+		case G2D_ROUND_MODE:
+		case G2D_SRC_MASK_DIRECT:
+		case G2D_DST_PAT_DIRECT:
+		case G2D_SRC_REPEAT_MODE:
+		case G2D_SRC_PAD_VALUE:
+		case G2D_SRC_A8_RGB_EXT:
+		case G2D_SRC_SCALE_CTRL:
+		case G2D_SRC_XSCALE:
+		case G2D_SRC_YSCALE:
+		case G2D_DST_SELECT:
+		case G2D_DST_A8_RGB_EXT:
+		case G2D_MSK_REPEAT_MODE:
+		case G2D_MSK_PAD_VALUE:
+		case G2D_MSK_SCALE_CTRL:
+		case G2D_MSK_XSCALE:
+		case G2D_MSK_YSCALE:
+		case G2D_ALPHA:
+		case G2D_FG_COLOR:
+		case G2D_BG_COLOR:
+		case G2D_BS_COLOR:
+		case G2D_SF_COLOR:
+			break;
+
+		default:
+			goto err;
+			break;
+		}
+	}
+
+	/*
+	 * The regular commands have to end with a bitblt start.
+	 */
+	if (reg_offset != G2D_BITBLT_START)
+		goto err;
+
+	return 0;
+
+err:
+	dev_err(g2d->dev, "invalid command: 0x%x\n", reg_offset);
+	return -EINVAL;
+}
+
 static void g2d_cmdlist_prolog(struct g2d_cmdlist *cmdlist, bool event)
 
 {
