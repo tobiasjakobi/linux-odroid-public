@@ -1127,6 +1127,96 @@ static bool g2d_is_normal_rect_valid(const struct g2d_rect *rect,
 	return true;
 }
 
+/* Check if a YCbCr rectangle is valid. */
+static bool g2d_is_ycbcr_rect_valid(const struct g2d_rect *rect,
+				const struct g2d_buf_info *buf_info)
+{
+	u16 left_x, top_y, right_x, bottom_y;
+
+	unsigned int fmt;
+	bool plane2;
+
+	int width, height;
+	unsigned long last_row, last_pos;
+
+	left_x = rect->left_top & 0x1fff;
+	top_y = (rect->left_top >> 16) & 0x1fff;
+	right_x = rect->right_bottom & 0x1fff;
+	bottom_y = (rect->right_bottom >> 16) & 0x1fff;
+
+	fmt = buf_info->format & G2D_FMT_MASK;
+	plane2 = buf_info->format & G2D_FMT_YCbCr_2PLANE;
+
+	switch (fmt) {
+	case G2D_FMT_YCbCr420:
+		if ((top_y & 0x1) || (bottom_y & 0x1))
+			return false;
+		/* fall-through */
+	case G2D_FMT_YCbCr422:
+		if ((left_x & 0x1) || (right_x & 0x1))
+			return false;
+		break;
+	case G2D_FMT_YCbCr444:
+	default:
+		break;
+	}
+
+	width = (int)right_x - (int)left_x;
+	if (width < G2D_LEN_MIN || width > G2D_LEN_MAX)
+		return false;
+
+	height = (int)bottom_y - (int)top_y;
+	if (height < G2D_LEN_MIN || height > G2D_LEN_MAX)
+		return false;
+
+	/* Last position with offset. */
+	last_pos = ((unsigned long)bottom_y - 1) *
+		(unsigned long)buf_info->stride + (unsigned long)right_x;
+
+	/*
+	 * For YCbCr buffers stride equals the width of the buffer.
+	 * In case of uniplanar YCbCr422 we need to accomodate for
+	 * Y and CbCr being packed in a single 2-byte value.
+	 */
+	if (fmt == G2D_FMT_YCbCr422 && !plane2)
+		last_pos *= 2;
+
+	if (last_pos > buf_info->size)
+		return false;
+
+	/* If we have a uniplanar YCbCr format, we're done here. */
+	if (!plane2)
+		return true;
+
+	/* Incrementing buf_info gives us the corresponding plane2 buffer. */
+	buf_info++;
+
+	/* Adjust for different chroma subsampling. */
+	switch (fmt) {
+	case G2D_FMT_YCbCr420:
+		last_row = right_x;
+		last_pos = (bottom_y / 2) - 1;
+		break;
+	case G2D_FMT_YCbCr422:
+		last_row = right_x;
+		last_pos = bottom_y - 1;
+		break;
+	case G2D_FMT_YCbCr444:
+	default:
+		last_row = right_x * 2;
+		last_pos = bottom_y - 1;
+		break;
+	}
+
+	last_pos *= buf_info->stride;
+	last_pos += last_row;
+
+	if (last_pos > buf_info->size)
+		return false;
+
+	return true;
+}
+
 static void g2d_dma_start(struct g2d_data *g2d,
 			  struct g2d_runqueue_node *runqueue_node)
 {
