@@ -256,7 +256,6 @@ enum {
 };
 
 enum g2d_reg_type {
-	REG_TYPE_NONE = -1,
 	REG_TYPE_SRC,
 	REG_TYPE_SRC_PLANE2,
 	REG_TYPE_DST,
