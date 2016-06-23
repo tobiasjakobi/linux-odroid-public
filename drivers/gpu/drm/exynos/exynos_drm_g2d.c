@@ -1886,6 +1886,67 @@ err:
 	return -EINVAL;
 }
 
+static int g2d_validate_ycbcr(struct g2d_data *g2d,
+				struct g2d_cmdlist_node *node)
+{
+	unsigned int i;
+
+	for (i = 0; i < 2; ++i) {
+		struct g2d_buf_info *buf_info, *plane2_info;
+		unsigned int smask;
+		bool need_plane2;
+
+		buf_info = &node->buf_info[i * 2];
+
+		if (!buf_info->data)
+			continue;
+
+		if (!buf_info->is_ycbcr)
+			continue;
+
+		/*
+		 * Depending on the YCbCr format we have an additional stride
+		 * restriction. Also only the 422 format supports both
+		 * uniplanar and biplanar mode.
+		 */
+		switch (buf_info->format & G2D_FMT_MASK) {
+		case G2D_FMT_YCbCr444:
+			smask = 0;
+			need_plane2 = true;
+			break;
+		case G2D_FMT_YCbCr422:
+			smask = 1;
+			need_plane2 = false;
+			break;
+		case G2D_FMT_YCbCr420:
+		default:
+			smask = 1;
+			need_plane2 = true;
+		}
+
+		if (buf_info->stride & smask)
+			goto err;
+
+		if (need_plane2 && !(buf_info->format & G2D_FMT_YCbCr_2PLANE))
+			goto err;
+
+		if (buf_info->format & G2D_FMT_YCbCr_2PLANE) {
+			plane2_info = &node->buf_info[i * 2 + 1];
+
+			if (!plane2_info->data)
+				goto err;
+
+			plane2_info->stride = buf_info->stride * 2;
+		}
+	}
+
+	return 0;
+
+err:
+	dev_err(g2d->dev, "invalid YCbCr configuration\n");
+	return -EINVAL;
+}
+
 static void g2d_cmdlist_prolog(struct g2d_cmdlist *cmdlist, bool event)
 
 {
