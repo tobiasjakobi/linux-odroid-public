@@ -454,6 +454,7 @@ static int mali_probe(struct platform_device *pdev)
 		_mali_osk_wq_term();
 	}
 
+	mali_platform_device_deinit(mali_platform_device);
 	mali_platform_device = NULL;
 	return -EFAULT;
 }
