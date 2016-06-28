@@ -2001,6 +2001,20 @@ static void g2d_cmdlist_prolog(struct g2d_cmdlist *cmdlist, bool event)
 		g2d_add_cmd(cmdlist, G2D_INTEN, G2D_INTEN_ACF);
 }
 
+static void g2d_init_node(struct g2d_cmdlist_node *node)
+{
+	node->event = NULL;
+
+	memset(node->buf_info, 0x00, sizeof(struct g2d_buf_info) * MAX_BUF_TYPE_NR);
+
+	/* Clear BitBLT info and set defaults. */
+	memset(&node->bitblt_info, 0x00, sizeof(struct g2d_bitblt_info));
+	node->bitblt_info.pat_size = (G2D_PAT_DEFAULT << G2D_PAT_HEIGHT_SHIFT) | G2D_PAT_DEFAULT;
+	node->bitblt_info.src_select = G2D_SRC_SEL_DEFAULT;
+	node->bitblt_info.third_operand = G2D_THIRD_OP_DEFAULT;
+	node->bitblt_info.rop4 = (G2D_ROP4_DEFAULT << G2D_ROP4_MASKED_SHIFT) | G2D_ROP4_DEFAULT;
+}
+
 /* ioctl functions */
 int exynos_g2d_get_ver2_ioctl(struct drm_device *drm_dev, void *data,
 			     struct drm_file *file)
