@@ -942,6 +942,50 @@ static unsigned long g2d_get_buf_bpp(unsigned int format)
 	return bpp;
 }
 
+/* Check if a normal / non-YCbCr rectangle is valid. */
+static bool g2d_is_normal_rect_valid(const struct g2d_rect *rect,
+				const struct g2d_buf_info *buf_info)
+{
+	u16 left_x, top_y, right_x, bottom_y;
+
+	int width, height;
+	unsigned long last_row, last_pos;
+
+	left_x = rect->left_top & 0x1fff;
+	top_y = (rect->left_top >> 16) & 0x1fff;
+	right_x = rect->right_bottom & 0x1fff;
+	bottom_y = (rect->right_bottom >> 16) & 0x1fff;
+
+	/* This check also makes sure that right_x > left_x. */
+	width = (int)right_x - (int)left_x;
+	if (width < G2D_LEN_MIN || width > G2D_LEN_MAX)
+		return false;
+
+	/* This check also makes sure that bottom_y > top_y. */
+	height = (int)bottom_y - (int)top_y;
+	if (height < G2D_LEN_MIN || height > G2D_LEN_MAX)
+		return false;
+
+	/* Compute the number of bytes used by the last row. */
+	last_row = ((unsigned long)right_x * (unsigned long)buf_info->bpp + 7) / 8;
+
+	/* Compute the position of the last byte that the engine accesses. */
+	last_pos = ((unsigned long)bottom_y - 1) *
+		(unsigned long)buf_info->stride + last_row - 1;
+
+	/*
+	 * Since right_x > left_x and bottom_y > top_y we already know
+	 * that the first_pos < last_pos (first_pos being the position
+	 * of the first byte the engine accesses), it just remains to
+	 * check if last_pos is smaller then the buffer size.
+	 */
+
+	if (last_pos >= buf_info->size)
+		return false;
+
+	return true;
+}
+
 static void g2d_dma_start(struct g2d_data *g2d,
 			  struct g2d_runqueue_node *runqueue_node)
 {
