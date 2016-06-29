@@ -1217,6 +1217,22 @@ static bool g2d_is_ycbcr_rect_valid(const struct g2d_rect *rect,
 	return true;
 }
 
+static bool g2d_is_rect_valid(const struct g2d_rect *rect,
+				const struct g2d_buf_info *buf_info)
+{
+	bool ret;
+
+	if (buf_info->is_ycbcr)
+		ret = g2d_is_ycbcr_rect_valid(rect, buf_info);
+	else
+		ret = g2d_is_normal_rect_valid(rect, buf_info);
+
+	if (!ret)
+		DRM_DEBUG_KMS("rectangle is invalid\n");
+
+	return ret;
+}
+
 static void g2d_dma_start(struct g2d_data *g2d,
 			  struct g2d_runqueue_node *runqueue_node)
 {
