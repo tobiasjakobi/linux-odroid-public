@@ -137,12 +137,19 @@ static int mmc_regulator_set_voltage_if_supported(struct regulator *regulator,
 						  int max_uV)
 {
 	int current_uV;
+	int ret;
 
 	/*
 	 * Check if supported first to avoid errors since we may try several
 	 * signal levels during power up and don't want to show errors.
 	 */
-	if (!regulator_is_supported_voltage(regulator, min_uV, max_uV))
+	ret = regulator_is_supported_voltage(regulator, min_uV, max_uV);
+
+	/* Exit early if we don't have anything to do. */
+	if (ret == 2)
+		return 0;
+
+	if (!ret)
 		return -EINVAL;
 
 	/*
