@@ -3029,7 +3029,10 @@ EXPORT_SYMBOL_GPL(regulator_get_linear_step);
  * @min_uV: Minimum required voltage in uV.
  * @max_uV: Maximum required voltage in uV.
  *
- * Returns a boolean.
+ * Returns values 0, 1, 2 or a negative error code.
+ * The value '2' is special and indicates that while the regulator doesn't
+ * allow changing the voltage, the currently set voltage is within the
+ * requested range. The caller can then opt to just skip the setup.
  */
 int regulator_is_supported_voltage(struct regulator *regulator,
 				   int min_uV, int max_uV)
@@ -3040,16 +3043,14 @@ int regulator_is_supported_voltage(struct regulator *regulator,
 	/* If we can't change voltage check the current voltage */
 	if (!regulator_ops_is_valid(rdev, REGULATOR_CHANGE_VOLTAGE)) {
 		ret = regulator_get_voltage(regulator);
-		if (ret >= 0)
-			return min_uV <= ret && ret <= max_uV;
-		else
-			return ret;
+
+		return (min_uV <= ret && ret <= max_uV) ? 2 : 0;
 	}
 
 	/* Any voltage within constrains range is fine? */
 	if (rdev->desc->continuous_voltage_range)
-		return min_uV >= rdev->constraints->min_uV &&
-				max_uV <= rdev->constraints->max_uV;
+		return !!(min_uV >= rdev->constraints->min_uV &&
+				max_uV <= rdev->constraints->max_uV);
 
 	ret = regulator_count_voltages(regulator);
 	if (ret < 0)
