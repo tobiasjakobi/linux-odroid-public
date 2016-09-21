@@ -260,6 +260,13 @@
 	/* Clock the engine with 400MHz. */
 	assigned-clocks = <&clock CLK_SCLK_FIMG2D>;
 	assigned-clock-rates = <400000000>;
+
+	/*
+	 * The engine uses the ACP (Accelerator Coherency Port)
+	 * to access memory.
+	 */
+	//devfreq = <&bus_acp>;
+	devfreq = <&bus_dmc>;
 };
 
 &gpu {
