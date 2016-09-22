@@ -7,6 +7,7 @@
 #include <linux/clk.h>
 #include <linux/component.h>
 #include <linux/delay.h>
+#include <linux/devfreq.h>
 #include <linux/dma-mapping.h>
 #include <linux/err.h>
 #include <linux/interrupt.h>
@@ -397,6 +398,7 @@ struct g2d_data {
 	struct clk			*gate_clk;
 	void __iomem			*regs;
 	int				irq;
+	struct devfreq			*devfreq;
 	struct workqueue_struct		*g2d_workq;
 	struct work_struct		runqueue_work;
 	struct drm_device		*drm_dev;
@@ -2408,6 +2410,12 @@ static int g2d_probe(struct platform_device *pdev)
 	if (!g2d)
 		return -ENOMEM;
 
+	g2d->devfreq = devfreq_get_devfreq_by_phandle(dev, 0);
+	if (IS_ERR(g2d->devfreq)) {
+		g2d->devfreq = NULL;
+		return -EPROBE_DEFER;
+	}
+
 	g2d->runqueue_slab = kmem_cache_create("g2d_runqueue_slab",
 			sizeof(struct g2d_runqueue_node), 0, 0, NULL);
 	if (!g2d->runqueue_slab)
@@ -2536,6 +2544,8 @@ static int g2d_runtime_suspend(struct device *dev)
 
 	clk_disable_unprepare(g2d->gate_clk);
 
+	devfreq_turbo_put(g2d->devfreq);
+
 	return 0;
 }
 
@@ -2543,6 +2553,8 @@ static int g2d_runtime_resume(struct device *dev)
 {
 	struct g2d_data *g2d = dev_get_drvdata(dev);
 	int ret;
+
+	devfreq_turbo_get(g2d->devfreq);
 
 	ret = clk_prepare_enable(g2d->gate_clk);
 	if (unlikely(ret < 0))
