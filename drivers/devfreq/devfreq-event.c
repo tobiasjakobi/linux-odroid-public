@@ -439,7 +439,7 @@ static ssize_t name_show(struct device *dev, struct device_attribute *attr,
 {
 	struct devfreq_event_dev *edev = to_devfreq_event(dev);
 
-	if (!edev || !edev->desc)
+	if (!edev->desc)
 		return -EINVAL;
 
 	return sprintf(buf, "%s\n", edev->desc->name);
@@ -451,7 +451,7 @@ static ssize_t enable_count_show(struct device *dev,
 {
 	struct devfreq_event_dev *edev = to_devfreq_event(dev);
 
-	if (!edev || !edev->desc)
+	if (!edev->desc)
 		return -EINVAL;
 
 	return sprintf(buf, "%d\n", edev->enable_count);
