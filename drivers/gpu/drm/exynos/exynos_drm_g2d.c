@@ -16,6 +16,7 @@
 #include <linux/of.h>
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
+#include <linux/random.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
 #include <linux/workqueue.h>
@@ -26,6 +27,8 @@
 #include "exynos_drm_drv.h"
 #include "exynos_drm_g2d.h"
 #include "exynos_drm_gem.h"
+
+#define G2D_DEBUG_DISABLED
 
 #define G2D_HW_MAJOR_VER		4
 #define G2D_HW_MINOR_VER		1
@@ -1510,6 +1513,11 @@ static irqreturn_t g2d_irq_handler(int irq, void *dev_id)
 	if (pending)
 		g2d_reg_write(g2d, G2D_INTC_PEND, pending);
 
+#ifdef G2D_DEBUG_ENABLED
+	printk("g2d-irq: 0x%x\n", pending);
+	printk("g2d-irq: list_num = %u\n", g2d_reg_read(g2d, G2D_DMA_EXE_LIST_NUM));
+#endif
+
 	if (pending & G2D_INTP_GCMD_FIN) {
 		u32 cmdlist_no = g2d_reg_read(g2d, G2D_DMA_STATUS);
 
@@ -2017,6 +2025,84 @@ static void g2d_init_node(struct g2d_cmdlist_node *node)
 	node->bitblt_info.rop4 = (G2D_ROP4_DEFAULT << G2D_ROP4_MASKED_SHIFT) | G2D_ROP4_DEFAULT;
 }
 
+static void __maybe_unused g2d_bad_cmdlist(struct g2d_cmdlist_node *node)
+{
+	struct g2d_cmdlist *cmdlist = node->cmdlist;
+
+	const unsigned int bufsize = 8 * 8;
+	const unsigned int loopsize = 3;
+	const unsigned int xor_rop3 = 0xCC ^ 0xAA;
+
+	unsigned int i;
+	dma_addr_t dma_addr[2], jumppos[2];
+	unsigned long *buf[2];
+
+	printk("DEBUG: node = %pad\n", &node->dma_addr);
+	printk("DEBUG: available = %lu\n", G2D_CMDLIST_DATA_NUM);
+
+	dma_addr[0] = node->dma_addr + 4 + (G2D_CMDLIST_DATA_NUM - bufsize) * 4;
+	dma_addr[1] = node->dma_addr + 4 + (G2D_CMDLIST_DATA_NUM - 2*bufsize) * 4;
+	buf[0] = &cmdlist->data[G2D_CMDLIST_DATA_NUM - bufsize];
+	buf[1] = &cmdlist->data[G2D_CMDLIST_DATA_NUM - 2 * bufsize];
+
+	printk("DEBUG: buf = 0x%lx, 0x%lx\n", (unsigned long)dma_addr[0], (unsigned long)dma_addr[1]);
+
+	for (i = 0; i < bufsize; ++i) {
+		buf[0][i] = get_random_long();
+		buf[1][i] = get_random_long();
+	}
+
+	//g2d_add_cmd(cmdlist, G2D_INTEN, G2D_INTEN_ACF | G2D_INTEN_UCF);
+	//g2d_add_cmd(cmdlist, G2D_INTEN, G2D_INTEN_ACF);
+	//g2d_add_cmd(cmdlist, G2D_DMA_HOLD_CMD, G2D_USER_HOLD);
+
+	/* buffer configuration */
+	g2d_add_cmd(cmdlist, G2D_SRC_STRIDE, 8 * 4);
+	g2d_add_cmd(cmdlist, G2D_DST_STRIDE, 8 * 4);
+	g2d_add_cmd(cmdlist, G2D_SRC_COLOR_MODE, G2D_FMT_MAX);
+	g2d_add_cmd(cmdlist, G2D_DST_COLOR_MODE, G2D_FMT_MAX);
+	g2d_add_cmd(cmdlist, G2D_SRC_RIGHT_BOTTOM, 8 | (8 << 16));
+	g2d_add_cmd(cmdlist, G2D_DST_RIGHT_BOTTOM, 8 | (8 << 16));
+
+	/* setup src XOR dst operation */
+	g2d_add_cmd(cmdlist, G2D_ROP4, xor_rop3 | (xor_rop3 << 8));
+
+	/* enable alpha ROP */
+	g2d_add_cmd(cmdlist, G2D_BITBLT_COMMAND, 1 << 2),
+
+	g2d_add_cmd(cmdlist, G2D_SRC_BASE_ADDR, (unsigned long)dma_addr[1]);
+	g2d_add_cmd(cmdlist, G2D_DST_BASE_ADDR, (unsigned long)dma_addr[0]);
+	g2d_add_cmd(cmdlist, G2D_BITBLT_START, G2D_START_BITBLT);
+
+	cmdlist->head = cmdlist->last / 2;
+	jumppos[0] = node->dma_addr + 4 + (cmdlist->last + 1) * 4;
+
+	cmdlist->data[cmdlist->last++] = (unsigned long)jumppos[0];
+	cmdlist->data[cmdlist->last++] = loopsize;
+
+	//g2d_add_cmd(cmdlist, G2D_DMA_HOLD_CMD, G2D_USER_HOLD);
+	g2d_add_cmd(cmdlist, G2D_SRC_BASE_ADDR, (unsigned long)dma_addr[0]);
+	g2d_add_cmd(cmdlist, G2D_DST_BASE_ADDR, (unsigned long)dma_addr[1]);
+	g2d_add_cmd(cmdlist, G2D_BITBLT_START, G2D_START_BITBLT);
+
+	jumppos[1] = node->dma_addr + 4 + (cmdlist->last + 1) * 4;
+
+	cmdlist->data[cmdlist->last++] = (unsigned long)jumppos[1];
+	cmdlist->data[cmdlist->last++] = loopsize;
+
+	//g2d_add_cmd(cmdlist, G2D_DMA_HOLD_CMD, G2D_USER_HOLD);
+	g2d_add_cmd(cmdlist, G2D_SRC_BASE_ADDR, (unsigned long)dma_addr[1]);
+	g2d_add_cmd(cmdlist, G2D_DST_BASE_ADDR, (unsigned long)dma_addr[0]);
+	g2d_add_cmd(cmdlist, G2D_BITBLT_START, G2D_START_BITBLT);
+
+	cmdlist->data[cmdlist->last] = (unsigned long)jumppos[0];
+
+	// protect against subsequent cmdlists
+	cmdlist->last++;
+
+	printk("DEBUG: jump = 0x%lx, 0x%lx\n", (unsigned long)jumppos[0], (unsigned long)jumppos[1]);
+}
+
 /* ioctl functions */
 int exynos_g2d_get_ver2_ioctl(struct drm_device *drm_dev, void *data,
 			     struct drm_file *file)
@@ -2073,6 +2159,15 @@ int exynos_g2d_set_cmdlist2_ioctl(struct drm_device *drm_dev, void *data,
 
 	cmdlist = node->cmdlist;
 	g2d_cmdlist_prolog(cmdlist, event);
+
+#ifdef G2D_DEBUG_ENABLED
+	/* G2D engine hangtest */
+	if (req->flags & 0x1) {
+		g2d_bad_cmdlist(node);
+
+		goto out;
+	}
+#endif
 
 	/* Check if adding incoming commands exceed the size of the cmdlist. */
 	size = cmdlist->last + req->cmd_base_nr * 2 + req->cmd_nr * 2;
@@ -2144,6 +2239,7 @@ int exynos_g2d_set_cmdlist2_ioctl(struct drm_device *drm_dev, void *data,
 	/* tail */
 	cmdlist->data[cmdlist->last] = 0;
 
+out:
 	if (event) {
 		struct drm_exynos_pending_g2d_event *e;
 
