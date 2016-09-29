@@ -118,6 +118,7 @@ struct mixer_context {
 	unsigned long		active_windows;
 	unsigned long		flags;
 	enum mixer_range_mode	range_mode;
+	struct drm_property	*mixer_range_property;
 
 	int			irq;
 	void __iomem		*mixer_regs;
@@ -1165,6 +1166,70 @@ static bool mixer_mode_fixup(struct exynos_drm_crtc *crtc,
 	return false;
 }
 
+static const struct drm_prop_enum_list mixer_range_names[] = {
+        { MXR_RANGE_AUTOMATIC, "Automatic" },
+        { MXR_RANGE_FULL, "Full" },
+        { MXR_RANGE_NARROW, "Narrow (16:235)" },
+};
+
+static void mixer_attach_range_property(struct drm_device *dev,
+					struct exynos_drm_crtc *crtc)
+{
+	struct mixer_context *ctx = crtc->ctx;
+        struct drm_property *prop;
+
+        prop = ctx->mixer_range_property;
+        if (!prop) {
+                prop = drm_property_create_enum(dev, DRM_MODE_PROP_ENUM,
+						"RGB Range",
+						mixer_range_names,
+						ARRAY_SIZE(mixer_range_names));
+                if (!prop)
+                        return;
+
+                ctx->mixer_range_property = prop;
+        }
+
+        drm_object_attach_property(&crtc->base.base, prop, 0);
+}
+
+static int mixer_atomic_set_property(struct exynos_drm_crtc *crtc,
+				     struct drm_crtc_state *state,
+				     struct drm_property *property,
+				     uint64_t val)
+{
+	struct mixer_context *ctx = crtc->ctx;
+
+	if (property == ctx->mixer_range_property) {
+		switch (val) {
+		case MXR_RANGE_AUTOMATIC:
+		case MXR_RANGE_FULL:
+		case MXR_RANGE_NARROW:
+			ctx->range_mode = val;
+			break;
+		default:
+			return -EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+static int mixer_atomic_get_property(struct exynos_drm_crtc *crtc,
+				     const struct drm_crtc_state *state,
+				     struct drm_property *property,
+				     uint64_t *val)
+{
+	struct mixer_context *ctx = crtc->ctx;
+
+	if (property == ctx->mixer_range_property) {
+		*val = ctx->range_mode;
+		return 0;
+        }
+
+        return -EINVAL;
+}
+
 static const struct exynos_drm_crtc_ops mixer_crtc_ops = {
 	.atomic_enable		= mixer_atomic_enable,
 	.atomic_disable		= mixer_atomic_disable,
@@ -1176,6 +1241,8 @@ static const struct exynos_drm_crtc_ops mixer_crtc_ops = {
 	.atomic_flush		= mixer_atomic_flush,
 	.mode_valid		= mixer_mode_valid,
 	.mode_fixup		= mixer_mode_fixup,
+	.atomic_set_property	= mixer_atomic_set_property,
+	.atomic_get_property	= mixer_atomic_get_property,
 };
 
 static const struct mixer_drv_data exynos5420_mxr_drv_data = {
@@ -1252,6 +1319,8 @@ static int mixer_bind(struct device *dev, struct device *manager, void *data)
 		ret = PTR_ERR(ctx->crtc);
 		goto free_ctx;
 	}
+
+	mixer_attach_range_property(drm_dev, ctx->crtc);
 
 	return 0;
 
