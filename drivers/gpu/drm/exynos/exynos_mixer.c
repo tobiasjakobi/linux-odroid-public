@@ -75,6 +75,12 @@ enum mixer_flag_bits {
 	MXR_BIT_HAS_SCLK,
 };
 
+enum mixer_range_mode {
+	MXR_RANGE_AUTOMATIC,
+	MXR_RANGE_FULL,
+	MXR_RANGE_NARROW,
+};
+
 static const uint32_t mixer_formats[] = {
 	DRM_FORMAT_XRGB4444,
 	DRM_FORMAT_ARGB4444,
@@ -111,6 +117,7 @@ struct mixer_context {
 	struct exynos_drm_plane	planes[MIXER_WIN_NR];
 	unsigned long		active_windows;
 	unsigned long		flags;
+	enum mixer_range_mode	range_mode;
 
 	int			irq;
 	void __iomem		*mixer_regs;
@@ -439,6 +446,7 @@ static void mixer_cfg_scan(struct mixer_context *ctx, int width, int height)
 static void mixer_cfg_rgb_fmt(struct mixer_context *ctx, struct drm_display_mode *mode)
 {
 	enum hdmi_quantization_range range = drm_default_rgb_quant_range(mode);
+	enum mixer_range_mode rm = ctx->range_mode;
 	u32 val;
 
 	if (mode->vdisplay < 720) {
@@ -456,10 +464,16 @@ static void mixer_cfg_rgb_fmt(struct mixer_context *ctx, struct drm_display_mode
 			MXR_CSC_CT( 0.440, -0.399, -0.040));
 	}
 
-	if (range == HDMI_QUANTIZATION_RANGE_FULL)
+	if (rm == MXR_RANGE_AUTOMATIC) {
+		if (range == HDMI_QUANTIZATION_RANGE_FULL)
+			val |= MXR_CFG_QUANT_RANGE_FULL;
+		else
+			val |= MXR_CFG_QUANT_RANGE_LIMITED;
+	} else if (rm == MXR_RANGE_FULL) {
 		val |= MXR_CFG_QUANT_RANGE_FULL;
-	else
+	} else if (rm == MXR_RANGE_NARROW) {
 		val |= MXR_CFG_QUANT_RANGE_LIMITED;
+	}
 
 	mixer_reg_writemask(ctx, MXR_CFG, val, MXR_CFG_RGB_FMT_MASK);
 }
