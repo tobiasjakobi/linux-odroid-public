@@ -153,6 +153,14 @@ struct exynos_drm_crtc_ops {
 			      struct exynos_drm_plane *plane);
 	void (*atomic_flush)(struct exynos_drm_crtc *crtc);
 	void (*te_handler)(struct exynos_drm_crtc *crtc);
+	int (*atomic_set_property)(struct exynos_drm_crtc *crtc,
+				   struct drm_crtc_state *state,
+				   struct drm_property *property,
+				   uint64_t val);
+	int (*atomic_get_property)(struct exynos_drm_crtc *crtc,
+				   const struct drm_crtc_state *state,
+				   struct drm_property *property,
+				   uint64_t *val);
 };
 
 struct exynos_drm_clk {
