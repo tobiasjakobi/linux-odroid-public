@@ -165,11 +165,7 @@ extern int mali_platform_runtime_resume(struct device *dev);
 /* Linux power management operations provided by the Mali device driver */
 
 static const struct dev_pm_ops mali_dev_pm_ops = {
-#ifdef CONFIG_PM
-	.runtime_suspend = mali_driver_runtime_suspend,
-	.runtime_resume = mali_driver_runtime_resume,
-	.runtime_idle = mali_driver_runtime_idle,
-#endif
+	SET_RUNTIME_PM_OPS(mali_driver_runtime_suspend, mali_driver_runtime_resume, mali_driver_runtime_idle)
 	.suspend = mali_driver_suspend_scheduler,
 	.resume = mali_driver_resume_scheduler,
 	.freeze = mali_driver_suspend_scheduler,
