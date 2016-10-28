@@ -8,6 +8,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <linux/delay.h>
+
 #include "mali_kernel_common.h"
 #include "mali_osk.h"
 #include "mali_osk_list.h"
@@ -268,7 +270,11 @@ MALI_STATIC_INLINE _mali_osk_errcode_t mali_mmu_raw_reset(struct mali_mmu_core *
 
 	mali_hw_core_register_write(&mmu->hw_core, MALI_MMU_REGISTER_DTE_ADDR, 0xCAFEBABE);
 	MALI_DEBUG_ASSERT(0xCAFEB000 == mali_hw_core_register_read(&mmu->hw_core, MALI_MMU_REGISTER_DTE_ADDR));
+
 	mali_hw_core_register_write(&mmu->hw_core, MALI_MMU_REGISTER_COMMAND, MALI_MMU_COMMAND_HARD_RESET);
+	usleep_range(4000, 10000);
+	mali_hw_core_register_write(&mmu->hw_core, MALI_MMU_REGISTER_COMMAND, MALI_MMU_COMMAND_HARD_RESET);
+	usleep_range(2000, 5000);
 
 	for (i = 0; i < MALI_REG_POLL_COUNT_FAST; ++i) {
 		if (mali_hw_core_register_read(&mmu->hw_core, MALI_MMU_REGISTER_DTE_ADDR) == 0) {
