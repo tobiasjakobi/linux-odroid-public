@@ -383,20 +383,6 @@ struct mali_gpu_device_data {
 	/* Shared GPU memory */
 	unsigned long shared_mem_size;
 
-	/*
-	 * Mali PMU switch delay.
-	 * Only needed if the power gates are connected to the PMU in a high fanout
-	 * network. This value is the number of Mali clock cycles it takes to
-	 * enable the power gates and turn on the power mesh.
-	 * This value will have no effect if a daisy chain implementation is used.
-	 */
-	u32 pmu_switch_delay;
-
-	/* Mali Dynamic power domain configuration in sequence from 0-11
-	 *  GP  PP0 PP1  PP2  PP3  PP4  PP5  PP6  PP7, L2$0 L2$1 L2$2
-	 */
-	u16 pmu_domain_config[12];
-
 	/* Dedicated GPU memory range (physical). */
 	unsigned long dedicated_mem_start;
 	unsigned long dedicated_mem_size;
