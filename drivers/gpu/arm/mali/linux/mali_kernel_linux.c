@@ -161,6 +161,9 @@ static int mali_driver_runtime_idle(struct device *dev);
 extern int mali_platform_device_init(struct platform_device *device);
 extern int mali_platform_device_deinit(struct platform_device *device);
 
+extern int mali_platform_runtime_suspend(struct device *dev);
+extern int mali_platform_runtime_resume(struct device *dev);
+
 /* Linux power management operations provided by the Mali device driver */
 
 static const struct dev_pm_ops mali_dev_pm_ops = {
@@ -527,23 +530,32 @@ static int mali_driver_resume_scheduler(struct device *dev)
 #ifdef CONFIG_PM
 static int mali_driver_runtime_suspend(struct device *dev)
 {
-	if (MALI_TRUE == mali_pm_runtime_suspend()) {
-		/* Tracing the frequency and voltage after mali is suspended */
-		_mali_osk_profiling_add_event(MALI_PROFILING_EVENT_TYPE_SINGLE |
-					      MALI_PROFILING_EVENT_CHANNEL_GPU |
-					      MALI_PROFILING_EVENT_REASON_SINGLE_GPU_FREQ_VOLT_CHANGE,
-					      0,
-					      0,
-					      0, 0, 0);
+	int ret;
 
-		return 0;
-	} else {
+	if (MALI_TRUE != mali_pm_runtime_suspend())
 		return -EBUSY;
-	}
+
+	/* Tracing the frequency and voltage after mali is suspended */
+	_mali_osk_profiling_add_event(MALI_PROFILING_EVENT_TYPE_SINGLE |
+				      MALI_PROFILING_EVENT_CHANNEL_GPU |
+				      MALI_PROFILING_EVENT_REASON_SINGLE_GPU_FREQ_VOLT_CHANGE,
+				      0,
+				      0,
+				      0, 0, 0);
+
+	ret = mali_platform_runtime_suspend(dev);
+
+	return ret;
 }
 
 static int mali_driver_runtime_resume(struct device *dev)
 {
+	int ret;
+
+	ret = mali_platform_runtime_resume(dev);
+	if (ret < 0)
+		return ret;
+
 	/* Tracing the frequency and voltage after mali is resumed */
 #if defined(CONFIG_MALI400_PROFILING) && defined(CONFIG_MALI_DVFS)
 	/* Just call mali_get_current_gpu_clk_item() once,to record current clk info.*/
