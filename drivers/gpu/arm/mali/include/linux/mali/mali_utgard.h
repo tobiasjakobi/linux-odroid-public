@@ -379,6 +379,8 @@ struct mali_gpu_clock {
 	unsigned int num_of_steps;
 };
 
+typedef void (*mali_utilization_cb_fnc)(void *ctx, const struct mali_gpu_utilization_data *data);
+
 struct mali_gpu_device_data {
 	/* Shared GPU memory */
 	unsigned long shared_mem_size;
@@ -398,7 +400,10 @@ struct mali_gpu_device_data {
 	unsigned long control_interval;
 
 	/* Function that will receive periodic GPU utilization numbers */
-	void (*utilization_callback)(struct mali_gpu_utilization_data *data);
+	mali_utilization_cb_fnc utilization_callback;
+
+	/* Context data for the utilization callback. */
+	void *utilization_context;
 
 	/* Fuction that platform callback for freq setting, needed when CONFIG_MALI_DVFS enabled */
 	int (*set_freq)(int setting_clock_step);

@@ -39,7 +39,8 @@ static u32 last_utilization_gpu = 0 ;
 static u32 last_utilization_gp = 0 ;
 static u32 last_utilization_pp = 0 ;
 
-void (*mali_utilization_callback)(struct mali_gpu_utilization_data *data) = NULL;
+mali_utilization_cb_fnc mali_utilization_callback = NULL;
+void *mali_utilization_context = NULL;
 
 /* Define the first timer control timer timeout in milliseconds */
 static u32 mali_control_first_timeout = 100;
@@ -187,6 +188,7 @@ _mali_osk_errcode_t mali_utilization_init(void)
 	if (_MALI_OSK_ERR_OK == _mali_osk_device_data_get(&data)) {
 		if (NULL != data.utilization_callback) {
 			mali_utilization_callback = data.utilization_callback;
+			mali_utilization_context = data.utilization_context;
 			MALI_DEBUG_PRINT(2, ("Mali GPU Utilization: Utilization handler installed \n"));
 		}
 	}
@@ -393,7 +395,7 @@ void mali_utilization_platform_realize(struct mali_gpu_utilization_data *util_da
 {
 	MALI_DEBUG_ASSERT_POINTER(mali_utilization_callback);
 
-	mali_utilization_callback(util_data);
+	mali_utilization_callback(mali_utilization_context, util_data);
 }
 
 void mali_utilization_reset(void)
