@@ -334,7 +334,7 @@ int mali_module_init(void)
 	int err = 0;
 
 	MALI_DEBUG_PRINT(2, ("Inserting Mali v%d device driver. \n", _MALI_API_VERSION));
-	MALI_DEBUG_PRINT(2, ("Driver revision: %s\n", SVN_REV_STRING));
+	MALI_DEBUG_PRINT(2, ("Driver revision: %s\n", DRIVER_REV_STRING));
 
 #if MALI_ENABLE_CPU_CYCLES
 	mali_init_cpu_time_counters_on_all_cpus(0);
@@ -861,4 +861,4 @@ module_exit(mali_module_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("ARM Ltd.");
-MODULE_VERSION(SVN_REV_STRING);
+MODULE_VERSION(DRIVER_REV_STRING);
