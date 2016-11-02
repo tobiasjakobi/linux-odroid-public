@@ -182,7 +182,7 @@ struct mali_gpu_utilization_data *mali_utilization_calculate(u64 *start_time, u6
 
 _mali_osk_errcode_t mali_utilization_init(void)
 {
-#if USING_GPU_UTILIZATION
+#if defined(CONFIG_MALI_PM_UTILIZATION)
 	_mali_osk_device_data data;
 
 	if (_MALI_OSK_ERR_OK == _mali_osk_device_data_get(&data)) {
@@ -192,7 +192,7 @@ _mali_osk_errcode_t mali_utilization_init(void)
 			MALI_DEBUG_PRINT(2, ("Mali GPU Utilization: Utilization handler installed \n"));
 		}
 	}
-#endif /* defined(USING_GPU_UTILIZATION) */
+#endif /* defined(CONFIG_MALI_PM_UTILIZATION) */
 
 	if (NULL == mali_utilization_callback) {
 		MALI_DEBUG_PRINT(2, ("Mali GPU Utilization: No platform utilization handler installed\n"));
