@@ -544,7 +544,7 @@ void mali_scheduler_complete_pp_job(struct mali_pp_job *job,
 	}
 
 	if (dequeued) {
-#if defined(CONFIG_MALI_DVFS)
+#if defined(CONFIG_MALI_PM_DVFS)
 		if (mali_pp_job_is_window_surface(job)) {
 			struct mali_session_data *session;
 			session = mali_pp_job_get_session(job);

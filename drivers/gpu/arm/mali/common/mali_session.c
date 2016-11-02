@@ -65,7 +65,7 @@ u32 mali_session_get_count(void)
  * Get the max completed window jobs from all active session,
  * which will be used in window render frame per sec calculate
  */
-#if defined(CONFIG_MALI_DVFS)
+#if defined(CONFIG_MALI_PM_DVFS)
 u32 mali_session_max_window_num(void)
 {
 	struct mali_session_data *session, *tmp;

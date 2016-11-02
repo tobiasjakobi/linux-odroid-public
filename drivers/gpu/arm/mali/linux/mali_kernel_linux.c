@@ -39,7 +39,7 @@
 #if defined(CONFIG_MALI400_INTERNAL_PROFILING)
 #include "mali_profiling_internal.h"
 #endif
-#if defined(CONFIG_MALI400_PROFILING) && defined(CONFIG_MALI_DVFS)
+#if defined(CONFIG_MALI400_PROFILING) && defined(CONFIG_MALI_PM_DVFS)
 #include "mali_osk_profiling.h"
 #include "mali_dvfs_policy.h"
 static int is_first_resume = 1;
@@ -100,7 +100,7 @@ extern int mali_max_pp_cores_group_2;
 module_param(mali_max_pp_cores_group_2, int, S_IRUSR | S_IRGRP | S_IROTH);
 MODULE_PARM_DESC(mali_max_pp_cores_group_2, "Limit the number of PP cores to use from second PP group (Mali-450 only).");
 
-#if defined(CONFIG_MALI_DVFS)
+#if defined(CONFIG_MALI_PM_DVFS)
 /** the max fps the same as display vsync default 60, can set by module insert parameter */
 extern int mali_max_system_fps;
 module_param(mali_max_system_fps, int, S_IRUSR | S_IWUSR | S_IWGRP | S_IRGRP | S_IROTH);
@@ -363,7 +363,7 @@ int mali_module_init(void)
 #endif
 
 	/* Tracing the current frequency and voltage from boot/insmod*/
-#if defined(CONFIG_MALI400_PROFILING) && defined(CONFIG_MALI_DVFS)
+#if defined(CONFIG_MALI400_PROFILING) && defined(CONFIG_MALI_PM_DVFS)
 	/* Just call mali_get_current_gpu_clk_item(),to record current clk info.*/
 	mali_get_current_gpu_clk_item(&mali_gpu_clk[0]);
 	_mali_osk_profiling_add_event(MALI_PROFILING_EVENT_TYPE_SINGLE |
@@ -505,7 +505,7 @@ static int mali_driver_suspend_scheduler(struct device *dev)
 static int mali_driver_resume_scheduler(struct device *dev)
 {
 	/* Tracing the frequency and voltage after mali is resumed */
-#if defined(CONFIG_MALI400_PROFILING) && defined(CONFIG_MALI_DVFS)
+#if defined(CONFIG_MALI400_PROFILING) && defined(CONFIG_MALI_PM_DVFS)
 	/* Just call mali_get_current_gpu_clk_item() once,to record current clk info.*/
 	if (is_first_resume == 1) {
 		mali_get_current_gpu_clk_item(&mali_gpu_clk[1]);
@@ -552,7 +552,7 @@ static int mali_driver_runtime_resume(struct device *dev)
 		return ret;
 
 	/* Tracing the frequency and voltage after mali is resumed */
-#if defined(CONFIG_MALI400_PROFILING) && defined(CONFIG_MALI_DVFS)
+#if defined(CONFIG_MALI400_PROFILING) && defined(CONFIG_MALI_PM_DVFS)
 	/* Just call mali_get_current_gpu_clk_item() once,to record current clk info.*/
 	if (is_first_resume == 1) {
 		mali_get_current_gpu_clk_item(&mali_gpu_clk[1]);

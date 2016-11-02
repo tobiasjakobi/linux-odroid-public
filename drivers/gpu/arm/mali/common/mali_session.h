@@ -36,7 +36,7 @@ struct mali_session_data {
 	_MALI_OSK_LIST_HEAD(link); /**< Link for list of all sessions */
 	_MALI_OSK_LIST_HEAD(pp_job_list); /**< List of all PP jobs on this session */
 
-#if defined(CONFIG_MALI_DVFS)
+#if defined(CONFIG_MALI_PM_DVFS)
 	atomic_t number_of_window_jobs; /**< Record the window jobs completed on this session in a period */
 #endif
 
@@ -100,7 +100,7 @@ MALI_STATIC_INLINE void mali_session_send_notification(struct mali_session_data 
 	_mali_osk_notification_queue_send(session->ioctl_queue, object);
 }
 
-#if defined(CONFIG_MALI_DVFS)
+#if defined(CONFIG_MALI_PM_DVFS)
 
 MALI_STATIC_INLINE void mali_session_inc_num_window_jobs(struct mali_session_data *session)
 {

@@ -241,7 +241,7 @@ void mali_utilization_gp_start(void)
 
 			if (is_resume) {
 				/* Do some policy in new period for performance consideration */
-#if defined(CONFIG_MALI_DVFS)
+#if defined(CONFIG_MALI_PM_DVFS)
 				/* Clear session->number_of_window_jobs, prepare parameter for dvfs */
 				mali_session_max_window_num();
 				if (0 == last_utilization_gpu) {
@@ -299,7 +299,7 @@ void mali_utilization_pp_start(void)
 			mali_utilization_data_unlock();
 
 			if (is_resume) {
-#if defined(CONFIG_MALI_DVFS)
+#if defined(CONFIG_MALI_PM_DVFS)
 				/* Clear session->number_of_window_jobs, prepare parameter for dvfs */
 				mali_session_max_window_num();
 				if (0 == last_utilization_gpu) {
@@ -384,11 +384,11 @@ void mali_utilization_pp_end(void)
 
 mali_bool mali_utilization_enabled(void)
 {
-#if defined(CONFIG_MALI_DVFS)
+#if defined(CONFIG_MALI_PM_DVFS)
 	return mali_dvfs_policy_enabled();
 #else
 	return (NULL != mali_utilization_callback);
-#endif /* defined(CONFIG_MALI_DVFS) */
+#endif /* defined(CONFIG_MALI_PM_DVFS) */
 }
 
 void mali_utilization_platform_realize(struct mali_gpu_utilization_data *util_data)

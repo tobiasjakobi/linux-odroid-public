@@ -38,7 +38,7 @@ static void mali_control_timer_callback(void *arg)
 		util_data = mali_utilization_calculate(&period_start_time, &time_period);
 
 		if (util_data) {
-#if defined(CONFIG_MALI_DVFS)
+#if defined(CONFIG_MALI_PM_DVFS)
 			mali_dvfs_policy_realize(util_data, time_period);
 #else
 			mali_utilization_platform_realize(util_data);

@@ -868,7 +868,7 @@ _mali_osk_errcode_t mali_initialize_subsystems(void)
 		return err;
 	}
 
-#if defined(CONFIG_MALI_DVFS)
+#if defined(CONFIG_MALI_PM_DVFS)
 	err = mali_dvfs_policy_init();
 	if (_MALI_OSK_ERR_OK != err) {
 		mali_pm_init_end();
@@ -1124,7 +1124,7 @@ _mali_osk_errcode_t _mali_ukk_open(void **context)
 		MALI_ERROR(_MALI_OSK_ERR_NOMEM);
 	}
 
-#if defined(CONFIG_MALI_DVFS)
+#if defined(CONFIG_MALI_PM_DVFS)
 	atomic_set(&session->number_of_window_jobs, 0);
 #endif
 
