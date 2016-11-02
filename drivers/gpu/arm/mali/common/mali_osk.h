@@ -16,6 +16,7 @@
 #ifndef __MALI_OSK_H__
 #define __MALI_OSK_H__
 
+#include "mali_osk_config.h"
 #include "mali_osk_types.h"
 #include "mali_osk_specific.h"           /* include any per-os specifics */
 #include "mali_osk_locks.h"
