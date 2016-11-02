@@ -373,10 +373,10 @@ void mali_pp_job_start(struct mali_pp_core *core, struct mali_pp_job *job, u32 s
 
 	/* This is the command that starts the core.
 	 *
-	 * Don't actually run the job if PROFILING_SKIP_PP_JOBS are set, just
+	 * Don't actually run the job if MALI_PROFILING_SKIP_PP_JOBS are set, just
 	 * force core to assert the completion interrupt.
 	 */
-#if !defined(PROFILING_SKIP_PP_JOBS)
+#if !defined(MALI_PROFILING_SKIP_PP_JOBS)
 	mali_hw_core_register_write_relaxed(&core->hw_core, MALI200_REG_ADDR_MGMT_CTRL_MGMT, MALI200_REG_VAL_CTRL_MGMT_START_RENDERING);
 #else
 	mali_hw_core_register_write_relaxed(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_RAWSTAT, MALI200_REG_VAL_IRQ_END_OF_FRAME);

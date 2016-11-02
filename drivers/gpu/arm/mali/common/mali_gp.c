@@ -231,10 +231,10 @@ void mali_gp_job_start(struct mali_gp_core *core, struct mali_gp_job *job)
 
 	/* This is the command that starts the core.
 	 *
-	 * Don't actually run the job if PROFILING_SKIP_PP_JOBS are set, just
+	 * Don't actually run the job if MALI_PROFILING_SKIP_PP_JOBS are set, just
 	 * force core to assert the completion interrupt.
 	 */
-#if !defined(PROFILING_SKIP_GP_JOBS)
+#if !defined(MALI_PROFILING_SKIP_GP_JOBS)
 	mali_hw_core_register_write_relaxed(&core->hw_core, MALIGP2_REG_ADDR_MGMT_CMD, startcmd);
 #else
 	{
