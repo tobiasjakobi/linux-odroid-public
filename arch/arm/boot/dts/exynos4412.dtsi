@@ -741,6 +741,19 @@
 			  "pmu";
 	operating-points-v2 = <&gpu_opp_table>;
 
+	/*
+	 * Propagate VPLL output clock to SCLK_G3D and
+	 * ensure that the DIV_G3D divider is 1.
+	 */
+	assigned-clocks = <&clock CLK_MOUT_G3D1>, <&clock CLK_MOUT_G3D>,
+			  <&clock CLK_FOUT_VPLL>, <&clock CLK_SCLK_G3D>;
+	assigned-clock-parents = <&clock CLK_SCLK_VPLL>,
+				 <&clock CLK_MOUT_G3D1>;
+	assigned-clock-rates = <0>, <0>, <160000000>, <160000000>;
+
+	/* G3D is part of the leftbus domain. */
+	devfreq = <&bus_leftbus>;
+
 	gpu_opp_table: opp_table {
 		compatible = "operating-points-v2";
 
