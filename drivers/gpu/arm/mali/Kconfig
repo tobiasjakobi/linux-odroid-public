@@ -43,12 +43,42 @@ config MALI400_INTERNAL_PROFILING
 	---help---
 	  This enables the internal legacy Mali profiling API.
 
-config MALI_DVFS
-	bool "Enable Mali dynamically frequency change"
+choice
+	prompt "Mali power management"
+	default MALI_PM_NONE
 	depends on MALI400
-	default y
-	---help---
-	  This enables support for dynamic change frequency of Mali with the goal of lowering power consumption.
+	help
+	  The power management implementation for the Mali GPU can be
+	  selected here. Note that the platform glue has to support
+	  the implementation.
+
+	  If in doubt, select 'None'
+
+config MALI_PM_NONE
+	bool "None"
+	help
+	  This disables all power management of the GPU, effectively
+	  locking the operating frequency to a static rate.
+
+config MALI_PM_DVFS
+	bool "Dynamic frequency change (DVFS)"
+	help
+	  This enables support for dynamic change frequency of Mali with
+	  the goal of lowering power consumption.
+
+	  The operating frequency is selected by the Mali core. The
+	  core then requests the platform glue to set the frequency.
+
+config MALI_PM_UTILIZATION
+	bool "GPU utilization mode"
+	help
+	  This enables the GPU utilization mode.
+
+	  In contrast to the DVFS power management implementation, the
+	  operating frequency here is selected by the platform glue. The
+	  core only informs the platform glue about the current GPU load.
+
+endchoice
 
 config MALI_DMA_BUF_MAP_ON_ATTACH
 	bool "Map dma-buf attachments on attach"
