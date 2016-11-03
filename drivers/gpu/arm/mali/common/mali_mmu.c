@@ -268,18 +268,21 @@ MALI_STATIC_INLINE _mali_osk_errcode_t mali_mmu_raw_reset(struct mali_mmu_core *
 {
 	int i;
 
-	mali_hw_core_register_write(&mmu->hw_core, MALI_MMU_REGISTER_DTE_ADDR, 0xCAFEBABE);
-	MALI_DEBUG_ASSERT(0xCAFEB000 == mali_hw_core_register_read(&mmu->hw_core, MALI_MMU_REGISTER_DTE_ADDR));
+	mali_hw_core_register_write(&mmu->hw_core, MALI_MMU_REGISTER_DTE_ADDR, mali_page_fault_flush_page_directory);
+	MALI_DEBUG_ASSERT(mali_page_fault_flush_page_directory == mali_hw_core_register_read(&mmu->hw_core, MALI_MMU_REGISTER_DTE_ADDR));
+
+	mali_hw_core_register_write(&mmu->hw_core, MALI_MMU_REGISTER_INT_MASK, 0);
+	MALI_DEBUG_ASSERT(0 == mali_hw_core_register_read(&mmu->hw_core, MALI_MMU_REGISTER_INT_MASK));
+
+	mali_hw_core_register_write(&mmu->hw_core, MALI_MMU_REGISTER_COMMAND, MALI_MMU_COMMAND_PAGE_FAULT_DONE);
+	mali_hw_core_register_write(&mmu->hw_core, MALI_MMU_REGISTER_INT_CLEAR, MALI_MMU_INTERRUPT_PAGE_FAULT | MALI_MMU_INTERRUPT_READ_BUS_ERROR);
 
 	mali_hw_core_register_write(&mmu->hw_core, MALI_MMU_REGISTER_COMMAND, MALI_MMU_COMMAND_HARD_RESET);
-	usleep_range(4000, 10000);
-	mali_hw_core_register_write(&mmu->hw_core, MALI_MMU_REGISTER_COMMAND, MALI_MMU_COMMAND_HARD_RESET);
-	usleep_range(2000, 5000);
 
 	for (i = 0; i < MALI_REG_POLL_COUNT_FAST; ++i) {
-		if (mali_hw_core_register_read(&mmu->hw_core, MALI_MMU_REGISTER_DTE_ADDR) == 0) {
+		if (mali_hw_core_register_read(&mmu->hw_core, MALI_MMU_REGISTER_DTE_ADDR) == 0)
 			break;
-		}
+		udelay(10);
 	}
 	if (MALI_REG_POLL_COUNT_FAST == i) {
 		MALI_PRINT_ERROR(("Reset request failed, MMU status is 0x%08X\n", mali_hw_core_register_read(&mmu->hw_core, MALI_MMU_REGISTER_STATUS)));
