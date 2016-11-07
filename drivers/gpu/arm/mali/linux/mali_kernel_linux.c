@@ -159,6 +159,9 @@ static int mali_driver_runtime_idle(struct device *dev);
 extern int mali_platform_device_init(struct platform_device *device);
 extern int mali_platform_device_deinit(struct platform_device *device);
 
+extern int mali_platform_device_enable(struct device *dev);
+extern int mali_platform_device_disable(struct device *dev);
+
 extern int mali_platform_runtime_suspend(struct device *dev);
 extern int mali_platform_runtime_resume(struct device *dev);
 
@@ -435,6 +438,14 @@ static int mali_probe(struct platform_device *pdev)
 	if (_MALI_OSK_ERR_OK != err)
 		goto fail_subsys;
 
+	/*
+	 * Enable the platform device. In particular this is going
+	 * to power up the hardware, so we can read/write hw registers.
+	 */
+	err = mali_platform_device_enable(&pdev->dev);
+	if (err < 0)
+		goto fail_platform;
+
 	/* Initialize the Mali GPU hardware. */
 	err = mali_initialize_hardware();
 	if (_MALI_OSK_ERR_OK != err)
@@ -464,6 +475,9 @@ fail_misc:
 	mali_terminate_hardware();
 
 fail_hw:
+	mali_platform_device_disable(&pdev->dev);
+
+fail_platform:
 	mali_terminate_subsystems();
 
 fail_subsys:
@@ -484,6 +498,7 @@ static int mali_remove(struct platform_device *pdev)
 	mali_sysfs_unregister();
 	mali_miscdevice_unregister();
 	mali_terminate_hardware();
+	mali_platform_device_disable(&pdev->dev);
 	mali_terminate_subsystems();
 	_mali_osk_wq_term();
 	mali_platform_device_deinit(mali_platform_device);
