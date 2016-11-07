@@ -114,12 +114,13 @@ MALI_STATIC_INLINE const char *mali_group_core_description(
 	struct mali_group *group)
 {
 	MALI_DEBUG_ASSERT_POINTER(group);
-	if (NULL != group->pp_core) {
+	if (NULL != group->pp_core)
 		return mali_pp_core_description(group->pp_core);
-	} else {
-		MALI_DEBUG_ASSERT_POINTER(group->gp_core);
+
+	if (NULL != group->gp_core)
 		return mali_gp_core_description(group->gp_core);
-	}
+
+	return "null";
 }
 
 MALI_STATIC_INLINE mali_bool mali_group_is_virtual(struct mali_group *group)
