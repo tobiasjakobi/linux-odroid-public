@@ -423,35 +423,47 @@ static int mali_probe(struct platform_device *pdev)
 		return -EFAULT;
 	}
 
-	if (_MALI_OSK_ERR_OK == _mali_osk_wq_init()) {
-		/* Initialize the Mali GPU HW specified by pdev */
-		if (_MALI_OSK_ERR_OK == mali_initialize_subsystems()) {
-			/* Register a misc device (so we are accessible from user space) */
-			err = mali_miscdevice_register(pdev);
-			if (0 == err) {
-				/* Setup sysfs entries */
-				err = mali_sysfs_register(mali_dev_name);
+	err = _mali_osk_wq_init();
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail_wq;
 
-				if (0 == err) {
-					MALI_DEBUG_PRINT(2, ("mali_probe(): Successfully initialized driver for platform device %s\n", pdev->name));
+	/* Initialize the Mali GPU HW specified by pdev */
+	err = mali_initialize_subsystems();
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail_subsys;
 
-					return 0;
-				} else {
-					MALI_PRINT_ERROR(("mali_probe(): failed to register sysfs entries"));
-				}
-				mali_miscdevice_unregister();
-			} else {
-				MALI_PRINT_ERROR(("mali_probe(): failed to register Mali misc device."));
-			}
-			mali_terminate_subsystems();
-		} else {
-			MALI_PRINT_ERROR(("mali_probe(): Failed to initialize Mali device driver."));
-		}
-		_mali_osk_wq_term();
+	/* Register a misc device (so we are accessible from user space) */
+	err = mali_miscdevice_register(pdev);
+	if (0 != err) {
+		MALI_PRINT_ERROR(("mali_probe(): failed to register Mali misc device."));
+		goto fail_misc;
 	}
 
+	/* Setup sysfs entries */
+	err = mali_sysfs_register(mali_dev_name);
+	if (0 != err) {
+		MALI_PRINT_ERROR(("mali_probe(): failed to register sysfs entries"));
+		goto fail_sysfs;
+	}
+
+	MALI_DEBUG_PRINT(2, ("mali_probe(): Successfully initialized driver for platform device %s\n", pdev->name));
+	return 0;
+
+fail_sysfs:
+	mali_miscdevice_unregister();
+
+fail_misc:
+	mali_terminate_subsystems();
+
+fail_subsys:
+	_mali_osk_wq_term();
+
+fail_wq:
 	mali_platform_device_deinit(mali_platform_device);
 	mali_platform_device = NULL;
+
+	MALI_PRINT_ERROR(("mali_probe(): Failed to initialize Mali device driver."));
+
 	return -EFAULT;
 }
 
