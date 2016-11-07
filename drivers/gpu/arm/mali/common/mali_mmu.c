@@ -326,6 +326,7 @@ _mali_osk_errcode_t mali_mmu_reset(struct mali_mmu_core *mmu)
 
 	stall_success = mali_mmu_enable_stall(mmu);
 	if (!stall_success) {
+		MALI_DEBUG_PRINT(3, ("Mali MMU: mali_mmu_reset: stall = %d\n", stall_success));
 		err = _MALI_OSK_ERR_BUSY;
 	}
 
