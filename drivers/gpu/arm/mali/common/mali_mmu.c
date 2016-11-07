@@ -59,6 +59,29 @@ static mali_dma_addr mali_empty_page_directory_phys   = MALI_INVALID_PAGE;
 static mali_io_address mali_empty_page_directory_virt = NULL;
 
 
+#if defined(DEBUG)
+static void mali_mmu_dump_regs(struct mali_mmu_core *mmu)
+{
+#define DUMPREG(reg_id) \
+do { \
+	MALI_DEBUG_PRINT(3, (#reg_id " = %08x\n", \
+		mali_hw_core_register_read(&mmu->hw_core, reg_id))); \
+} while (0)
+
+	DUMPREG(MALI_MMU_REGISTER_DTE_ADDR);
+	DUMPREG(MALI_MMU_REGISTER_STATUS);
+	DUMPREG(MALI_MMU_REGISTER_COMMAND);
+	DUMPREG(MALI_MMU_REGISTER_PAGE_FAULT_ADDR);
+	DUMPREG(MALI_MMU_REGISTER_ZAP_ONE_LINE);
+	DUMPREG(MALI_MMU_REGISTER_INT_RAWSTAT);
+	DUMPREG(MALI_MMU_REGISTER_INT_CLEAR);
+	DUMPREG(MALI_MMU_REGISTER_INT_MASK);
+	DUMPREG(MALI_MMU_REGISTER_INT_STATUS);
+
+#undef DUMPREG
+}
+#endif
+
 _mali_osk_errcode_t mali_mmu_initialize(void)
 {
 	/* allocate the helper pages */
@@ -286,6 +309,9 @@ MALI_STATIC_INLINE _mali_osk_errcode_t mali_mmu_raw_reset(struct mali_mmu_core *
 	}
 	if (MALI_REG_POLL_COUNT_FAST == i) {
 		MALI_PRINT_ERROR(("Reset request failed, MMU status is 0x%08X\n", mali_hw_core_register_read(&mmu->hw_core, MALI_MMU_REGISTER_STATUS)));
+#if defined(DEBUG)
+		mali_mmu_dump_regs(mmu);
+#endif
 		return _MALI_OSK_ERR_FAULT;
 	}
 
