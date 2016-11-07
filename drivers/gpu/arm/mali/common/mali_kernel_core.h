@@ -24,8 +24,10 @@ typedef enum {
 extern mali_bool mali_gpu_class_is_mali450;
 
 _mali_osk_errcode_t mali_initialize_subsystems(void);
+_mali_osk_errcode_t mali_initialize_hardware(void);
 
 void mali_terminate_subsystems(void);
+void mali_terminate_hardware(void);
 
 _mali_product_id_t mali_kernel_core_get_product_id(void);
 

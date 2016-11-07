@@ -427,10 +427,18 @@ static int mali_probe(struct platform_device *pdev)
 	if (_MALI_OSK_ERR_OK != err)
 		goto fail_wq;
 
-	/* Initialize the Mali GPU HW specified by pdev */
+	/*
+	 * Initialize the various driver subsystems.
+	 * This does not touch the hardware yet.
+	 */
 	err = mali_initialize_subsystems();
 	if (_MALI_OSK_ERR_OK != err)
 		goto fail_subsys;
+
+	/* Initialize the Mali GPU hardware. */
+	err = mali_initialize_hardware();
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail_hw;
 
 	/* Register a misc device (so we are accessible from user space) */
 	err = mali_miscdevice_register(pdev);
@@ -453,6 +461,9 @@ fail_sysfs:
 	mali_miscdevice_unregister();
 
 fail_misc:
+	mali_terminate_hardware();
+
+fail_hw:
 	mali_terminate_subsystems();
 
 fail_subsys:
@@ -472,6 +483,7 @@ static int mali_remove(struct platform_device *pdev)
 	MALI_DEBUG_PRINT(2, ("mali_remove() called for platform device %s\n", pdev->name));
 	mali_sysfs_unregister();
 	mali_miscdevice_unregister();
+	mali_terminate_hardware();
 	mali_terminate_subsystems();
 	_mali_osk_wq_term();
 	mali_platform_device_deinit(mali_platform_device);

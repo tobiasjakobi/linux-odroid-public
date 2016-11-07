@@ -716,21 +716,19 @@ _mali_osk_errcode_t mali_initialize_subsystems(void)
 {
 	_mali_osk_errcode_t err;
 
+	MALI_DEBUG_PRINT(2, ("initialize_subsystems() called\n"));
+
 	err = _mali_osk_resource_initialize();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 
 	mali_pp_job_initialize();
 
 	mali_timeline_initialize();
 
 	err = mali_session_initialize();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 
 #if defined(CONFIG_MALI400_PROFILING)
 	err = _mali_osk_profiling_init(mali_boot_profiling ? MALI_TRUE : MALI_FALSE);
@@ -741,110 +739,90 @@ _mali_osk_errcode_t mali_initialize_subsystems(void)
 #endif
 
 	err = mali_memory_initialize();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 
 	err = mali_executor_initialize();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 
 	err = mali_scheduler_initialize();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 
 	/* Configure memory early, needed by mali_mmu_initialize. */
 	err = mali_parse_config_memory();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 
 	err = mali_set_global_gpu_base_address();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 
 	/* Detect GPU class (uses L2 cache count) */
 	mali_detect_gpu_class();
 
 	err = mali_check_shared_interrupts();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 
 	/* Initialize the MALI PMU (will not touch HW!) */
 	err = mali_parse_config_pmu();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 
 	/* Initialize the power management module */
 	err = mali_pm_initialize();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
+
+	return _MALI_OSK_ERR_OK;
+
+fail:
+	mali_terminate_subsystems();
+	return err;
+}
+
+_mali_osk_errcode_t mali_initialize_hardware(void)
+{
+	_mali_osk_errcode_t err;
+
+	MALI_DEBUG_PRINT(2, ("initialize_hardware() called\n"));
 
 	/* Make sure the entire GPU stays on for the rest of this function */
 	mali_pm_init_begin();
 
 	/* Ensure HW is in a good state before starting to access cores. */
 	err = mali_init_hw_reset();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail_reset;
 
 	/* Detect which Mali GPU we are dealing with */
 	err = mali_parse_product_info();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_pm_init_end();
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 
 	/* The global_product_id is now populated with the correct Mali GPU */
 
 	/* Start configuring the actual Mali hardware. */
 
 	err = mali_mmu_initialize();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_pm_init_end();
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 
 	if (mali_is_mali450()) {
 		err = mali_dlbu_initialize();
-		if (_MALI_OSK_ERR_OK != err) {
-			mali_pm_init_end();
-			mali_terminate_subsystems();
-			return err;
-		}
+		if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 	}
 
 	err = mali_parse_config_l2_cache();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_pm_init_end();
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 
 	err = mali_parse_config_groups();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_pm_init_end();
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 
 	/* Move groups into executor */
 	mali_executor_populate();
@@ -854,33 +832,31 @@ _mali_osk_errcode_t mali_initialize_subsystems(void)
 
 	/* Initialize the GPU timer */
 	err = mali_control_timer_init();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_pm_init_end();
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 
 	/* Initialize the GPU utilization tracking */
 	err = mali_utilization_init();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_pm_init_end();
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 
 #if defined(CONFIG_MALI_PM_DVFS)
 	err = mali_dvfs_policy_init();
-	if (_MALI_OSK_ERR_OK != err) {
-		mali_pm_init_end();
-		mali_terminate_subsystems();
-		return err;
-	}
+	if (_MALI_OSK_ERR_OK != err)
+		goto fail;
 #endif
 
 	/* Allowing the system to be turned off */
 	mali_pm_init_end();
 
 	return _MALI_OSK_ERR_OK; /* all ok */
+
+fail:
+	mali_pm_init_end();
+
+fail_reset:
+	mali_terminate_hardware();
+	return err;
 }
 
 void mali_terminate_subsystems(void)
@@ -888,22 +864,6 @@ void mali_terminate_subsystems(void)
 	struct mali_pmu_core *pmu = mali_pmu_get_global_pmu_core();
 
 	MALI_DEBUG_PRINT(2, ("terminate_subsystems() called\n"));
-
-	mali_utilization_term();
-	mali_control_timer_term();
-
-	mali_executor_depopulate();
-	mali_delete_groups(); /* Delete groups not added to executor */
-	mali_executor_terminate();
-
-	mali_scheduler_terminate();
-	mali_pp_job_terminate();
-	mali_delete_l2_cache_cores();
-	mali_mmu_terminate();
-
-	if (mali_is_mali450()) {
-		mali_dlbu_terminate();
-	}
 
 	mali_pm_terminate();
 
@@ -922,6 +882,27 @@ void mali_terminate_subsystems(void)
 	mali_timeline_terminate();
 
 	global_gpu_base_address = 0;
+}
+
+void mali_terminate_hardware(void)
+{
+	MALI_DEBUG_PRINT(2, ("terminate_hardware() called\n"));
+
+	mali_utilization_term();
+	mali_control_timer_term();
+
+	mali_executor_depopulate();
+	mali_delete_groups(); /* Delete groups not added to executor */
+	mali_executor_terminate();
+
+	mali_scheduler_terminate();
+	mali_pp_job_terminate();
+	mali_delete_l2_cache_cores();
+	mali_mmu_terminate();
+
+	if (mali_is_mali450()) {
+		mali_dlbu_terminate();
+	}
 }
 
 _mali_product_id_t mali_kernel_core_get_product_id(void)
