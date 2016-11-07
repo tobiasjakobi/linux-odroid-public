@@ -8,6 +8,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <linux/delay.h>
+
 #include "mali_pp_job.h"
 #include "mali_pp.h"
 #include "mali_hw_core.h"
@@ -243,7 +245,8 @@ void mali_pp_reset_async(struct mali_pp_core *core)
 	MALI_DEBUG_PRINT(4, ("Mali PP: Reset of core %s\n", core->hw_core.description));
 
 	mali_hw_core_register_write(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_MASK, 0); /* disable the IRQs */
-	mali_hw_core_register_write(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_RAWSTAT, MALI200_REG_VAL_IRQ_MASK_ALL);
+	mali_hw_core_register_write(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_RAWSTAT, 0);
+	mali_hw_core_register_write(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_CLEAR, MALI200_REG_VAL_IRQ_MASK_ALL);
 	mali_hw_core_register_write(&core->hw_core, MALI200_REG_ADDR_MGMT_CTRL_MGMT, MALI400PP_REG_VAL_CTRL_MGMT_SOFT_RESET);
 }
 
@@ -256,10 +259,11 @@ _mali_osk_errcode_t mali_pp_reset_wait(struct mali_pp_core *core)
 		u32 status =  mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_STATUS);
 		if (!(status & MALI200_REG_VAL_STATUS_RENDERING_ACTIVE)) {
 			rawstat = mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_RAWSTAT);
-			if (rawstat == MALI400PP_REG_VAL_IRQ_RESET_COMPLETED) {
+			if (rawstat & MALI400PP_REG_VAL_IRQ_RESET_COMPLETED) {
 				break;
 			}
 		}
+		udelay(10);
 	}
 
 	if (i == MALI_REG_POLL_COUNT_FAST) {
