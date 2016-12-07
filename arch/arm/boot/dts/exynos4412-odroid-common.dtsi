@@ -702,6 +702,10 @@
 	status = "okay";
 };
 
+&poweroff {
+	vdd-supply = <&reg_p3v3>;
+};
+
 &reboot {
 	vdd-supply = <&reg_p3v3>;
 };
