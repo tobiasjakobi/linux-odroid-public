@@ -701,3 +701,7 @@
 	vtmu-supply = <&ldo10_reg>;
 	status = "okay";
 };
+
+&reboot {
+	vdd-supply = <&reg_p3v3>;
+};
