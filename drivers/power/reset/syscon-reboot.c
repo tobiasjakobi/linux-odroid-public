@@ -14,9 +14,11 @@
 #include <linux/platform_device.h>
 #include <linux/reboot.h>
 #include <linux/regmap.h>
+#include <linux/regulator/consumer.h>
 
 struct syscon_reboot_context {
 	struct regmap *map;
+	struct regulator *regulator;
 	u32 offset;
 	u32 value;
 	u32 mask;
@@ -29,6 +31,9 @@ static int syscon_restart_handle(struct notifier_block *this,
 	struct syscon_reboot_context *ctx =
 			container_of(this, struct syscon_reboot_context,
 					restart_handler);
+
+	if (ctx->regulator)
+		regulator_force_disable(ctx->regulator);
 
 	/* Issue the reboot */
 	regmap_update_bits(ctx->map, ctx->offset, ctx->mask, ctx->value);
@@ -72,6 +77,10 @@ static int syscon_reboot_probe(struct platform_device *pdev)
 		/* support value without mask*/
 		ctx->mask = 0xFFFFFFFF;
 	}
+
+	ctx->regulator = regulator_get_optional(&pdev->dev, "vdd");
+	if (IS_ERR(ctx->regulator))
+		ctx->regulator = NULL;
 
 	ctx->restart_handler.notifier_call = syscon_restart_handle;
 	ctx->restart_handler.priority = 192;
