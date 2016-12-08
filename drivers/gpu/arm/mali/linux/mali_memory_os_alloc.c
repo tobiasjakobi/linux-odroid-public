@@ -75,7 +75,7 @@ static void mali_mem_os_free(mali_mem_allocation *descriptor)
 	spin_unlock(&mali_mem_os_allocator.pool_lock);
 
 	if (MALI_OS_MEMORY_KERNEL_BUFFER_SIZE_IN_PAGES < mali_mem_os_allocator.pool_count) {
-		MALI_DEBUG_PRINT(5, ("OS Mem: Starting pool trim timer %u\n", mali_mem_os_allocator.pool_count));
+		MALI_DEBUG_PRINT(5, "OS Mem: Starting pool trim timer %u\n", mali_mem_os_allocator.pool_count);
 		queue_delayed_work(mali_mem_os_allocator.wq, &mali_mem_os_allocator.timed_shrinker, MALI_OS_MEMORY_POOL_TRIM_JIFFIES);
 	}
 }
@@ -144,8 +144,8 @@ static int mali_mem_os_alloc_pages(mali_mem_allocation *descriptor, u32 size)
 
 		err = dma_mapping_error(&mali_platform_device->dev, dma_addr);
 		if (unlikely(err)) {
-			MALI_DEBUG_PRINT_ERROR(("OS Mem: Failed to DMA map page %p: %u",
-						new_page, err));
+			MALI_DEBUG_PRINT_ERROR("OS Mem: Failed to DMA map page %p: %u",
+					       new_page, err);
 			__free_page(new_page);
 			descriptor->os_mem.count = (page_count - remaining) + i;
 			atomic_add(descriptor->os_mem.count, &mali_mem_os_allocator.allocated_pages);
@@ -163,7 +163,7 @@ static int mali_mem_os_alloc_pages(mali_mem_allocation *descriptor, u32 size)
 	atomic_add(page_count, &mali_mem_os_allocator.allocated_pages);
 
 	if (MALI_OS_MEMORY_KERNEL_BUFFER_SIZE_IN_PAGES > mali_mem_os_allocator.pool_count) {
-		MALI_DEBUG_PRINT(4, ("OS Mem: Stopping pool trim timer, only %u pages on pool\n", mali_mem_os_allocator.pool_count));
+		MALI_DEBUG_PRINT(4, "OS Mem: Stopping pool trim timer, only %u pages on pool\n", mali_mem_os_allocator.pool_count);
 		cancel_delayed_work(&mali_mem_os_allocator.timed_shrinker);
 	}
 
@@ -235,10 +235,10 @@ mali_mem_allocation *mali_mem_os_alloc(u32 mali_addr, u32 size, struct vm_area_s
 	int err;
 
 	if (atomic_read(&mali_mem_os_allocator.allocated_pages) * _MALI_OSK_MALI_PAGE_SIZE + size > mali_mem_os_allocator.allocation_limit) {
-		MALI_DEBUG_PRINT(2, ("Mali Mem: Unable to allocate %u bytes. Currently allocated: %lu, max limit %lu\n",
-				     size,
-				     atomic_read(&mali_mem_os_allocator.allocated_pages) * _MALI_OSK_MALI_PAGE_SIZE,
-				     mali_mem_os_allocator.allocation_limit));
+		MALI_DEBUG_PRINT(2, "Mali Mem: Unable to allocate %u bytes. Currently allocated: %lu, max limit %lu\n",
+				    size,
+				    atomic_read(&mali_mem_os_allocator.allocated_pages) * _MALI_OSK_MALI_PAGE_SIZE,
+				    mali_mem_os_allocator.allocation_limit);
 		return NULL;
 	}
 
@@ -280,7 +280,7 @@ mali_map_failed:
 	mali_mem_os_free(descriptor);
 alloc_failed:
 	mali_mem_descriptor_destroy(descriptor);
-	MALI_DEBUG_PRINT(2, ("OS allocator: Failed to allocate memory (%d)\n", err));
+	MALI_DEBUG_PRINT(2, "OS allocator: Failed to allocate memory (%d)\n", err);
 	return NULL;
 }
 
@@ -479,7 +479,7 @@ static unsigned long mali_mem_os_shrink(struct shrinker *shrinker, struct shrink
 
 	if (MALI_OS_MEMORY_KERNEL_BUFFER_SIZE_IN_PAGES > mali_mem_os_allocator.pool_count) {
 		/* Pools are empty, stop timer */
-		MALI_DEBUG_PRINT(5, ("Stopping timer, only %u pages on pool\n", mali_mem_os_allocator.pool_count));
+		MALI_DEBUG_PRINT(5, "Stopping timer, only %u pages on pool\n", mali_mem_os_allocator.pool_count);
 		cancel_delayed_work(&mali_mem_os_allocator.timed_shrinker);
 	}
 
@@ -495,7 +495,7 @@ static void mali_mem_os_trim_pool(struct work_struct *data)
 
 	MALI_IGNORE(data);
 
-	MALI_DEBUG_PRINT(3, ("OS Mem: Trimming pool %u\n", mali_mem_os_allocator.pool_count));
+	MALI_DEBUG_PRINT(3, "OS Mem: Trimming pool %u\n", mali_mem_os_allocator.pool_count);
 
 	/* Release from general page pool */
 	spin_lock(&mali_mem_os_allocator.pool_lock);
@@ -523,7 +523,7 @@ static void mali_mem_os_trim_pool(struct work_struct *data)
 	mali_mem_os_trim_page_table_page_pool();
 
 	if (MALI_OS_MEMORY_KERNEL_BUFFER_SIZE_IN_PAGES < mali_mem_os_allocator.pool_count) {
-		MALI_DEBUG_PRINT(4, ("OS Mem: Starting pool trim timer %u\n", mali_mem_os_allocator.pool_count));
+		MALI_DEBUG_PRINT(4, "OS Mem: Starting pool trim timer %u\n", mali_mem_os_allocator.pool_count);
 		queue_delayed_work(mali_mem_os_allocator.wq, &mali_mem_os_allocator.timed_shrinker, MALI_OS_MEMORY_POOL_TRIM_JIFFIES);
 	}
 }

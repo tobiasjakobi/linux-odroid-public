@@ -82,7 +82,7 @@ int mem_map_ext_wrapper(struct mali_session_data *session_data, _mali_uk_map_ext
 			uk_args_unmap.cookie = uk_args.cookie;
 			err_code = _mali_ukk_unmap_external_mem(&uk_args_unmap);
 			if (_MALI_OSK_ERR_OK != err_code) {
-				MALI_DEBUG_PRINT(4, ("reverting _mali_ukk_unmap_external_mem, as a result of failing put_user(), failed\n"));
+				MALI_DEBUG_PRINT(4, "reverting _mali_ukk_unmap_external_mem, as a result of failing put_user(), failed\n");
 			}
 		}
 		return -EFAULT;

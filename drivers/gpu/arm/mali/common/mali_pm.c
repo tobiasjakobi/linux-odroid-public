@@ -237,7 +237,7 @@ mali_bool mali_pm_get_domain_refs(struct mali_pm_domain **domains,
 		}
 	}
 
-	MALI_DEBUG_PRINT(3, ("PM: wanted domain mask = 0x%08X (get refs)\n", pd_mask_wanted));
+	MALI_DEBUG_PRINT(3, "PM: wanted domain mask = 0x%08X (get refs)\n", pd_mask_wanted);
 
 	mali_pm_state_unlock();
 
@@ -272,7 +272,7 @@ mali_bool mali_pm_put_domain_refs(struct mali_pm_domain **domains,
 		ret = MALI_TRUE;
 	}
 
-	MALI_DEBUG_PRINT(3, ("PM: wanted domain mask = 0x%08X (put refs)\n", pd_mask_wanted));
+	MALI_DEBUG_PRINT(3, "PM: wanted domain mask = 0x%08X (put refs)\n", pd_mask_wanted);
 
 	mali_pm_state_unlock();
 
@@ -331,7 +331,7 @@ void mali_pm_os_suspend(mali_bool os_suspend)
 {
 	int ret;
 
-	MALI_DEBUG_PRINT(3, ("Mali PM: OS suspend\n"));
+	MALI_DEBUG_PRINT(3, "Mali PM: OS suspend\n");
 
 	/* Suspend execution of all jobs, and go to inactive state */
 	mali_executor_suspend();
@@ -354,7 +354,7 @@ void mali_pm_os_resume(void)
 {
 	struct mali_pmu_core *pmu = mali_pmu_get_global_pmu_core();
 
-	MALI_DEBUG_PRINT(3, ("Mali PM: OS resume\n"));
+	MALI_DEBUG_PRINT(3, "Mali PM: OS resume\n");
 
 	mali_pm_exec_lock();
 
@@ -377,7 +377,7 @@ void mali_pm_os_resume(void)
 			mali_pmu_reset(pmu);
 			pmu_mask_current = mali_pmu_get_mask(pmu);
 
-			MALI_DEBUG_PRINT(3, ("Mali PM: OS resume 0x%x \n", pmu_mask_current));
+			MALI_DEBUG_PRINT(3, "Mali PM: OS resume 0x%x \n", pmu_mask_current);
 		}
 
 		mali_pm_update_sync_internal();
@@ -393,7 +393,7 @@ mali_bool mali_pm_runtime_suspend(void)
 {
 	mali_bool ret;
 
-	MALI_DEBUG_PRINT(3, ("Mali PM: Runtime suspend\n"));
+	MALI_DEBUG_PRINT(3, "Mali PM: Runtime suspend\n");
 
 	mali_pm_exec_lock();
 
@@ -448,7 +448,7 @@ void mali_pm_runtime_resume(void)
 	if (NULL != pmu) {
 		mali_pmu_reset(pmu);
 		pmu_mask_current = mali_pmu_get_mask(pmu);
-		MALI_DEBUG_PRINT(3, ("Mali PM: Runtime resume 0x%x \n", pmu_mask_current));
+		MALI_DEBUG_PRINT(3, "Mali PM: Runtime resume 0x%x \n", pmu_mask_current);
 	}
 
 	/*
@@ -537,9 +537,8 @@ static void mali_pm_domain_power_up(u32 power_up_mask,
 	MALI_DEBUG_ASSERT_LOCK_HELD(pm_lock_exec);
 	MALI_DEBUG_ASSERT_LOCK_HELD(pm_lock_state);
 
-	MALI_DEBUG_PRINT(5,
-			 ("PM update:      Powering up domains: . [%s]\n",
-			  mali_pm_mask_to_string(power_up_mask)));
+	MALI_DEBUG_PRINT(5, "PM update:      Powering up domains: . [%s]\n",
+			 mali_pm_mask_to_string(power_up_mask));
 
 	pd_mask_current |= power_up_mask;
 
@@ -611,9 +610,8 @@ static void mali_pm_domain_power_down(u32 power_down_mask,
 	MALI_DEBUG_ASSERT_LOCK_HELD(pm_lock_exec);
 	MALI_DEBUG_ASSERT_LOCK_HELD(pm_lock_state);
 
-	MALI_DEBUG_PRINT(5,
-			 ("PM update:      Powering down domains: [%s]\n",
-			  mali_pm_mask_to_string(power_down_mask)));
+	MALI_DEBUG_PRINT(5, "PM update:      Powering down domains: [%s]\n",
+			 mali_pm_mask_to_string(power_down_mask));
 
 	pd_mask_current &= ~power_down_mask;
 
@@ -691,14 +689,14 @@ static void mali_pm_update_sync_internal(void)
 	/* Hold PM state lock while we look at (and obey) the wanted state */
 	mali_pm_state_lock();
 
-	MALI_DEBUG_PRINT(5, ("PM update pre:  Wanted domain mask: .. [%s]\n",
-			     mali_pm_mask_to_string(pd_mask_wanted)));
-	MALI_DEBUG_PRINT(5, ("PM update pre:  Current domain mask: . [%s]\n",
-			     mali_pm_mask_to_string(pd_mask_current)));
-	MALI_DEBUG_PRINT(5, ("PM update pre:  Current PMU mask: .... [%s]\n",
-			     mali_pm_mask_to_string(pmu_mask_current)));
-	MALI_DEBUG_PRINT(5, ("PM update pre:  Group power stats: ... <%s>\n",
-			     mali_pm_group_stats_to_string()));
+	MALI_DEBUG_PRINT(5, "PM update pre:  Wanted domain mask: .. [%s]\n",
+			    mali_pm_mask_to_string(pd_mask_wanted));
+	MALI_DEBUG_PRINT(5, "PM update pre:  Current domain mask: . [%s]\n",
+			    mali_pm_mask_to_string(pd_mask_current));
+	MALI_DEBUG_PRINT(5, "PM update pre:  Current PMU mask: .... [%s]\n",
+			    mali_pm_mask_to_string(pmu_mask_current));
+	MALI_DEBUG_PRINT(5, "PM update pre:  Group power stats: ... <%s>\n",
+			    mali_pm_group_stats_to_string());
 
 	/* Figure out which cores we need to power on */
 	power_up_mask = pd_mask_wanted &
@@ -844,12 +842,12 @@ static void mali_pm_update_sync_internal(void)
 		}
 	}
 
-	MALI_DEBUG_PRINT(5, ("PM update post: Current domain mask: . [%s]\n",
-			     mali_pm_mask_to_string(pd_mask_current)));
-	MALI_DEBUG_PRINT(5, ("PM update post: Current PMU mask: .... [%s]\n",
-			     mali_pm_mask_to_string(pmu_mask_current)));
-	MALI_DEBUG_PRINT(5, ("PM update post: Group power stats: ... <%s>\n",
-			     mali_pm_group_stats_to_string()));
+	MALI_DEBUG_PRINT(5, "PM update post: Current domain mask: . [%s]\n",
+			    mali_pm_mask_to_string(pd_mask_current));
+	MALI_DEBUG_PRINT(5, "PM update post: Current PMU mask: .... [%s]\n",
+			    mali_pm_mask_to_string(pmu_mask_current));
+	MALI_DEBUG_PRINT(5, "PM update post: Group power stats: ... <%s>\n",
+			    mali_pm_group_stats_to_string());
 }
 
 static mali_bool mali_pm_common_suspend(void)
@@ -857,19 +855,19 @@ static mali_bool mali_pm_common_suspend(void)
 	mali_pm_state_lock();
 
 	if (0 != pd_mask_wanted) {
-		MALI_DEBUG_PRINT(5, ("PM: Aborting suspend operation\n\n\n"));
+		MALI_DEBUG_PRINT(5, "PM: Aborting suspend operation\n\n\n");
 		mali_pm_state_unlock();
 		return MALI_FALSE;
 	}
 
-	MALI_DEBUG_PRINT(5, ("PM suspend pre: Wanted domain mask: .. [%s]\n",
-			     mali_pm_mask_to_string(pd_mask_wanted)));
-	MALI_DEBUG_PRINT(5, ("PM suspend pre: Current domain mask: . [%s]\n",
-			     mali_pm_mask_to_string(pd_mask_current)));
-	MALI_DEBUG_PRINT(5, ("PM suspend pre: Current PMU mask: .... [%s]\n",
-			     mali_pm_mask_to_string(pmu_mask_current)));
-	MALI_DEBUG_PRINT(5, ("PM suspend pre: Group power stats: ... <%s>\n",
-			     mali_pm_group_stats_to_string()));
+	MALI_DEBUG_PRINT(5, "PM suspend pre: Wanted domain mask: .. [%s]\n",
+			    mali_pm_mask_to_string(pd_mask_wanted));
+	MALI_DEBUG_PRINT(5, "PM suspend pre: Current domain mask: . [%s]\n",
+			    mali_pm_mask_to_string(pd_mask_current));
+	MALI_DEBUG_PRINT(5, "PM suspend pre: Current PMU mask: .... [%s]\n",
+			    mali_pm_mask_to_string(pmu_mask_current));
+	MALI_DEBUG_PRINT(5, "PM suspend pre: Group power stats: ... <%s>\n",
+			    mali_pm_group_stats_to_string());
 
 	if (0 != pd_mask_current) {
 		/*
@@ -925,12 +923,12 @@ static mali_bool mali_pm_common_suspend(void)
 		mali_pm_state_unlock();
 	}
 
-	MALI_DEBUG_PRINT(5, ("PM suspend post: Current domain mask:  [%s]\n",
-			     mali_pm_mask_to_string(pd_mask_current)));
-	MALI_DEBUG_PRINT(5, ("PM suspend post: Current PMU mask: ... [%s]\n",
-			     mali_pm_mask_to_string(pmu_mask_current)));
-	MALI_DEBUG_PRINT(5, ("PM suspend post: Group power stats: .. <%s>\n",
-			     mali_pm_group_stats_to_string()));
+	MALI_DEBUG_PRINT(5, "PM suspend post: Current domain mask:  [%s]\n",
+			    mali_pm_mask_to_string(pd_mask_current));
+	MALI_DEBUG_PRINT(5, "PM suspend post: Current PMU mask: ... [%s]\n",
+			    mali_pm_mask_to_string(pmu_mask_current));
+	MALI_DEBUG_PRINT(5, "PM suspend post: Group power stats: .. <%s>\n",
+			    mali_pm_group_stats_to_string());
 
 	return MALI_TRUE;
 }

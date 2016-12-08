@@ -42,9 +42,8 @@ struct mali_pm_domain *mali_pm_domain_create(u32 pmu_mask)
 	domain = mali_pm_domain_get_from_mask(pmu_mask);
 	if (NULL != domain) return domain;
 
-	MALI_DEBUG_PRINT(2,
-			 ("Mali PM domain: Creating Mali PM domain (mask=0x%08X)\n",
-			  pmu_mask));
+	MALI_DEBUG_PRINT(2, "Mali PM domain: Creating Mali PM domain (mask=0x%08X)\n",
+			 pmu_mask);
 
 	domain = (struct mali_pm_domain *)kmalloc(
 			 sizeof(struct mali_pm_domain), GFP_KERNEL);
@@ -64,7 +63,7 @@ struct mali_pm_domain *mali_pm_domain_create(u32 pmu_mask)
 
 		return domain;
 	} else {
-		MALI_DEBUG_PRINT_ERROR(("Unable to create PM domain\n"));
+		MALI_DEBUG_PRINT_ERROR("Unable to create PM domain\n");
 	}
 
 	return NULL;
@@ -137,7 +136,7 @@ u32 mali_pm_domain_ref_get(struct mali_pm_domain *domain)
 	}
 
 	++domain->use_count;
-	MALI_DEBUG_PRINT(4, ("PM domain %p: ref_get, use_count => %u\n", domain, domain->use_count));
+	MALI_DEBUG_PRINT(4, "PM domain %p: ref_get, use_count => %u\n", domain, domain->use_count);
 
 	/* Return our mask so caller can check this against wanted mask */
 	return domain->pmu_mask;
@@ -148,7 +147,7 @@ u32 mali_pm_domain_ref_put(struct mali_pm_domain *domain)
 	MALI_DEBUG_ASSERT_POINTER(domain);
 
 	--domain->use_count;
-	MALI_DEBUG_PRINT(4, ("PM domain %p: ref_put, use_count => %u\n", domain, domain->use_count));
+	MALI_DEBUG_PRINT(4, "PM domain %p: ref_put, use_count => %u\n", domain, domain->use_count);
 
 	if (0 == domain->use_count) {
 		_mali_osk_pm_dev_ref_put();

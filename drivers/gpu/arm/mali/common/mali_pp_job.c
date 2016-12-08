@@ -48,7 +48,7 @@ struct mali_pp_job *mali_pp_job_create(struct mali_session_data *session,
 		}
 
 		if (job->uargs.num_cores > _MALI_PP_MAX_SUB_JOBS) {
-			MALI_PRINT_ERROR(("Mali PP job: Too many sub jobs specified in job object\n"));
+			MALI_PRINT_ERROR("Mali PP job: Too many sub jobs specified in job object\n");
 			goto fail;
 		}
 
@@ -93,7 +93,7 @@ struct mali_pp_job *mali_pp_job_create(struct mali_session_data *session,
 			u32 __user *memory_cookies = (u32 __user *)(uintptr_t)job->uargs.memory_cookies;
 
 			if (job->uargs.num_memory_cookies > session->descriptor_mapping->current_nr_mappings) {
-				MALI_PRINT_ERROR(("Mali PP job: Too many memory cookies specified in job object\n"));
+				MALI_PRINT_ERROR("Mali PP job: Too many memory cookies specified in job object\n");
 				goto fail;
 			}
 
@@ -101,12 +101,12 @@ struct mali_pp_job *mali_pp_job_create(struct mali_session_data *session,
 
 			job->memory_cookies = kmalloc(size, GFP_KERNEL);
 			if (NULL == job->memory_cookies) {
-				MALI_PRINT_ERROR(("Mali PP job: Failed to allocate %d bytes of memory cookies!\n", size));
+				MALI_PRINT_ERROR("Mali PP job: Failed to allocate %d bytes of memory cookies!\n", size);
 				goto fail;
 			}
 
 			if (0 != _mali_osk_copy_from_user(job->memory_cookies, memory_cookies, size)) {
-				MALI_PRINT_ERROR(("Mali PP job: Failed to copy %d bytes of memory cookies from user!\n", size));
+				MALI_PRINT_ERROR("Mali PP job: Failed to copy %d bytes of memory cookies from user!\n", size);
 				goto fail;
 			}
 
@@ -115,7 +115,7 @@ struct mali_pp_job *mali_pp_job_create(struct mali_session_data *session,
 				job->dma_bufs = kcalloc(job->uargs.num_memory_cookies,
 							sizeof(struct mali_dma_buf_attachment *), GFP_KERNEL);
 				if (NULL == job->dma_bufs) {
-					MALI_PRINT_ERROR(("Mali PP job: Failed to allocate dma_bufs array!\n"));
+					MALI_PRINT_ERROR("Mali PP job: Failed to allocate dma_bufs array!\n");
 					goto fail;
 				}
 			}

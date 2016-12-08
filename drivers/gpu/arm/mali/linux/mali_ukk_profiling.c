@@ -74,7 +74,7 @@ int profiling_report_sw_counters_wrapper(struct mali_session_data *session_data,
 
 	/* make sure that kargs.num_counters is [at least somewhat] sane */
 	if (kargs.num_counters > 10000) {
-		MALI_DEBUG_PRINT(1, ("User space attempted to allocate too many counters.\n"));
+		MALI_DEBUG_PRINT(1, "User space attempted to allocate too many counters.\n");
 		return -EINVAL;
 	}
 

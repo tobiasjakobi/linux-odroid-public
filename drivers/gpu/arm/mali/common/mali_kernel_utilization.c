@@ -86,9 +86,9 @@ struct mali_gpu_utilization_data *mali_utilization_calculate(u64 *start_time, u6
 
 		mali_executor_hint_disable(MALI_EXECUTOR_HINT_GP_BOUND);
 
-		MALI_DEBUG_PRINT(4, ("last_utilization_gpu = %d \n", last_utilization_gpu));
-		MALI_DEBUG_PRINT(4, ("last_utilization_gp = %d \n", last_utilization_gp));
-		MALI_DEBUG_PRINT(4, ("last_utilization_pp = %d \n", last_utilization_pp));
+		MALI_DEBUG_PRINT(4, "last_utilization_gpu = %d \n", last_utilization_gpu);
+		MALI_DEBUG_PRINT(4, "last_utilization_gp = %d \n", last_utilization_gp);
+		MALI_DEBUG_PRINT(4, "last_utilization_pp = %d \n", last_utilization_pp);
 
 		return &mali_util_data;
 	}
@@ -173,9 +173,9 @@ struct mali_gpu_utilization_data *mali_utilization_calculate(u64 *start_time, u6
 
 	mali_utilization_data_unlock();
 
-	MALI_DEBUG_PRINT(4, ("last_utilization_gpu = %d \n", last_utilization_gpu));
-	MALI_DEBUG_PRINT(4, ("last_utilization_gp = %d \n", last_utilization_gp));
-	MALI_DEBUG_PRINT(4, ("last_utilization_pp = %d \n", last_utilization_pp));
+	MALI_DEBUG_PRINT(4, "last_utilization_gpu = %d \n", last_utilization_gpu);
+	MALI_DEBUG_PRINT(4, "last_utilization_gp = %d \n", last_utilization_gp);
+	MALI_DEBUG_PRINT(4, "last_utilization_pp = %d \n", last_utilization_pp);
 
 	return &mali_util_data;
 }
@@ -189,13 +189,13 @@ _mali_osk_errcode_t mali_utilization_init(void)
 		if (NULL != data.utilization_callback) {
 			mali_utilization_callback = data.utilization_callback;
 			mali_utilization_context = data.utilization_context;
-			MALI_DEBUG_PRINT(2, ("Mali GPU Utilization: Utilization handler installed \n"));
+			MALI_DEBUG_PRINT(2, "Mali GPU Utilization: Utilization handler installed \n");
 		}
 	}
 #endif /* defined(CONFIG_MALI_PM_UTILIZATION) */
 
 	if (NULL == mali_utilization_callback) {
-		MALI_DEBUG_PRINT(2, ("Mali GPU Utilization: No platform utilization handler installed\n"));
+		MALI_DEBUG_PRINT(2, "Mali GPU Utilization: No platform utilization handler installed\n");
 	}
 
 	utilization_data_lock = _mali_osk_spinlock_irq_init(_MALI_OSK_LOCKFLAG_ORDERED, _MALI_OSK_LOCK_ORDER_UTILIZATION);

@@ -49,7 +49,7 @@ void mali_spinlock_reentrant_wait(struct mali_spinlock_reentrant *spinlock, u32 
 	MALI_DEBUG_ASSERT_POINTER(spinlock->lock);
 	MALI_DEBUG_ASSERT(0 != tid);
 
-	MALI_DEBUG_PRINT(5, ("%s ^\n", __FUNCTION__));
+	MALI_DEBUG_PRINT(5, "%s ^\n", __FUNCTION__);
 
 	if (tid != spinlock->owner) {
 		_mali_osk_spinlock_irq_lock(spinlock->lock);
@@ -57,7 +57,7 @@ void mali_spinlock_reentrant_wait(struct mali_spinlock_reentrant *spinlock, u32 
 		spinlock->owner = tid;
 	}
 
-	MALI_DEBUG_PRINT(5, ("%s v\n", __FUNCTION__));
+	MALI_DEBUG_PRINT(5, "%s v\n", __FUNCTION__);
 
 	++spinlock->counter;
 }
@@ -71,7 +71,7 @@ void mali_spinlock_reentrant_signal(struct mali_spinlock_reentrant *spinlock, u3
 	--spinlock->counter;
 	if (0 == spinlock->counter) {
 		spinlock->owner = 0;
-		MALI_DEBUG_PRINT(5, ("%s release last\n", __FUNCTION__));
+		MALI_DEBUG_PRINT(5, "%s release last\n", __FUNCTION__);
 		_mali_osk_spinlock_irq_unlock(spinlock->lock);
 	}
 }

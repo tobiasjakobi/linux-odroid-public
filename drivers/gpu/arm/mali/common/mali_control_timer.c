@@ -60,7 +60,7 @@ _mali_osk_errcode_t mali_control_timer_init(void)
 		/* Use device specific settings (if defined) */
 		if (0 != data.control_interval) {
 			mali_control_timeout = data.control_interval;
-			MALI_DEBUG_PRINT(2, ("Mali GPU Timer: %u\n", mali_control_timeout));
+			MALI_DEBUG_PRINT(2, "Mali GPU Timer: %u\n", mali_control_timeout);
 		}
 	}
 

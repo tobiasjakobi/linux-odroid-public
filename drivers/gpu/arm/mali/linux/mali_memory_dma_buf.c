@@ -44,7 +44,7 @@ struct mali_dma_buf_attachment {
 
 static void mali_dma_buf_release(struct mali_dma_buf_attachment *mem)
 {
-	MALI_DEBUG_PRINT(3, ("Mali DMA-buf: release attachment %p\n", mem));
+	MALI_DEBUG_PRINT(3, "Mali DMA-buf: release attachment %p\n", mem);
 
 	MALI_DEBUG_ASSERT_POINTER(mem);
 	MALI_DEBUG_ASSERT_POINTER(mem->attachment);
@@ -89,7 +89,7 @@ static int mali_dma_buf_map(struct mali_dma_buf_attachment *mem, struct mali_ses
 
 	mem->map_ref++;
 
-	MALI_DEBUG_PRINT(5, ("Mali DMA-buf: map attachment %p, new map_ref = %d\n", mem, mem->map_ref));
+	MALI_DEBUG_PRINT(5, "Mali DMA-buf: map attachment %p, new map_ref = %d\n", mem, mem->map_ref);
 
 	if (1 == mem->map_ref) {
 		/* First reference taken, so we need to map the dma buf */
@@ -100,7 +100,7 @@ static int mali_dma_buf_map(struct mali_dma_buf_attachment *mem, struct mali_ses
 
 		mem->sgt = dma_buf_map_attachment(mem->attachment, DMA_BIDIRECTIONAL);
 		if (IS_ERR_OR_NULL(mem->sgt)) {
-			MALI_DEBUG_PRINT_ERROR(("Failed to map dma-buf attachment\n"));
+			MALI_DEBUG_PRINT_ERROR("Failed to map dma-buf attachment\n");
 			return -EFAULT;
 		}
 
@@ -119,7 +119,7 @@ static int mali_dma_buf_map(struct mali_dma_buf_attachment *mem, struct mali_ses
 
 		if (flags & MALI_MEM_FLAG_MALI_GUARD_PAGE) {
 			u32 guard_phys;
-			MALI_DEBUG_PRINT(7, ("Mapping in extra guard page\n"));
+			MALI_DEBUG_PRINT(7, "Mapping in extra guard page\n");
 
 			guard_phys = sg_dma_address(mem->sgt->sgl);
 			mali_mmu_pagedir_update(pagedir, virt, guard_phys, MALI_MMU_PAGE_SIZE, MALI_MMU_FLAGS_DEFAULT);
@@ -148,7 +148,7 @@ static void mali_dma_buf_unmap(struct mali_dma_buf_attachment *mem)
 
 	mem->map_ref--;
 
-	MALI_DEBUG_PRINT(5, ("Mali DMA-buf: unmap attachment %p, new map_ref = %d\n", mem, mem->map_ref));
+	MALI_DEBUG_PRINT(5, "Mali DMA-buf: unmap attachment %p, new map_ref = %d\n", mem, mem->map_ref);
 
 	if (0 == mem->map_ref) {
 		dma_buf_unmap_attachment(mem->attachment, mem->sgt, DMA_BIDIRECTIONAL);
@@ -200,7 +200,7 @@ int mali_dma_buf_map_job(struct mali_pp_job *job)
 			      cookie, (void **)&descriptor);
 
 		if (_MALI_OSK_ERR_OK != err) {
-			MALI_DEBUG_PRINT_ERROR(("Mali DMA-buf: Failed to get descriptor for cookie %d\n", cookie));
+			MALI_DEBUG_PRINT_ERROR("Mali DMA-buf: Failed to get descriptor for cookie %d\n", cookie);
 			ret = -EFAULT;
 			MALI_DEBUG_ASSERT(NULL ==
 					  mali_pp_job_get_dma_buf(job, i));
@@ -221,8 +221,8 @@ int mali_dma_buf_map_job(struct mali_pp_job *job)
 
 		err = mali_dma_buf_map(mem, mem->session, descriptor->mali_mapping.addr, descriptor->flags);
 		if (0 != err) {
-			MALI_DEBUG_PRINT_ERROR(("Mali DMA-buf: Failed to map dma-buf for cookie %d at mali address %x\b",
-						cookie, descriptor->mali_mapping.addr));
+			MALI_DEBUG_PRINT_ERROR("Mali DMA-buf: Failed to map dma-buf for cookie %d at mali address %x\b",
+						cookie, descriptor->mali_mapping.addr);
 			ret = -EFAULT;
 			MALI_DEBUG_ASSERT(NULL ==
 					  mali_pp_job_get_dma_buf(job, i));
@@ -270,12 +270,12 @@ int mali_attach_dma_buf(struct mali_session_data *session, _mali_uk_attach_dma_b
 	}
 
 	if (args.mali_address & ~PAGE_MASK) {
-		MALI_DEBUG_PRINT_ERROR(("Requested address (0x%08x) is not page aligned\n", args.mali_address));
+		MALI_DEBUG_PRINT_ERROR("Requested address (0x%08x) is not page aligned\n", args.mali_address);
 		return -EINVAL;
 	}
 
 	if (args.mali_address >= args.mali_address + args.size) {
-		MALI_DEBUG_PRINT_ERROR(("Requested address and size (0x%08x + 0x%08x) is too big\n", args.mali_address, args.size));
+		MALI_DEBUG_PRINT_ERROR("Requested address and size (0x%08x + 0x%08x) is too big\n", args.mali_address, args.size);
 		return -EINVAL;
 	}
 
@@ -283,20 +283,20 @@ int mali_attach_dma_buf(struct mali_session_data *session, _mali_uk_attach_dma_b
 
 	buf = dma_buf_get(fd);
 	if (IS_ERR_OR_NULL(buf)) {
-		MALI_DEBUG_PRINT_ERROR(("Failed to get dma-buf from fd: %d\n", fd));
+		MALI_DEBUG_PRINT_ERROR("Failed to get dma-buf from fd: %d\n", fd);
 		return PTR_RET(buf);
 	}
 
 	/* Currently, mapping of the full buffer are supported. */
 	if (args.size != buf->size) {
-		MALI_DEBUG_PRINT_ERROR(("dma-buf size doesn't match mapping size.\n"));
+		MALI_DEBUG_PRINT_ERROR("dma-buf size doesn't match mapping size.\n");
 		dma_buf_put(buf);
 		return -EINVAL;
 	}
 
 	mem = kcalloc(1, sizeof(struct mali_dma_buf_attachment), GFP_KERNEL);
 	if (NULL == mem) {
-		MALI_DEBUG_PRINT_ERROR(("Failed to allocate dma-buf tracing struct\n"));
+		MALI_DEBUG_PRINT_ERROR("Failed to allocate dma-buf tracing struct\n");
 		dma_buf_put(buf);
 		return -ENOMEM;
 	}
@@ -309,7 +309,7 @@ int mali_attach_dma_buf(struct mali_session_data *session, _mali_uk_attach_dma_b
 
 	mem->attachment = dma_buf_attach(mem->buf, &mali_platform_device->dev);
 	if (NULL == mem->attachment) {
-		MALI_DEBUG_PRINT_ERROR(("Failed to attach to dma-buf %d\n", fd));
+		MALI_DEBUG_PRINT_ERROR("Failed to attach to dma-buf %d\n", fd);
 		dma_buf_put(mem->buf);
 		kfree(mem);
 		return -EFAULT;
@@ -318,7 +318,7 @@ int mali_attach_dma_buf(struct mali_session_data *session, _mali_uk_attach_dma_b
 	/* Set up Mali memory descriptor */
 	descriptor = mali_mem_descriptor_create(session, MALI_MEM_DMA_BUF);
 	if (NULL == descriptor) {
-		MALI_DEBUG_PRINT_ERROR(("Failed to allocate descriptor dma-buf %d\n", fd));
+		MALI_DEBUG_PRINT_ERROR("Failed to allocate descriptor dma-buf %d\n", fd);
 		mali_dma_buf_release(mem);
 		return -ENOMEM;
 	}
@@ -338,7 +338,7 @@ int mali_attach_dma_buf(struct mali_session_data *session, _mali_uk_attach_dma_b
 	/* Map dma-buf into this session's page tables */
 	if (_MALI_OSK_ERR_OK != mali_mem_mali_map_prepare(descriptor)) {
 		mali_session_memory_unlock(session);
-		MALI_DEBUG_PRINT_ERROR(("Failed to map dma-buf on Mali\n"));
+		MALI_DEBUG_PRINT_ERROR("Failed to map dma-buf on Mali\n");
 		mali_mem_descriptor_destroy(descriptor);
 		mali_dma_buf_release(mem);
 		return -ENOMEM;
@@ -351,7 +351,7 @@ int mali_attach_dma_buf(struct mali_session_data *session, _mali_uk_attach_dma_b
 		mali_mem_mali_map_free(descriptor);
 		mali_session_memory_unlock(session);
 
-		MALI_DEBUG_PRINT_ERROR(("Failed to map dma-buf %d into Mali address space\n", fd));
+		MALI_DEBUG_PRINT_ERROR("Failed to map dma-buf %d into Mali address space\n", fd);
 		mali_mem_descriptor_destroy(descriptor);
 		mali_dma_buf_release(mem);
 		return -ENOMEM;
@@ -367,7 +367,7 @@ int mali_attach_dma_buf(struct mali_session_data *session, _mali_uk_attach_dma_b
 		mali_mem_mali_map_free(descriptor);
 		mali_session_memory_unlock(session);
 
-		MALI_DEBUG_PRINT_ERROR(("Failed to create descriptor mapping for dma-buf %d\n", fd));
+		MALI_DEBUG_PRINT_ERROR("Failed to create descriptor mapping for dma-buf %d\n", fd);
 		mali_mem_descriptor_destroy(descriptor);
 		mali_dma_buf_release(mem);
 		return -EFAULT;
@@ -379,7 +379,7 @@ int mali_attach_dma_buf(struct mali_session_data *session, _mali_uk_attach_dma_b
 		mali_mem_mali_map_free(descriptor);
 		mali_session_memory_unlock(session);
 
-		MALI_DEBUG_PRINT_ERROR(("Failed to return descriptor to user space for dma-buf %d\n", fd));
+		MALI_DEBUG_PRINT_ERROR("Failed to return descriptor to user space for dma-buf %d\n", fd);
 		mali_descriptor_mapping_free(session->descriptor_mapping, md);
 		mali_dma_buf_release(mem);
 		return -EFAULT;
@@ -399,14 +399,14 @@ int mali_release_dma_buf(struct mali_session_data *session, _mali_uk_release_dma
 		return -EFAULT;
 	}
 
-	MALI_DEBUG_PRINT(3, ("Mali DMA-buf: release descriptor cookie %ld\n", args.cookie));
+	MALI_DEBUG_PRINT(3, "Mali DMA-buf: release descriptor cookie %ld\n", args.cookie);
 
 	mali_session_memory_lock(session);
 
 	descriptor = mali_descriptor_mapping_free(session->descriptor_mapping, (u32)args.cookie);
 
 	if (NULL != descriptor) {
-		MALI_DEBUG_PRINT(3, ("Mali DMA-buf: Releasing dma-buf at mali address %x\n", descriptor->mali_mapping.addr));
+		MALI_DEBUG_PRINT(3, "Mali DMA-buf: Releasing dma-buf at mali address %x\n", descriptor->mali_mapping.addr);
 
 		mali_mem_mali_map_free(descriptor);
 
@@ -414,7 +414,7 @@ int mali_release_dma_buf(struct mali_session_data *session, _mali_uk_release_dma
 
 		mali_mem_descriptor_destroy(descriptor);
 	} else {
-		MALI_DEBUG_PRINT_ERROR(("Invalid memory descriptor %ld used to release dma-buf\n", args.cookie));
+		MALI_DEBUG_PRINT_ERROR("Invalid memory descriptor %ld used to release dma-buf\n", args.cookie);
 		ret = -EINVAL;
 	}
 
@@ -440,7 +440,7 @@ int mali_dma_buf_get_size(struct mali_session_data *session, _mali_uk_dma_buf_ge
 
 	buf = dma_buf_get(fd);
 	if (IS_ERR_OR_NULL(buf)) {
-		MALI_DEBUG_PRINT_ERROR(("Failed to get dma-buf from fd: %d\n", fd));
+		MALI_DEBUG_PRINT_ERROR("Failed to get dma-buf from fd: %d\n", fd);
 		return PTR_RET(buf);
 	}
 

@@ -43,7 +43,7 @@ static void mali_user_settings_notify(_mali_uk_user_setting_t setting, u32 value
 
 		notobjs = (_mali_osk_notification_t **)kmalloc(sizeof(_mali_osk_notification_t *) * num_sessions_alloc, GFP_KERNEL);
 		if (NULL == notobjs) {
-			MALI_PRINT_ERROR(("Failed to notify user space session about num PP core change (alloc failure)\n"));
+			MALI_PRINT_ERROR("Failed to notify user space session about num PP core change (alloc failure)\n");
 			return;
 		}
 
@@ -57,7 +57,7 @@ static void mali_user_settings_notify(_mali_uk_user_setting_t setting, u32 value
 				data->setting = setting;
 				data->value = value;
 			} else {
-				MALI_PRINT_ERROR(("Failed to notify user space session about setting change (alloc failure %u)\n", i));
+				MALI_PRINT_ERROR("Failed to notify user space session about setting change (alloc failure %u)\n", i);
 			}
 		}
 
@@ -98,7 +98,7 @@ void mali_set_user_setting(_mali_uk_user_setting_t setting, u32 value)
 	mali_bool notify = MALI_FALSE;
 
 	if (setting >= _MALI_UK_USER_SETTING_MAX) {
-		MALI_DEBUG_PRINT_ERROR(("Invalid user setting %ud\n"));
+		MALI_DEBUG_PRINT_ERROR("Invalid user setting %ud\n");
 		return;
 	}
 

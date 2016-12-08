@@ -260,7 +260,7 @@ _mali_osk_errcode_t mali_platform_init(void)
 	if (WARN_ON(!pdev))
 		return -ENODEV;
 
-	MALI_DEBUG_PRINT(4, ("mali_platform_device_register() called\n"));
+	MALI_DEBUG_PRINT(4, "mali_platform_device_register() called\n");
 
 	pdev->dev.platform_data = &mali_exynos_gpu_data;
 

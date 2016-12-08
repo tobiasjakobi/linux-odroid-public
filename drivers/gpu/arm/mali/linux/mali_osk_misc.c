@@ -20,15 +20,17 @@
 #include <linux/module.h>
 #include "mali_osk.h"
 
-#if !defined(CONFIG_MALI_QUIET)
-void _mali_osk_dbgmsg(const char *fmt, ...)
+#if defined(CONFIG_MALI_QUIET)
+void _mali_printf(const char *fmt, ...) {}
+#else
+void _mali_printf(const char *fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
 	vprintk(fmt, args);
 	va_end(args);
 }
-#endif /* !defined(CONFIG_MALI_QUIET) */
+#endif
 
 u32 _mali_osk_snprintf(char *buf, u32 size, const char *fmt, ...)
 {

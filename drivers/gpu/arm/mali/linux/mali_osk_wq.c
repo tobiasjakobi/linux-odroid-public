@@ -49,7 +49,7 @@ _mali_osk_errcode_t _mali_osk_wq_init(void)
 	mali_wq_high = alloc_workqueue("mali_high_pri", WQ_HIGHPRI | WQ_UNBOUND, 0);
 
 	if (NULL == mali_wq_normal || NULL == mali_wq_high) {
-		MALI_PRINT_ERROR(("Unable to create Mali workqueues\n"));
+		MALI_PRINT_ERROR("Unable to create Mali workqueues\n");
 
 		if (mali_wq_normal) destroy_workqueue(mali_wq_normal);
 		if (mali_wq_high)   destroy_workqueue(mali_wq_high);

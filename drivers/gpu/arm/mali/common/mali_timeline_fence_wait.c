@@ -87,7 +87,7 @@ static mali_bool mali_timeline_fence_wait_check_status(struct mali_timeline_syst
 		MALI_DEBUG_ASSERT_POINTER(timeline);
 
 		if (unlikely(!mali_timeline_is_point_valid(timeline, point))) {
-			MALI_PRINT_ERROR(("Mali Timeline: point %d is not valid (oldest=%d, next=%d)\n", point, timeline->point_oldest, timeline->point_next));
+			MALI_PRINT_ERROR("Mali Timeline: point %d is not valid (oldest=%d, next=%d)\n", point, timeline->point_oldest, timeline->point_next);
 		}
 
 		if (!mali_timeline_is_point_released(timeline, point)) {
@@ -104,7 +104,7 @@ static mali_bool mali_timeline_fence_wait_check_status(struct mali_timeline_syst
 				ret = MALI_FALSE;
 			}
 		} else {
-			MALI_PRINT_ERROR(("Mali Timeline: failed to get sync fence from fd %d\n", fence->sync_fd));
+			MALI_PRINT_ERROR("Mali Timeline: failed to get sync fence from fd %d\n", fence->sync_fd);
 		}
 	}
 #endif /* defined(CONFIG_SYNC) */
@@ -130,7 +130,7 @@ mali_bool mali_timeline_fence_wait(struct mali_timeline_system *system, struct m
 	MALI_DEBUG_ASSERT_POINTER(system);
 	MALI_DEBUG_ASSERT_POINTER(fence);
 
-	MALI_DEBUG_PRINT(4, ("Mali Timeline: wait on fence\n"));
+	MALI_DEBUG_PRINT(4, "Mali Timeline: wait on fence\n");
 
 	if (MALI_TIMELINE_FENCE_WAIT_TIMEOUT_IMMEDIATELY == timeout) {
 		return mali_timeline_fence_wait_check_status(system, fence);
@@ -138,7 +138,7 @@ mali_bool mali_timeline_fence_wait(struct mali_timeline_system *system, struct m
 
 	wait = mali_timeline_fence_wait_tracker_alloc();
 	if (unlikely(NULL == wait)) {
-		MALI_PRINT_ERROR(("Mali Timeline: failed to allocate data for fence wait\n"));
+		MALI_PRINT_ERROR("Mali Timeline: failed to allocate data for fence wait\n");
 		return MALI_FALSE;
 	}
 
@@ -179,7 +179,7 @@ void mali_timeline_fence_wait_activate(struct mali_timeline_fence_wait_tracker *
 	MALI_DEBUG_ASSERT_POINTER(wait);
 	MALI_DEBUG_ASSERT_POINTER(wait->system);
 
-	MALI_DEBUG_PRINT(4, ("Mali Timeline: activation for fence wait tracker\n"));
+	MALI_DEBUG_PRINT(4, "Mali Timeline: activation for fence wait tracker\n");
 
 	MALI_DEBUG_ASSERT(MALI_FALSE == wait->activated);
 	wait->activated = MALI_TRUE;

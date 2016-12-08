@@ -41,12 +41,12 @@ void mali_scheduler_terminate(void);
 MALI_STATIC_INLINE void mali_scheduler_lock(void)
 {
 	_mali_osk_spinlock_irq_lock(mali_scheduler_lock_obj);
-	MALI_DEBUG_PRINT(5, ("Mali scheduler: scheduler lock taken.\n"));
+	MALI_DEBUG_PRINT(5, "Mali scheduler: scheduler lock taken.\n");
 }
 
 MALI_STATIC_INLINE void mali_scheduler_unlock(void)
 {
-	MALI_DEBUG_PRINT(5, ("Mali scheduler: Releasing scheduler lock.\n"));
+	MALI_DEBUG_PRINT(5, "Mali scheduler: Releasing scheduler lock.\n");
 	_mali_osk_spinlock_irq_unlock(mali_scheduler_lock_obj);
 }
 

@@ -26,12 +26,12 @@ struct mali_bcast_unit *mali_bcast_unit_create(const _mali_osk_resource_t *resou
 	struct mali_bcast_unit *bcast_unit = NULL;
 
 	MALI_DEBUG_ASSERT_POINTER(resource);
-	MALI_DEBUG_PRINT(2, ("Broadcast: Creating Mali Broadcast unit: %s\n",
-			     resource->description));
+	MALI_DEBUG_PRINT(2, "Broadcast: Creating Mali Broadcast unit: %s\n",
+			    resource->description);
 
 	bcast_unit = kmalloc(sizeof(struct mali_bcast_unit), GFP_KERNEL);
 	if (NULL == bcast_unit) {
-		MALI_PRINT_ERROR(("Broadcast: Failed to allocate memory for Broadcast unit\n"));
+		MALI_PRINT_ERROR("Broadcast: Failed to allocate memory for Broadcast unit\n");
 		return NULL;
 	}
 
@@ -42,7 +42,7 @@ struct mali_bcast_unit *mali_bcast_unit_create(const _mali_osk_resource_t *resou
 
 		return bcast_unit;
 	} else {
-		MALI_PRINT_ERROR(("Broadcast: Failed map broadcast unit\n"));
+		MALI_PRINT_ERROR("Broadcast: Failed map broadcast unit\n");
 	}
 
 	kfree(bcast_unit);
@@ -108,10 +108,9 @@ void mali_bcast_reset(struct mali_bcast_unit *bcast_unit)
 {
 	MALI_DEBUG_ASSERT_POINTER(bcast_unit);
 
-	MALI_DEBUG_PRINT(4,
-			 ("Broadcast: setting mask 0x%08X + 0x%08X (reset)\n",
-			  bcast_unit->current_mask,
-			  bcast_unit->current_mask & 0xFF));
+	MALI_DEBUG_PRINT(4, "Broadcast: setting mask 0x%08X + 0x%08X (reset)\n",
+			 bcast_unit->current_mask,
+			 bcast_unit->current_mask & 0xFF);
 
 	/* set broadcast mask */
 	mali_hw_core_register_write(&bcast_unit->hw_core,
@@ -128,7 +127,7 @@ void mali_bcast_disable(struct mali_bcast_unit *bcast_unit)
 {
 	MALI_DEBUG_ASSERT_POINTER(bcast_unit);
 
-	MALI_DEBUG_PRINT(4, ("Broadcast: setting mask 0x0 + 0x0 (disable)\n"));
+	MALI_DEBUG_PRINT(4, "Broadcast: setting mask 0x0 + 0x0 (disable)\n");
 
 	/* set broadcast mask */
 	mali_hw_core_register_write(&bcast_unit->hw_core,

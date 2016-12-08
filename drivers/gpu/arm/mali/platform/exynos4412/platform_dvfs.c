@@ -213,7 +213,7 @@ static mali_bool set_mali_dvfs_status(u32 step,mali_bool boostup)
 
 #ifdef CONFIG_REGULATOR
 	if (mali_regulator_get_usecount() == 0) {
-		MALI_DEBUG_PRINT(1, ("regulator use_count is 0 \n"));
+		MALI_DEBUG_PRINT(1, "regulator use_count is 0 \n");
 		return MALI_FALSE;
 	}
 #endif
@@ -261,12 +261,12 @@ static void mali_platform_wating(u32 msec)
 static mali_bool change_mali_dvfs_status(u32 step, mali_bool boostup )
 {
 
-	MALI_DEBUG_PRINT(1, ("> change_mali_dvfs_status: %d, %d \n",step,
-				boostup));
+	MALI_DEBUG_PRINT(1, "> change_mali_dvfs_status: %d, %d \n",step,
+				boostup);
 
 	if (!set_mali_dvfs_status(step, boostup)) {
-		MALI_DEBUG_PRINT(1, ("error on set_mali_dvfs_status: %d, %d \n"
-					,step, boostup));
+		MALI_DEBUG_PRINT(1, "error on set_mali_dvfs_status: %d, %d \n"
+					,step, boostup);
 		return MALI_FALSE;
 	}
 
@@ -290,21 +290,21 @@ static mali_bool mali_dvfs_table_update(void)
 #else
 		for (i = 0; i < MALI_DVFS_STEPS ; i++) {
 #endif
-			MALI_PRINT((":::exynos4_result_of_asv : %d\n",
-				exynos4_result_of_asv));
+			MALI_PRINT(":::exynos4_result_of_asv : %d\n",
+				exynos4_result_of_asv);
 			mali_dvfs[i].vol =
 				asv_3d_volt_9_table[i][exynos4_result_of_asv];
-			MALI_PRINT(("mali_dvfs[%d].vol = %d\n", i,
-				mali_dvfs[i].vol));
+			MALI_PRINT("mali_dvfs[%d].vol = %d\n", i,
+				mali_dvfs[i].vol);
 		}
 	} else {
 		for (i = 0; i < MALI_DVFS_STEPS; i++) {
-			MALI_PRINT((":::exynos_result_of_asv : %d \n",
-				exynos4_result_of_asv));
+			MALI_PRINT(":::exynos_result_of_asv : %d \n",
+				exynos4_result_of_asv);
 			mali_dvfs[i].vol =
 			asv_3d_volt_9_table_for_prime[i][exynos4_result_of_asv];
-			MALI_PRINT(("mali_dvfs[%d].vol = %d\n", i,
-				mali_dvfs[i].vol));
+			MALI_PRINT("mali_dvfs[%d].vol = %d\n", i,
+				mali_dvfs[i].vol);
 		} 
 	}
 
@@ -318,9 +318,9 @@ static unsigned int decideNextStatus(unsigned int utilization)
 
 	if (mali_dvfs_threshold[maliDvfsStatus.currentStep].upthreshold
 	     <= mali_dvfs_threshold[maliDvfsStatus.currentStep].downthreshold) {
-		MALI_PRINT(("upthreadshold is smaller than downthreshold: %d < %d\n",
+		MALI_PRINT("upthreadshold is smaller than downthreshold: %d < %d\n",
 				mali_dvfs_threshold[maliDvfsStatus.currentStep].upthreshold,
-				mali_dvfs_threshold[maliDvfsStatus.currentStep].downthreshold));
+				mali_dvfs_threshold[maliDvfsStatus.currentStep].downthreshold);
 		return level;
 	}
 
@@ -347,7 +347,7 @@ static mali_bool mali_dvfs_status(u32 utilization)
 	static mali_bool asv_applied = MALI_FALSE;
 #endif
 
-	MALI_DEBUG_PRINT(1, ("> mali_dvfs_status: %d \n",utilization));
+	MALI_DEBUG_PRINT(1, "> mali_dvfs_status: %d \n",utilization);
 #ifdef CONFIG_EXYNOS_ASV
 	if (asv_applied == MALI_FALSE) {
 		mali_dvfs_table_update();
@@ -369,7 +369,7 @@ static mali_bool mali_dvfs_status(u32 utilization)
 
 		/*change mali dvfs status*/
 		if (!change_mali_dvfs_status(nextStatus,boostup)) {
-			MALI_DEBUG_PRINT(1, ("error on change_mali_dvfs_status \n"));
+			MALI_DEBUG_PRINT(1, "error on change_mali_dvfs_status \n");
 			return MALI_FALSE;
 		}
 		stay_count = mali_dvfs_staycount[maliDvfsStatus.currentStep].staycount;
@@ -391,7 +391,7 @@ static void mali_dvfs_work_handler(struct work_struct *w)
 {
 	bMaliDvfsRun=1;
 
-	MALI_DEBUG_PRINT(3, ("=== mali_dvfs_work_handler\n"));
+	MALI_DEBUG_PRINT(3, "=== mali_dvfs_work_handler\n");
 
 	if (!mali_dvfs_status(mali_dvfs_utilization))
 		MALI_DEBUG_PRINT(1,( "error on mali dvfs status in mali_dvfs_work_handler"));

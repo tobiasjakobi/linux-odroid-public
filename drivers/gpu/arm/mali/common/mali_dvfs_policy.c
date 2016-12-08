@@ -120,7 +120,7 @@ void mali_dvfs_policy_realize(struct mali_gpu_utilization_data *data, u64 time_p
 	u32 window_render_fps;
 
 	if (NULL == gpu_clk) {
-		MALI_DEBUG_PRINT(2, ("Enable DVFS but patform doesn't Support freq change. \n"));
+		MALI_DEBUG_PRINT(2, "Enable DVFS but patform doesn't Support freq change. \n");
 		return;
 	}
 
@@ -144,9 +144,9 @@ void mali_dvfs_policy_realize(struct mali_gpu_utilization_data *data, u64 time_p
 		over_perform_boundary_value = MALI_PERCENTAGE_TO_UTILIZATION_FRACTION(35);
 	}
 
-	MALI_DEBUG_PRINT(5, ("Using ARM power policy: gpu util = %d \n", current_gpu_util));
-	MALI_DEBUG_PRINT(5, ("Using ARM power policy: under_perform = %d,  over_perform = %d \n", under_perform_boundary_value, over_perform_boundary_value));
-	MALI_DEBUG_PRINT(5, ("Using ARM power policy: render fps = %d,  pressure render fps = %d \n", current_fps, window_render_fps));
+	MALI_DEBUG_PRINT(5, "Using ARM power policy: gpu util = %d \n", current_gpu_util);
+	MALI_DEBUG_PRINT(5, "Using ARM power policy: under_perform = %d,  over_perform = %d \n", under_perform_boundary_value, over_perform_boundary_value);
+	MALI_DEBUG_PRINT(5, "Using ARM power policy: render fps = %d,  pressure render fps = %d \n", current_fps, window_render_fps);
 
 	/* Get current clock value */
 	cur_clk_step = mali_gpu_get_freq();
@@ -208,7 +208,7 @@ real_setting:
 	do_gettimeofday(&stop);
 
 	elapse_time = timeval_to_ns(&stop) - timeval_to_ns(&start);
-	MALI_DEBUG_PRINT(2, ("Using ARM power policy:  eclapse time = %d\n", elapse_time));
+	MALI_DEBUG_PRINT(2, "Using ARM power policy:  eclapse time = %d\n", elapse_time);
 #endif
 }
 
@@ -219,7 +219,7 @@ _mali_osk_errcode_t mali_dvfs_policy_init(void)
 
 	if (_MALI_OSK_ERR_OK == _mali_osk_device_data_get(&data)) {
 		if ((NULL != data.get_clock_info) && (NULL != data.set_freq) && (NULL != data.get_freq)) {
-			MALI_DEBUG_PRINT(2, ("Mali DVFS init: using arm dvfs policy \n"));
+			MALI_DEBUG_PRINT(2, "Mali DVFS init: using arm dvfs policy \n");
 
 
 			mali_fps_step1 = mali_max_system_fps / 3;
@@ -231,12 +231,12 @@ _mali_osk_errcode_t mali_dvfs_policy_init(void)
 #ifdef DEBUG
 				int i;
 				for (i = 0; i < gpu_clk->num_of_steps; i++) {
-					MALI_DEBUG_PRINT(5, ("mali gpu clock info: step%d clock(%d)Hz,vol(%d) \n",
-							     i, gpu_clk->item[i].clock, gpu_clk->item[i].vol));
+					MALI_DEBUG_PRINT(5, "mali gpu clock info: step%d clock(%d)Hz,vol(%d) \n",
+							    i, gpu_clk->item[i].clock, gpu_clk->item[i].vol);
 				}
 #endif
 			} else {
-				MALI_DEBUG_PRINT(2, ("Mali DVFS init: platform didn't define enough info for ddk to do DVFS \n"));
+				MALI_DEBUG_PRINT(2, "Mali DVFS init: platform didn't define enough info for ddk to do DVFS \n");
 			}
 
 			mali_gpu_get_freq = data.get_freq;
@@ -247,11 +247,11 @@ _mali_osk_errcode_t mali_dvfs_policy_init(void)
 				mali_dvfs_enabled = MALI_TRUE;
 			}
 		} else {
-			MALI_DEBUG_PRINT(2, ("Mali DVFS init: platform function callback incomplete, need check mali_gpu_device_data in platform .\n"));
+			MALI_DEBUG_PRINT(2, "Mali DVFS init: platform function callback incomplete, need check mali_gpu_device_data in platform .\n");
 		}
 	} else {
 		err = _MALI_OSK_ERR_FAULT;
-		MALI_DEBUG_PRINT(2, ("Mali DVFS init: get platform data error .\n"));
+		MALI_DEBUG_PRINT(2, "Mali DVFS init: get platform data error .\n");
 	}
 
 	return err;
@@ -300,7 +300,7 @@ void mali_get_current_gpu_clk_item(struct mali_gpu_clk_item *clk_item)
 			clk_item->clock = mali_gpu_clk->item[cur_clk_step].clock;
 			clk_item->vol = mali_gpu_clk->item[cur_clk_step].vol;
 		} else {
-			MALI_DEBUG_PRINT(2, ("Mali GPU Utilization: platform function callback incomplete, need check mali_gpu_device_data in platform .\n"));
+			MALI_DEBUG_PRINT(2, "Mali GPU Utilization: platform function callback incomplete, need check mali_gpu_device_data in platform .\n");
 		}
 	}
 }

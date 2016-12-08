@@ -37,11 +37,11 @@ struct mali_pp_core *mali_pp_create(const _mali_osk_resource_t *resource, struct
 {
 	struct mali_pp_core *core = NULL;
 
-	MALI_DEBUG_PRINT(2, ("Mali PP: Creating Mali PP core: %s\n", resource->description));
-	MALI_DEBUG_PRINT(2, ("Mali PP: Base address of PP core: 0x%x\n", resource->base));
+	MALI_DEBUG_PRINT(2, "Mali PP: Creating Mali PP core: %s\n", resource->description);
+	MALI_DEBUG_PRINT(2, "Mali PP: Base address of PP core: 0x%x\n", resource->base);
 
 	if (mali_global_num_pp_cores >= MALI_MAX_NUMBER_OF_PP_CORES) {
-		MALI_PRINT_ERROR(("Mali PP: Too many PP core objects created\n"));
+		MALI_PRINT_ERROR("Mali PP: Too many PP core objects created\n");
 		return NULL;
 	}
 
@@ -78,11 +78,11 @@ struct mali_pp_core *mali_pp_create(const _mali_osk_resource_t *resource, struct
 
 						return core;
 					} else {
-						MALI_PRINT_ERROR(("Mali PP: Failed to setup interrupt handlers for PP core %s\n", core->hw_core.description));
+						MALI_PRINT_ERROR("Mali PP: Failed to setup interrupt handlers for PP core %s\n", core->hw_core.description);
 					}
 					mali_group_remove_pp_core(group);
 				} else {
-					MALI_PRINT_ERROR(("Mali PP: Failed to add core %s to group\n", core->hw_core.description));
+					MALI_PRINT_ERROR("Mali PP: Failed to add core %s to group\n", core->hw_core.description);
 				}
 			}
 			mali_hw_core_delete(&core->hw_core);
@@ -90,7 +90,7 @@ struct mali_pp_core *mali_pp_create(const _mali_osk_resource_t *resource, struct
 
 		kfree(core);
 	} else {
-		MALI_PRINT_ERROR(("Mali PP: Failed to allocate memory for PP core\n"));
+		MALI_PRINT_ERROR("Mali PP: Failed to allocate memory for PP core\n");
 	}
 
 	return NULL;
@@ -148,7 +148,7 @@ _mali_osk_errcode_t mali_pp_stop_bus_wait(struct mali_pp_core *core)
 	}
 
 	if (MALI_REG_POLL_COUNT_FAST == i) {
-		MALI_PRINT_ERROR(("Mali PP: Failed to stop bus on %s. Status: 0x%08x\n", core->hw_core.description, mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_STATUS)));
+		MALI_PRINT_ERROR("Mali PP: Failed to stop bus on %s. Status: 0x%08x\n", core->hw_core.description, mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_STATUS));
 		return _MALI_OSK_ERR_FAULT;
 	}
 	return _MALI_OSK_ERR_OK;
@@ -209,7 +209,7 @@ _mali_osk_errcode_t mali_pp_hard_reset(struct mali_pp_core *core)
 	int i;
 
 	MALI_DEBUG_ASSERT_POINTER(core);
-	MALI_DEBUG_PRINT(2, ("Mali PP: Hard reset of core %s\n", core->hw_core.description));
+	MALI_DEBUG_PRINT(2, "Mali PP: Hard reset of core %s\n", core->hw_core.description);
 
 	/* Set register to a bogus value. The register will be used to detect when reset is complete */
 	mali_hw_core_register_write_relaxed(&core->hw_core, MALI200_REG_ADDR_MGMT_WRITE_BOUNDARY_LOW, reset_invalid_value);
@@ -227,7 +227,7 @@ _mali_osk_errcode_t mali_pp_hard_reset(struct mali_pp_core *core)
 	}
 
 	if (MALI_REG_POLL_COUNT_FAST == i) {
-		MALI_PRINT_ERROR(("Mali PP: The hard reset loop didn't work, unable to recover\n"));
+		MALI_PRINT_ERROR("Mali PP: The hard reset loop didn't work, unable to recover\n");
 	}
 
 	mali_hw_core_register_write(&core->hw_core, MALI200_REG_ADDR_MGMT_WRITE_BOUNDARY_LOW, 0x00000000); /* set it back to the default */
@@ -242,7 +242,7 @@ void mali_pp_reset_async(struct mali_pp_core *core)
 {
 	MALI_DEBUG_ASSERT_POINTER(core);
 
-	MALI_DEBUG_PRINT(4, ("Mali PP: Reset of core %s\n", core->hw_core.description));
+	MALI_DEBUG_PRINT(4, "Mali PP: Reset of core %s\n", core->hw_core.description);
 
 	mali_hw_core_register_write(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_MASK, 0); /* disable the IRQs */
 	mali_hw_core_register_write(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_RAWSTAT, 0);
@@ -267,8 +267,8 @@ _mali_osk_errcode_t mali_pp_reset_wait(struct mali_pp_core *core)
 	}
 
 	if (i == MALI_REG_POLL_COUNT_FAST) {
-		MALI_PRINT_ERROR(("Mali PP: Failed to reset core %s, rawstat: 0x%08x\n",
-				  core->hw_core.description, rawstat));
+		MALI_PRINT_ERROR("Mali PP: Failed to reset core %s, rawstat: 0x%08x\n",
+				 core->hw_core.description, rawstat);
 		return _MALI_OSK_ERR_FAULT;
 	}
 
@@ -370,7 +370,7 @@ void mali_pp_job_start(struct mali_pp_core *core, struct mali_pp_job *job, u32 s
 	}
 #endif /* CONFIG_MALI400_HEATMAPS_ENABLED */
 
-	MALI_DEBUG_PRINT(3, ("Mali PP: Starting job 0x%08X part %u/%u on PP core %s\n", job, sub_job + 1, mali_pp_job_get_sub_job_count(job), core->hw_core.description));
+	MALI_DEBUG_PRINT(3, "Mali PP: Starting job 0x%08X part %u/%u on PP core %s\n", job, sub_job + 1, mali_pp_job_get_sub_job_count(job), core->hw_core.description);
 
 	/* Adding barrier to make sure all rester writes are finished */
 	wmb();
@@ -438,26 +438,26 @@ static _mali_osk_errcode_t mali_pp_irq_probe_ack(void *data)
 #if 0
 static void mali_pp_print_registers(struct mali_pp_core *core)
 {
-	MALI_DEBUG_PRINT(2, ("Mali PP: Register MALI200_REG_ADDR_MGMT_VERSION = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_VERSION)));
-	MALI_DEBUG_PRINT(2, ("Mali PP: Register MALI200_REG_ADDR_MGMT_CURRENT_REND_LIST_ADDR = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_CURRENT_REND_LIST_ADDR)));
-	MALI_DEBUG_PRINT(2, ("Mali PP: Register MALI200_REG_ADDR_MGMT_STATUS = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_STATUS)));
-	MALI_DEBUG_PRINT(2, ("Mali PP: Register MALI200_REG_ADDR_MGMT_INT_RAWSTAT = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_RAWSTAT)));
-	MALI_DEBUG_PRINT(2, ("Mali PP: Register MALI200_REG_ADDR_MGMT_INT_MASK = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_MASK)));
-	MALI_DEBUG_PRINT(2, ("Mali PP: Register MALI200_REG_ADDR_MGMT_INT_STATUS = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_STATUS)));
-	MALI_DEBUG_PRINT(2, ("Mali PP: Register MALI200_REG_ADDR_MGMT_BUS_ERROR_STATUS = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_BUS_ERROR_STATUS)));
-	MALI_DEBUG_PRINT(2, ("Mali PP: Register MALI200_REG_ADDR_MGMT_PERF_CNT_0_ENABLE = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_PERF_CNT_0_ENABLE)));
-	MALI_DEBUG_PRINT(2, ("Mali PP: Register MALI200_REG_ADDR_MGMT_PERF_CNT_0_SRC = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_PERF_CNT_0_SRC)));
-	MALI_DEBUG_PRINT(2, ("Mali PP: Register MALI200_REG_ADDR_MGMT_PERF_CNT_0_VALUE = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_PERF_CNT_0_VALUE)));
-	MALI_DEBUG_PRINT(2, ("Mali PP: Register MALI200_REG_ADDR_MGMT_PERF_CNT_1_ENABLE = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_PERF_CNT_1_ENABLE)));
-	MALI_DEBUG_PRINT(2, ("Mali PP: Register MALI200_REG_ADDR_MGMT_PERF_CNT_1_SRC = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_PERF_CNT_1_SRC)));
-	MALI_DEBUG_PRINT(2, ("Mali PP: Register MALI200_REG_ADDR_MGMT_PERF_CNT_1_VALUE = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_PERF_CNT_1_VALUE)));
+	MALI_DEBUG_PRINT(2, "Mali PP: Register MALI200_REG_ADDR_MGMT_VERSION = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_VERSION));
+	MALI_DEBUG_PRINT(2, "Mali PP: Register MALI200_REG_ADDR_MGMT_CURRENT_REND_LIST_ADDR = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_CURRENT_REND_LIST_ADDR));
+	MALI_DEBUG_PRINT(2, "Mali PP: Register MALI200_REG_ADDR_MGMT_STATUS = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_STATUS));
+	MALI_DEBUG_PRINT(2, "Mali PP: Register MALI200_REG_ADDR_MGMT_INT_RAWSTAT = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_RAWSTAT));
+	MALI_DEBUG_PRINT(2, "Mali PP: Register MALI200_REG_ADDR_MGMT_INT_MASK = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_MASK));
+	MALI_DEBUG_PRINT(2, "Mali PP: Register MALI200_REG_ADDR_MGMT_INT_STATUS = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_INT_STATUS));
+	MALI_DEBUG_PRINT(2, "Mali PP: Register MALI200_REG_ADDR_MGMT_BUS_ERROR_STATUS = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_BUS_ERROR_STATUS));
+	MALI_DEBUG_PRINT(2, "Mali PP: Register MALI200_REG_ADDR_MGMT_PERF_CNT_0_ENABLE = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_PERF_CNT_0_ENABLE));
+	MALI_DEBUG_PRINT(2, "Mali PP: Register MALI200_REG_ADDR_MGMT_PERF_CNT_0_SRC = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_PERF_CNT_0_SRC));
+	MALI_DEBUG_PRINT(2, "Mali PP: Register MALI200_REG_ADDR_MGMT_PERF_CNT_0_VALUE = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_PERF_CNT_0_VALUE));
+	MALI_DEBUG_PRINT(2, "Mali PP: Register MALI200_REG_ADDR_MGMT_PERF_CNT_1_ENABLE = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_PERF_CNT_1_ENABLE));
+	MALI_DEBUG_PRINT(2, "Mali PP: Register MALI200_REG_ADDR_MGMT_PERF_CNT_1_SRC = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_PERF_CNT_1_SRC));
+	MALI_DEBUG_PRINT(2, "Mali PP: Register MALI200_REG_ADDR_MGMT_PERF_CNT_1_VALUE = 0x%08X\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_PERF_CNT_1_VALUE));
 }
 #endif
 
 #if 0
 void mali_pp_print_state(struct mali_pp_core *core)
 {
-	MALI_DEBUG_PRINT(2, ("Mali PP: State: 0x%08x\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_STATUS)));
+	MALI_DEBUG_PRINT(2, "Mali PP: State: 0x%08x\n", mali_hw_core_register_read(&core->hw_core, MALI200_REG_ADDR_MGMT_STATUS));
 }
 #endif
 

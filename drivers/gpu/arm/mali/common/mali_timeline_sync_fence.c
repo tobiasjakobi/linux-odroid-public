@@ -36,7 +36,7 @@ static struct sync_fence *mali_timeline_sync_fence_create_and_add_tracker(struct
 	/* Allocate sync fence tracker. */
 	sync_fence_tracker = kcalloc(1, sizeof(struct mali_timeline_sync_fence_tracker), GFP_KERNEL);
 	if (NULL == sync_fence_tracker) {
-		MALI_PRINT_ERROR(("Mali Timeline: sync_fence_tracker allocation failed\n"));
+		MALI_PRINT_ERROR("Mali Timeline: sync_fence_tracker allocation failed\n");
 		return NULL;
 	}
 
@@ -44,7 +44,7 @@ static struct sync_fence *mali_timeline_sync_fence_create_and_add_tracker(struct
 	MALI_DEBUG_ASSERT_POINTER(timeline->sync_tl);
 	sync_fence_tracker->flag = mali_sync_flag_create(timeline->sync_tl, point);
 	if (NULL == sync_fence_tracker->flag) {
-		MALI_PRINT_ERROR(("Mali Timeline: sync_flag creation failed\n"));
+		MALI_PRINT_ERROR("Mali Timeline: sync_flag creation failed\n");
 		kfree(sync_fence_tracker);
 		return NULL;
 	}
@@ -52,7 +52,7 @@ static struct sync_fence *mali_timeline_sync_fence_create_and_add_tracker(struct
 	/* Create sync fence from sync flag. */
 	sync_fence = mali_sync_flag_create_fence(sync_fence_tracker->flag);
 	if (NULL == sync_fence) {
-		MALI_PRINT_ERROR(("Mali Timeline: sync_fence creation failed\n"));
+		MALI_PRINT_ERROR("Mali Timeline: sync_fence creation failed\n");
 		mali_sync_flag_put(sync_fence_tracker->flag);
 		kfree(sync_fence_tracker);
 		return NULL;
@@ -142,7 +142,7 @@ void mali_timeline_sync_fence_activate(struct mali_timeline_sync_fence_tracker *
 	MALI_DEBUG_ASSERT_POINTER(sync_fence_tracker);
 	MALI_DEBUG_ASSERT_POINTER(sync_fence_tracker->flag);
 
-	MALI_DEBUG_PRINT(4, ("Mali Timeline: activation for sync fence tracker\n"));
+	MALI_DEBUG_PRINT(4, "Mali Timeline: activation for sync fence tracker\n");
 
 	/* Signal flag and release reference. */
 	mali_sync_flag_signal(sync_fence_tracker->flag, 0);

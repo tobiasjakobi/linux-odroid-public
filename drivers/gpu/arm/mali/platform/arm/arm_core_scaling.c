@@ -37,7 +37,7 @@ static void enable_one_core(void)
 	if (num_cores_enabled < num_cores_total) {
 		++num_cores_enabled;
 		schedule_work(&wq_work);
-		MALI_DEBUG_PRINT(3, ("Core scaling: Enabling one more core\n"));
+		MALI_DEBUG_PRINT(3, "Core scaling: Enabling one more core\n");
 	}
 
 	MALI_DEBUG_ASSERT(1 <= num_cores_enabled);
@@ -49,7 +49,7 @@ static void disable_one_core(void)
 	if (1 < num_cores_enabled) {
 		--num_cores_enabled;
 		schedule_work(&wq_work);
-		MALI_DEBUG_PRINT(3, ("Core scaling: Disabling one core\n"));
+		MALI_DEBUG_PRINT(3, "Core scaling: Disabling one core\n");
 	}
 
 	MALI_DEBUG_ASSERT(1 <= num_cores_enabled);
@@ -61,7 +61,7 @@ static void enable_max_num_cores(void)
 	if (num_cores_enabled < num_cores_total) {
 		num_cores_enabled = num_cores_total;
 		schedule_work(&wq_work);
-		MALI_DEBUG_PRINT(3, ("Core scaling: Enabling maximum number of cores\n"));
+		MALI_DEBUG_PRINT(3, "Core scaling: Enabling maximum number of cores\n");
 	}
 
 	MALI_DEBUG_ASSERT(num_cores_total == num_cores_enabled);
@@ -103,7 +103,7 @@ void mali_core_scaling_update(struct mali_gpu_utilization_data *data)
 	 * in order to make a good core scaling algorithm.
 	 */
 
-	MALI_DEBUG_PRINT(3, ("Utilization: (%3d, %3d, %3d), cores enabled: %d/%d\n", data->utilization_gpu, data->utilization_gp, data->utilization_pp, num_cores_enabled, num_cores_total));
+	MALI_DEBUG_PRINT(3, "Utilization: (%3d, %3d, %3d), cores enabled: %d/%d\n", data->utilization_gpu, data->utilization_gp, data->utilization_pp, num_cores_enabled, num_cores_total);
 
 	/* NOTE: this function is normally called directly from the utilization callback which is in
 	 * timer context. */

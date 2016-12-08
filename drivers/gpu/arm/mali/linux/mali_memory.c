@@ -56,7 +56,7 @@ static void mali_mem_release(mali_mem_allocation *descriptor)
 		mali_mem_block_release(descriptor);
 		break;
 	default:
-		MALI_DEBUG_PRINT(1, ("mem type %d is not in the mali_mem_type enum.\n", descriptor->type));
+		MALI_DEBUG_PRINT(1, "mem type %d is not in the mali_mem_type enum.\n", descriptor->type);
 		break;
 	}
 }
@@ -64,7 +64,7 @@ static void mali_mem_release(mali_mem_allocation *descriptor)
 static void mali_mem_vma_open(struct vm_area_struct *vma)
 {
 	mali_mem_allocation *descriptor = (mali_mem_allocation *)vma->vm_private_data;
-	MALI_DEBUG_PRINT(4, ("Open called on vma %p\n", vma));
+	MALI_DEBUG_PRINT(4, "Open called on vma %p\n", vma);
 
 	descriptor->cpu_mapping.ref++;
 
@@ -77,7 +77,7 @@ static void mali_mem_vma_close(struct vm_area_struct *vma)
 	struct mali_session_data *session;
 	mali_mem_virt_cpu_mapping *mapping;
 
-	MALI_DEBUG_PRINT(3, ("Close called on vma %p\n", vma));
+	MALI_DEBUG_PRINT(3, "Close called on vma %p\n", vma);
 
 	descriptor = (mali_mem_allocation *)vma->vm_private_data;
 	BUG_ON(!descriptor);
@@ -89,7 +89,7 @@ static void mali_mem_vma_close(struct vm_area_struct *vma)
 
 	mapping->ref--;
 	if (0 != mapping->ref) {
-		MALI_DEBUG_PRINT(3, ("Ignoring this close, %d references still exists\n", mapping->ref));
+		MALI_DEBUG_PRINT(3, "Ignoring this close, %d references still exists\n", mapping->ref);
 		return;
 	}
 
@@ -117,8 +117,8 @@ static int mali_kernel_memory_cpu_page_fault_handler(struct vm_area_struct *vma,
 	 * Only the Mali cores can use page faults to extend buffers.
 	*/
 
-	MALI_DEBUG_PRINT(1, ("Page-fault in Mali memory region caused by the CPU.\n"));
-	MALI_DEBUG_PRINT(1, ("Tried to access 0x%lx (process local virtual address) which is not currently mapped to any Mali memory.\n", vmf->address));
+	MALI_DEBUG_PRINT(1, "Page-fault in Mali memory region caused by the CPU.\n");
+	MALI_DEBUG_PRINT(1, "Tried to access 0x%lx (process local virtual address) which is not currently mapped to any Mali memory.\n", vmf->address);
 
 	MALI_IGNORE(descriptor);
 
@@ -141,13 +141,13 @@ int mali_mmap(struct file *filp, struct vm_area_struct *vma)
 
 	session = (struct mali_session_data *)filp->private_data;
 	if (NULL == session) {
-		MALI_PRINT_ERROR(("mmap called without any session data available\n"));
+		MALI_PRINT_ERROR("mmap called without any session data available\n");
 		return -EFAULT;
 	}
 
-	MALI_DEBUG_PRINT(4, ("MMap() handler: start=0x%08X, phys=0x%08X, size=0x%08X vma->flags 0x%08x\n",
-			     (unsigned int)vma->vm_start, (unsigned int)(vma->vm_pgoff << PAGE_SHIFT),
-			     (unsigned int)(vma->vm_end - vma->vm_start), vma->vm_flags));
+	MALI_DEBUG_PRINT(4, "MMap() handler: start=0x%08X, phys=0x%08X, size=0x%08X vma->flags 0x%08x\n",
+			    (unsigned int)vma->vm_start, (unsigned int)(vma->vm_pgoff << PAGE_SHIFT),
+			    (unsigned int)(vma->vm_end - vma->vm_start), vma->vm_flags);
 
 	/* Set some bits which indicate that, the memory is IO memory, meaning
 	 * that no paging is to be performed and the memory should not be
@@ -168,7 +168,7 @@ int mali_mmap(struct file *filp, struct vm_area_struct *vma)
 	if (NULL == descriptor) {
 		descriptor = mali_mem_os_alloc(mali_addr, size, vma, session);
 		if (NULL == descriptor) {
-			MALI_DEBUG_PRINT(3, ("MMAP failed\n"));
+			MALI_DEBUG_PRINT(3, "MMAP failed\n");
 			return -ENOMEM;
 		}
 	}
@@ -200,7 +200,7 @@ mali_mem_allocation *mali_mem_descriptor_create(struct mali_session_data *sessio
 
 	descriptor = (mali_mem_allocation *)kzalloc(sizeof(mali_mem_allocation), GFP_KERNEL);
 	if (NULL == descriptor) {
-		MALI_DEBUG_PRINT(3, ("mali_ukk_mem_mmap: descriptor was NULL\n"));
+		MALI_DEBUG_PRINT(3, "mali_ukk_mem_mmap: descriptor was NULL\n");
 		return NULL;
 	}
 
@@ -278,7 +278,7 @@ u32 _mali_ukk_report_total_memory_size(void)
 
 _mali_osk_errcode_t mali_memory_session_begin(struct mali_session_data *session_data)
 {
-	MALI_DEBUG_PRINT(5, ("Memory session begin\n"));
+	MALI_DEBUG_PRINT(5, "Memory session begin\n");
 
 	/* Create descriptor mapping table */
 	session_data->descriptor_mapping = mali_descriptor_mapping_create(MALI_MEM_DESCRIPTORS_INIT, MALI_MEM_DESCRIPTORS_MAX);
@@ -296,7 +296,7 @@ _mali_osk_errcode_t mali_memory_session_begin(struct mali_session_data *session_
 		MALI_ERROR(_MALI_OSK_ERR_FAULT);
 	}
 
-	MALI_DEBUG_PRINT(5, ("MMU session begin: success\n"));
+	MALI_DEBUG_PRINT(5, "MMU session begin: success\n");
 	MALI_SUCCESS;
 }
 
@@ -312,7 +312,7 @@ static void descriptor_table_cleanup_callback(int descriptor_id, void *map_targe
 
 	MALI_DEBUG_ASSERT_LOCK_HELD(descriptor->session->memory_lock);
 
-	MALI_DEBUG_PRINT(3, ("Cleanup of descriptor %d mapping to 0x%x in descriptor table\n", descriptor_id, map_target));
+	MALI_DEBUG_PRINT(3, "Cleanup of descriptor %d mapping to 0x%x in descriptor table\n", descriptor_id, map_target);
 	MALI_DEBUG_ASSERT(descriptor);
 
 	mali_mem_release(descriptor);
@@ -321,10 +321,10 @@ static void descriptor_table_cleanup_callback(int descriptor_id, void *map_targe
 
 void mali_memory_session_end(struct mali_session_data *session)
 {
-	MALI_DEBUG_PRINT(3, ("MMU session end\n"));
+	MALI_DEBUG_PRINT(3, "MMU session end\n");
 
 	if (NULL == session) {
-		MALI_DEBUG_PRINT(1, ("No session data found during session end\n"));
+		MALI_DEBUG_PRINT(1, "No session data found during session end\n");
 		return;
 	}
 

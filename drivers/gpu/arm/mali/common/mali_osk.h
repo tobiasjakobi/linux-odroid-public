@@ -886,7 +886,7 @@ void _mali_osk_wait_queue_term(_mali_osk_wait_queue_t *queue);
 /** @addtogroup _mali_osk_miscellaneous
  * @{ */
 
-/** @brief Output a device driver debug message.
+/** @brief Output a device driver message.
  *
  * The interpretation of \a fmt is the same as the \c format parameter in
  * _mali_osu_vsnprintf().
@@ -894,7 +894,7 @@ void _mali_osk_wait_queue_term(_mali_osk_wait_queue_t *queue);
  * @param fmt a _mali_osu_vsnprintf() style format string
  * @param ... a variable-number of parameters suitable for \a fmt
  */
-void _mali_osk_dbgmsg(const char *fmt, ...);
+void _mali_printf(const char *fmt, ...);
 
 /** @brief Print fmt into buf.
  *

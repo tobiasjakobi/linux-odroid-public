@@ -30,7 +30,7 @@ struct mali_pmu_core *mali_pmu_create(_mali_osk_resource_t *resource)
 	struct mali_pmu_core *pmu;
 
 	MALI_DEBUG_ASSERT(NULL == mali_global_pmu_core);
-	MALI_DEBUG_PRINT(2, ("Mali PMU: Creating Mali PMU core\n"));
+	MALI_DEBUG_PRINT(2, "Mali PMU: Creating Mali PMU core\n");
 
 	pmu = (struct mali_pmu_core *)kmalloc(
 		      sizeof(struct mali_pmu_core), GFP_KERNEL);
@@ -57,7 +57,7 @@ void mali_pmu_delete(struct mali_pmu_core *pmu)
 	MALI_DEBUG_ASSERT_POINTER(pmu);
 	MALI_DEBUG_ASSERT(pmu == mali_global_pmu_core);
 
-	MALI_DEBUG_PRINT(2, ("Mali PMU: Deleting Mali PMU core\n"));
+	MALI_DEBUG_PRINT(2, "Mali PMU: Deleting Mali PMU core\n");
 
 	mali_global_pmu_core = NULL;
 
@@ -130,9 +130,8 @@ _mali_osk_errcode_t mali_pmu_power_down(struct mali_pmu_core *pmu, u32 mask)
 				PMU_REG_ADDR_MGMT_INT_RAWSTAT) &
 				PMU_REG_VAL_IRQ));
 
-	MALI_DEBUG_PRINT(3,
-			 ("PMU power down: ...................... [%s]\n",
-			  mali_pm_mask_to_string(mask)));
+	MALI_DEBUG_PRINT(3, "PMU power down: ...................... [%s]\n",
+			 mali_pm_mask_to_string(mask));
 
 	stat = mali_hw_core_register_read(&pmu->hw_core,
 					  PMU_REG_ADDR_MGMT_STATUS);
@@ -188,9 +187,8 @@ _mali_osk_errcode_t mali_pmu_power_up(struct mali_pmu_core *pmu, u32 mask)
 				PMU_REG_ADDR_MGMT_INT_RAWSTAT) &
 				PMU_REG_VAL_IRQ));
 
-	MALI_DEBUG_PRINT(3,
-			 ("PMU power up: ........................ [%s]\n",
-			  mali_pm_mask_to_string(mask)));
+	MALI_DEBUG_PRINT(3, "PMU power up: ........................ [%s]\n",
+			 mali_pm_mask_to_string(mask));
 
 	stat = mali_hw_core_register_read(&pmu->hw_core,
 					  PMU_REG_ADDR_MGMT_STATUS);

@@ -45,13 +45,13 @@ static mali_mem_allocator *mali_mem_block_allocator_create(u32 base_address, u32
 	u32 num_blocks;
 
 	usable_size = size & ~(MALI_BLOCK_SIZE - 1);
-	MALI_DEBUG_PRINT(3, ("Mali block allocator create for region starting at 0x%08X length 0x%08X\n", base_address, size));
-	MALI_DEBUG_PRINT(4, ("%d usable bytes\n", usable_size));
+	MALI_DEBUG_PRINT(3, "Mali block allocator create for region starting at 0x%08X length 0x%08X\n", base_address, size);
+	MALI_DEBUG_PRINT(4, "%d usable bytes\n", usable_size);
 	num_blocks = usable_size / MALI_BLOCK_SIZE;
-	MALI_DEBUG_PRINT(4, ("which becomes %d blocks\n", num_blocks));
+	MALI_DEBUG_PRINT(4, "which becomes %d blocks\n", num_blocks);
 
 	if (usable_size == 0) {
-		MALI_DEBUG_PRINT(1, ("Memory block of size %d is unusable\n", size));
+		MALI_DEBUG_PRINT(1, "Memory block of size %d is unusable\n", size);
 		return NULL;
 	}
 
@@ -119,7 +119,7 @@ static int mali_mem_block_cpu_map(mali_mem_allocation *descriptor, struct vm_are
 		ret = vm_insert_pfn(vma, virt + offset, __phys_to_pfn(cpu_phys + offset));
 
 		if (unlikely(ret)) {
-			MALI_DEBUG_PRINT(1, ("Block allocator: Failed to insert pfn into vma\n"));
+			MALI_DEBUG_PRINT(1, "Block allocator: Failed to insert pfn into vma\n");
 			return 1;
 		}
 
@@ -174,7 +174,7 @@ mali_mem_allocation *mali_mem_block_alloc(u32 mali_addr, u32 size, struct vm_are
 	mutex_lock(&info->mutex);
 
 	if (left > (info->free_blocks * MALI_BLOCK_SIZE)) {
-		MALI_DEBUG_PRINT(2, ("Mali block allocator: not enough free blocks to service allocation (%u)\n", left));
+		MALI_DEBUG_PRINT(2, "Mali block allocator: not enough free blocks to service allocation (%u)\n", left);
 		mutex_unlock(&info->mutex);
 		_mali_osk_mutex_signal(session->memory_lock);
 		mali_mem_descriptor_destroy(descriptor);
@@ -302,7 +302,7 @@ _mali_osk_errcode_t mali_memory_core_resource_dedicated_memory(u32 start, u32 si
 	allocator = mali_mem_block_allocator_create(start, 0 /* cpu_usage_adjust */, size);
 
 	if (NULL == allocator) {
-		MALI_DEBUG_PRINT(1, ("Memory bank registration failed\n"));
+		MALI_DEBUG_PRINT(1, "Memory bank registration failed\n");
 		MALI_ERROR(_MALI_OSK_ERR_FAULT);
 	}
 

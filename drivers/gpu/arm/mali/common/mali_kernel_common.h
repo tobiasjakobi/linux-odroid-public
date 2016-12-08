@@ -107,23 +107,17 @@
  */
 #define MALI_IGNORE(x) x=x
 
-#if defined(CONFIG_MALI_QUIET)
-#define MALI_PRINTF(args)
-#else
-#define MALI_PRINTF(args) _mali_osk_dbgmsg args;
-#endif
+#define MALI_PRINT_ERROR(...) \
+do { \
+	_mali_printf("Mali: ERR: %s\n", __FILE__); \
+	_mali_printf("           %s()%4d\n", __FUNCTION__, __LINE__); \
+	_mali_printf("           " __VA_ARGS__); \
+} while(0)
 
-#define MALI_PRINT_ERROR(args) do{ \
-		MALI_PRINTF(("Mali: ERR: %s\n" ,__FILE__)); \
-		MALI_PRINTF(("           %s()%4d\n           ", __FUNCTION__, __LINE__)) ; \
-		MALI_PRINTF(args); \
-		MALI_PRINTF(("\n")); \
-	} while(0)
-
-#define MALI_PRINT(args) do{ \
-		MALI_PRINTF(("Mali: ")); \
-		MALI_PRINTF(args); \
-	} while (0)
+#define MALI_PRINT(...) \
+do { \
+	_mali_printf("Mali: " __VA_ARGS__); \
+} while (0)
 
 #ifdef DEBUG
 #ifndef mali_debug_level
@@ -131,20 +125,14 @@ extern int mali_debug_level;
 #endif
 
 #define MALI_DEBUG_CODE(code) code
-#define MALI_DEBUG_PRINT(level, args)  do { \
-		if((level) <=  mali_debug_level)\
-		{MALI_PRINTF(("Mali<" #level ">: ")); MALI_PRINTF(args); } \
-	} while (0)
+#define MALI_DEBUG_PRINT(level, ...) \
+do { \
+	if ((level) <= mali_debug_level) { \
+		_mali_printf("Mali<" #level ">: " __VA_ARGS__); \
+	} \
+} while (0)
 
-#define MALI_DEBUG_PRINT_ERROR(args) MALI_PRINT_ERROR(args)
-
-#define MALI_DEBUG_PRINT_IF(level,condition,args)  \
-	if((condition)&&((level) <=  mali_debug_level))\
-	{MALI_PRINTF(("Mali<" #level ">: ")); MALI_PRINTF(args); }
-
-#define MALI_DEBUG_PRINT_ELSE(level, args)\
-	else if((level) <=  mali_debug_level)\
-	{ MALI_PRINTF(("Mali<" #level ">: ")); MALI_PRINTF(args); }
+#define MALI_DEBUG_PRINT_ERROR(...) MALI_PRINT_ERROR(__VA_ARGS__)
 
 /**
  * @note these variants of DEBUG ASSERTS will cause a debugger breakpoint
@@ -152,17 +140,15 @@ extern int mali_debug_level;
  * _mali_osk_abort(), on OSs that support it.
  */
 #define MALI_DEBUG_PRINT_ASSERT(condition, args) do  {if( !(condition)) { MALI_PRINT_ERROR(args); _mali_osk_break(); } } while(0)
-#define MALI_DEBUG_ASSERT_POINTER(pointer) do  {if( (pointer)== NULL) {MALI_PRINT_ERROR(("NULL pointer " #pointer)); _mali_osk_break();} } while(0)
-#define MALI_DEBUG_ASSERT(condition) do  {if( !(condition)) {MALI_PRINT_ERROR(("ASSERT failed: " #condition )); _mali_osk_break();} } while(0)
+#define MALI_DEBUG_ASSERT_POINTER(pointer) do  {if( (pointer)== NULL) {MALI_PRINT_ERROR("NULL pointer " #pointer); _mali_osk_break();} } while(0)
+#define MALI_DEBUG_ASSERT(condition) do  {if( !(condition)) {MALI_PRINT_ERROR("ASSERT failed: " #condition ); _mali_osk_break();} } while(0)
 
 #else /* DEBUG */
 
 #define MALI_DEBUG_CODE(code)
-#define MALI_DEBUG_PRINT(string,args) do {} while(0)
-#define MALI_DEBUG_PRINT_ERROR(args) do {} while(0)
-#define MALI_DEBUG_PRINT_IF(level,condition,args) do {} while(0)
-#define MALI_DEBUG_PRINT_ELSE(level,condition,args) do {} while(0)
-#define MALI_DEBUG_PRINT_ASSERT(condition,args) do {} while(0)
+#define MALI_DEBUG_PRINT(level, ...) do {} while(0)
+#define MALI_DEBUG_PRINT_ERROR(...) do {} while(0)
+#define MALI_DEBUG_PRINT_ASSERT(condition, args) do {} while(0)
 #define MALI_DEBUG_ASSERT_POINTER(pointer) do {} while(0)
 #define MALI_DEBUG_ASSERT(condition) do {} while(0)
 

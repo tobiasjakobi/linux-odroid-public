@@ -47,7 +47,7 @@ int soft_job_start_wrapper(struct mali_session_data *session, _mali_uk_soft_job_
 	mali_timeline_fence_copy_uk_fence(&fence, &kargs.fence);
 
 	if ((MALI_SOFT_JOB_TYPE_USER_SIGNALED != type) && (MALI_SOFT_JOB_TYPE_SELF_SIGNALED != type)) {
-		MALI_DEBUG_PRINT_ERROR(("Invalid soft job type specified\n"));
+		MALI_DEBUG_PRINT_ERROR("Invalid soft job type specified\n");
 		return -EINVAL;
 	}
 
@@ -59,7 +59,7 @@ int soft_job_start_wrapper(struct mali_session_data *session, _mali_uk_soft_job_
 
 	/* Write job id back to user space. */
 	if (0 != put_user(job->id, job_id_ptr)) {
-		MALI_PRINT_ERROR(("Mali Soft Job: failed to put job id"));
+		MALI_PRINT_ERROR("Mali Soft Job: failed to put job id");
 		mali_soft_job_destroy(job);
 		return map_errcode(_MALI_OSK_ERR_NOMEM);
 	}

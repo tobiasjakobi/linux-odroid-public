@@ -436,8 +436,8 @@ mali_scheduler_mask mali_scheduler_activate_gp_job(struct mali_gp_job *job)
 {
 	MALI_DEBUG_ASSERT_POINTER(job);
 
-	MALI_DEBUG_PRINT(4, ("Mali GP scheduler: Timeline activation for job %u (0x%08X).\n",
-			     mali_gp_job_get_id(job), job));
+	MALI_DEBUG_PRINT(4, "Mali GP scheduler: Timeline activation for job %u (0x%08X).\n",
+			    mali_gp_job_get_id(job), job);
 
 	mali_scheduler_lock();
 
@@ -465,13 +465,13 @@ mali_scheduler_mask mali_scheduler_activate_pp_job(struct mali_pp_job *job)
 {
 	MALI_DEBUG_ASSERT_POINTER(job);
 
-	MALI_DEBUG_PRINT(4, ("Mali PP scheduler: Timeline activation for job %u (0x%08X).\n",
-			     mali_pp_job_get_id(job), job));
+	MALI_DEBUG_PRINT(4, "Mali PP scheduler: Timeline activation for job %u (0x%08X).\n",
+			    mali_pp_job_get_id(job), job);
 
 	if (MALI_TRUE == mali_timeline_tracker_activation_error(
 		    mali_pp_job_get_tracker(job))) {
-		MALI_DEBUG_PRINT(3, ("Mali PP scheduler: Job %u (0x%08X) activated with error, aborting.\n",
-				     mali_pp_job_get_id(job), job));
+		MALI_DEBUG_PRINT(3, "Mali PP scheduler: Job %u (0x%08X) activated with error, aborting.\n",
+				    mali_pp_job_get_id(job), job);
 
 		mali_scheduler_lock();
 		mali_pp_job_fb_lookup_remove(job);
@@ -583,8 +583,8 @@ void mali_scheduler_abort_session(struct mali_session_data *session)
 	MALI_DEBUG_ASSERT_POINTER(session);
 	MALI_DEBUG_ASSERT(session->is_aborting);
 
-	MALI_DEBUG_PRINT(3, ("Mali scheduler: Aborting all queued jobs from session 0x%08X.\n",
-			     session));
+	MALI_DEBUG_PRINT(3, "Mali scheduler: Aborting all queued jobs from session 0x%08X.\n",
+			    session);
 
 	mali_scheduler_lock();
 
@@ -686,7 +686,7 @@ _mali_osk_errcode_t _mali_ukk_gp_start_job(void *ctx,
 	job = mali_gp_job_create(session, uargs, mali_scheduler_get_new_id(),
 				 NULL);
 	if (NULL == job) {
-		MALI_PRINT_ERROR(("Failed to create GP job.\n"));
+		MALI_PRINT_ERROR("Failed to create GP job.\n");
 		return _MALI_OSK_ERR_NOMEM;
 	}
 
@@ -720,7 +720,7 @@ _mali_osk_errcode_t _mali_ukk_pp_start_job(void *ctx,
 
 	job = mali_pp_job_create(session, uargs, mali_scheduler_get_new_id());
 	if (NULL == job) {
-		MALI_PRINT_ERROR(("Failed to create PP job.\n"));
+		MALI_PRINT_ERROR("Failed to create PP job.\n");
 		return _MALI_OSK_ERR_NOMEM;
 	}
 
@@ -768,7 +768,7 @@ _mali_osk_errcode_t _mali_ukk_pp_and_gp_start_job(void *ctx,
 	pp_job = mali_pp_job_create(session, pp_args,
 				    mali_scheduler_get_new_id());
 	if (NULL == pp_job) {
-		MALI_PRINT_ERROR(("Failed to create PP job.\n"));
+		MALI_PRINT_ERROR("Failed to create PP job.\n");
 		return _MALI_OSK_ERR_NOMEM;
 	}
 
@@ -776,7 +776,7 @@ _mali_osk_errcode_t _mali_ukk_pp_and_gp_start_job(void *ctx,
 				    mali_scheduler_get_new_id(),
 				    mali_pp_job_get_tracker(pp_job));
 	if (NULL == gp_job) {
-		MALI_PRINT_ERROR(("Failed to create GP job.\n"));
+		MALI_PRINT_ERROR("Failed to create GP job.\n");
 		mali_pp_job_delete(pp_job);
 		return _MALI_OSK_ERR_NOMEM;
 	}
@@ -826,7 +826,7 @@ void _mali_ukk_pp_job_disable_wb(_mali_uk_pp_disable_wb_s *args)
 
 		if (mali_pp_job_get_frame_builder_id(job) !=
 		    (u32) args->fb_id) {
-			MALI_DEBUG_PRINT(4, ("Mali PP scheduler: Disable WB mismatching FB.\n"));
+			MALI_DEBUG_PRINT(4, "Mali PP scheduler: Disable WB mismatching FB.\n");
 			continue;
 		}
 
@@ -846,8 +846,8 @@ void _mali_ukk_pp_job_disable_wb(_mali_uk_pp_disable_wb_s *args)
 			MALI_DEBUG_CODE(disable_mask |= 0x3 << (4 * 3));
 			mali_pp_job_disable_wb2(job);
 		}
-		MALI_DEBUG_PRINT(3, ("Mali PP scheduler: Disable WB: 0x%X.\n",
-				     disable_mask));
+		MALI_DEBUG_PRINT(3, "Mali PP scheduler: Disable WB: 0x%X.\n",
+				    disable_mask);
 	}
 
 	mali_scheduler_unlock();
@@ -943,8 +943,8 @@ static mali_bool mali_scheduler_queue_gp_job(struct mali_gp_job *job)
 	MALI_DEBUG_ASSERT_POINTER(session);
 
 	if (unlikely(session->is_aborting)) {
-		MALI_DEBUG_PRINT(4, ("Mali GP scheduler: Job %u (0x%08X) queued while session is aborting.\n",
-				     mali_gp_job_get_id(job), job));
+		MALI_DEBUG_PRINT(4, "Mali GP scheduler: Job %u (0x%08X) queued while session is aborting.\n",
+				    mali_gp_job_get_id(job), job);
 		return MALI_FALSE; /* job not queued */
 	}
 
@@ -996,8 +996,8 @@ static mali_bool mali_scheduler_queue_gp_job(struct mali_gp_job *job)
 			      mali_gp_job_get_id(job), "GP");
 #endif
 
-	MALI_DEBUG_PRINT(3, ("Mali GP scheduler: Job %u (0x%08X) queued\n",
-			     mali_gp_job_get_id(job), job));
+	MALI_DEBUG_PRINT(3, "Mali GP scheduler: Job %u (0x%08X) queued\n",
+			    mali_gp_job_get_id(job), job);
 
 	return MALI_TRUE; /* job queued */
 }
@@ -1014,8 +1014,8 @@ static mali_bool mali_scheduler_queue_pp_job(struct mali_pp_job *job)
 	MALI_DEBUG_ASSERT_POINTER(session);
 
 	if (unlikely(session->is_aborting)) {
-		MALI_DEBUG_PRINT(2, ("Mali PP scheduler: Job %u (0x%08X) queued while session is aborting.\n",
-				     mali_pp_job_get_id(job), job));
+		MALI_DEBUG_PRINT(2, "Mali PP scheduler: Job %u (0x%08X) queued while session is aborting.\n",
+				    mali_pp_job_get_id(job), job);
 		return MALI_FALSE; /* job not queued */
 	}
 
@@ -1068,11 +1068,11 @@ static mali_bool mali_scheduler_queue_pp_job(struct mali_pp_job *job)
 			      mali_pp_job_get_id(job), "PP");
 #endif
 
-	MALI_DEBUG_PRINT(3, ("Mali PP scheduler: %s job %u (0x%08X) with %u parts queued.\n",
-			     mali_pp_job_is_virtual(job)
-			     ? "Virtual" : "Physical",
-			     mali_pp_job_get_id(job), job,
-			     mali_pp_job_get_sub_job_count(job)));
+	MALI_DEBUG_PRINT(3, "Mali PP scheduler: %s job %u (0x%08X) with %u parts queued.\n",
+			    mali_pp_job_is_virtual(job)
+			    ? "Virtual" : "Physical",
+			    mali_pp_job_get_id(job), job,
+			    mali_pp_job_get_sub_job_count(job));
 
 	return MALI_TRUE; /* job queued */
 }

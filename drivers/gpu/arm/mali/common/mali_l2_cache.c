@@ -103,17 +103,17 @@ struct mali_l2_cache_core *mali_l2_cache_create(
 	u32 cache_size;
 #endif
 
-	MALI_DEBUG_PRINT(4, ("Mali L2 cache: Creating Mali L2 cache: %s\n",
-			     resource->description));
+	MALI_DEBUG_PRINT(4, "Mali L2 cache: Creating Mali L2 cache: %s\n",
+			    resource->description);
 
 	if (mali_global_num_l2s >= MALI_MAX_NUMBER_OF_L2_CACHE_CORES) {
-		MALI_PRINT_ERROR(("Mali L2 cache: Too many L2 caches\n"));
+		MALI_PRINT_ERROR("Mali L2 cache: Too many L2 caches\n");
 		return NULL;
 	}
 
 	cache = kmalloc(sizeof(struct mali_l2_cache_core), GFP_KERNEL);
 	if (NULL == cache) {
-		MALI_PRINT_ERROR(("Mali L2 cache: Failed to allocate memory for L2 cache core\n"));
+		MALI_PRINT_ERROR("Mali L2 cache: Failed to allocate memory for L2 cache core\n");
 		return NULL;
 	}
 
@@ -135,19 +135,19 @@ struct mali_l2_cache_core *mali_l2_cache_create(
 #if defined(DEBUG)
 	cache_size = mali_hw_core_register_read(&cache->hw_core,
 						MALI400_L2_CACHE_REGISTER_SIZE);
-	MALI_DEBUG_PRINT(2, ("Mali L2 cache: Created %s: % 3uK, %u-way, % 2ubyte cache line, % 3ubit external bus\n",
-			     resource->description,
-			     1 << (((cache_size >> 16) & 0xff) - 10),
-			     1 << ((cache_size >> 8) & 0xff),
-			     1 << (cache_size & 0xff),
-			     1 << ((cache_size >> 24) & 0xff)));
+	MALI_DEBUG_PRINT(2, "Mali L2 cache: Created %s: % 3uK, %u-way, % 2ubyte cache line, % 3ubit external bus\n",
+			    resource->description,
+			    1 << (((cache_size >> 16) & 0xff) - 10),
+			    1 << ((cache_size >> 8) & 0xff),
+			    1 << (cache_size & 0xff),
+			    1 << ((cache_size >> 24) & 0xff));
 #endif
 
 	cache->lock = _mali_osk_spinlock_irq_init(_MALI_OSK_LOCKFLAG_ORDERED,
 			_MALI_OSK_LOCK_ORDER_L2);
 	if (NULL == cache->lock) {
-		MALI_PRINT_ERROR(("Mali L2 cache: Failed to create counter lock for L2 cache core %s\n",
-				  cache->hw_core.description));
+		MALI_PRINT_ERROR("Mali L2 cache: Failed to create counter lock for L2 cache core %s\n",
+				 cache->hw_core.description);
 		mali_hw_core_delete(&cache->hw_core);
 		kfree(cache);
 		return NULL;
@@ -424,7 +424,7 @@ void mali_l2_cache_invalidate_all(void)
 						 MALI400_L2_CACHE_REGISTER_COMMAND,
 						 MALI400_L2_CACHE_COMMAND_CLEAR_ALL);
 		if (_MALI_OSK_ERR_OK != ret) {
-			MALI_PRINT_ERROR(("Failed to invalidate cache\n"));
+			MALI_PRINT_ERROR("Failed to invalidate cache\n");
 		}
 
 		mali_l2_cache_unlock(cache);
@@ -454,7 +454,7 @@ void mali_l2_cache_invalidate_all_pages(u32 *pages, u32 num_pages)
 							 MALI400_L2_CACHE_REGISTER_CLEAR_PAGE,
 							 pages[j]);
 			if (_MALI_OSK_ERR_OK != ret) {
-				MALI_PRINT_ERROR(("Failed to invalidate cache (page)\n"));
+				MALI_PRINT_ERROR("Failed to invalidate cache (page)\n");
 			}
 		}
 
@@ -522,7 +522,7 @@ static _mali_osk_errcode_t mali_l2_cache_send_command(
 	}
 
 	if (i == loop_count) {
-		MALI_DEBUG_PRINT(1, ("Mali L2 cache: aborting wait for command interface to go idle\n"));
+		MALI_DEBUG_PRINT(1, "Mali L2 cache: aborting wait for command interface to go idle\n");
 		return _MALI_OSK_ERR_FAULT;
 	}
 

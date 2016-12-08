@@ -32,7 +32,7 @@ _mali_osk_errcode_t _mali_osk_pm_dev_ref_get_sync(void)
 	MALI_DEBUG_ASSERT_POINTER(mali_platform_device);
 	err = pm_runtime_get_sync(&(mali_platform_device->dev));
 	if (0 > err) {
-		MALI_PRINT_ERROR(("Mali OSK PM: pm_runtime_get_sync() returned error code %d\n", err));
+		MALI_PRINT_ERROR("Mali OSK PM: pm_runtime_get_sync() returned error code %d\n", err);
 		return _MALI_OSK_ERR_FAULT;
 	}
 #endif
@@ -47,7 +47,7 @@ _mali_osk_errcode_t _mali_osk_pm_dev_ref_get_async(void)
 	MALI_DEBUG_ASSERT_POINTER(mali_platform_device);
 	err = pm_runtime_get(&(mali_platform_device->dev));
 	if (0 > err && -EINPROGRESS != err) {
-		MALI_PRINT_ERROR(("Mali OSK PM: pm_runtime_get() returned error code %d\n", err));
+		MALI_PRINT_ERROR("Mali OSK PM: pm_runtime_get() returned error code %d\n", err);
 		return _MALI_OSK_ERR_FAULT;
 	}
 #endif

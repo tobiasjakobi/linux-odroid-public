@@ -21,7 +21,7 @@ MALI_STATIC_INLINE void mali_soft_job_system_lock(struct mali_soft_job_system *s
 {
 	MALI_DEBUG_ASSERT_POINTER(system);
 	_mali_osk_spinlock_irq_lock(system->lock);
-	MALI_DEBUG_PRINT(5, ("Mali Soft Job: soft system %p lock taken\n", system));
+	MALI_DEBUG_PRINT(5, "Mali Soft Job: soft system %p lock taken\n", system);
 	MALI_DEBUG_ASSERT(0 == system->lock_owner);
 	MALI_DEBUG_CODE(system->lock_owner = _mali_osk_get_tid());
 }
@@ -29,7 +29,7 @@ MALI_STATIC_INLINE void mali_soft_job_system_lock(struct mali_soft_job_system *s
 MALI_STATIC_INLINE void mali_soft_job_system_unlock(struct mali_soft_job_system *system)
 {
 	MALI_DEBUG_ASSERT_POINTER(system);
-	MALI_DEBUG_PRINT(5, ("Mali Soft Job: releasing soft system %p lock\n", system));
+	MALI_DEBUG_PRINT(5, "Mali Soft Job: releasing soft system %p lock\n", system);
 	MALI_DEBUG_ASSERT(_mali_osk_get_tid() == system->lock_owner);
 	MALI_DEBUG_CODE(system->lock_owner = 0);
 	_mali_osk_spinlock_irq_unlock(system->lock);
@@ -124,7 +124,7 @@ void mali_soft_job_destroy(struct mali_soft_job *job)
 	MALI_DEBUG_ASSERT_POINTER(job);
 	MALI_DEBUG_ASSERT_POINTER(job->system);
 
-	MALI_DEBUG_PRINT(4, ("Mali Soft Job: destroying soft job %u (0x%08X)\n", job->id, job));
+	MALI_DEBUG_PRINT(4, "Mali Soft Job: destroying soft job %u (0x%08X)\n", job->id, job);
 
 	if (NULL != job) {
 		if (0 < atomic_dec_return(&job->refcount)) return;
@@ -149,13 +149,13 @@ struct mali_soft_job *mali_soft_job_create(struct mali_soft_job_system *system, 
 
 	notification = _mali_osk_notification_create(_MALI_NOTIFICATION_SOFT_ACTIVATED, sizeof(_mali_uk_soft_job_activated_s));
 	if (unlikely(NULL == notification)) {
-		MALI_PRINT_ERROR(("Mali Soft Job: failed to allocate notification"));
+		MALI_PRINT_ERROR("Mali Soft Job: failed to allocate notification");
 		return NULL;
 	}
 
 	job = kmalloc(sizeof(struct mali_soft_job), GFP_KERNEL);
 	if (unlikely(NULL == job)) {
-		MALI_DEBUG_PRINT(2, ("Mali Soft Job: system alloc job failed. \n"));
+		MALI_DEBUG_PRINT(2, "Mali Soft Job: system alloc job failed. \n");
 		return NULL;
 	}
 
@@ -205,7 +205,7 @@ mali_timeline_point mali_soft_job_start(struct mali_soft_job *job, struct mali_t
 
 	mali_soft_job_system_unlock(system);
 
-	MALI_DEBUG_PRINT(4, ("Mali Soft Job: starting soft job %u (0x%08X)\n", job->id, job));
+	MALI_DEBUG_PRINT(4, "Mali Soft Job: starting soft job %u (0x%08X)\n", job->id, job);
 
 	mali_timeline_tracker_init(&job->tracker, MALI_TIMELINE_TRACKER_SOFT, fence, job);
 	point = mali_timeline_system_add_tracker(system->session->timeline_system, &job->tracker, MALI_TIMELINE_SOFT);
@@ -238,7 +238,7 @@ _mali_osk_errcode_t mali_soft_job_system_signal_job(struct mali_soft_job_system 
 	if ((NULL == job) || (MALI_SOFT_JOB_TYPE_USER_SIGNALED != job->type)
 	    || !(MALI_SOFT_JOB_STATE_STARTED == job->state || MALI_SOFT_JOB_STATE_TIMED_OUT == job->state)) {
 		mali_soft_job_system_unlock(system);
-		MALI_PRINT_ERROR(("Mali Soft Job: invalid soft job id %u", job_id));
+		MALI_PRINT_ERROR("Mali Soft Job: invalid soft job id %u", job_id);
 		return _MALI_OSK_ERR_ITEM_NOT_FOUND;
 	}
 
@@ -247,7 +247,7 @@ _mali_osk_errcode_t mali_soft_job_system_signal_job(struct mali_soft_job_system 
 		mali_soft_job_system_unlock(system);
 
 		MALI_DEBUG_ASSERT(MALI_TRUE == job->activated);
-		MALI_DEBUG_PRINT(4, ("Mali Soft Job: soft job %u (0x%08X) was timed out\n", job->id, job));
+		MALI_DEBUG_PRINT(4, "Mali Soft Job: soft job %u (0x%08X) was timed out\n", job->id, job);
 		mali_soft_job_destroy(job);
 
 		return _MALI_OSK_ERR_TIMEOUT;
@@ -267,7 +267,7 @@ _mali_osk_errcode_t mali_soft_job_system_signal_job(struct mali_soft_job_system 
 	/* Wait until activated. */
 	_mali_osk_wait_queue_wait_event(timeline_system->wait_queue, mali_soft_job_is_activated, (void *) job);
 
-	MALI_DEBUG_PRINT(4, ("Mali Soft Job: signaling soft job %u (0x%08X)\n", job->id, job));
+	MALI_DEBUG_PRINT(4, "Mali Soft Job: signaling soft job %u (0x%08X)\n", job->id, job);
 
 	schedule_mask = mali_timeline_tracker_release(&job->tracker);
 	mali_executor_schedule_from_mask(schedule_mask, MALI_FALSE);
@@ -293,12 +293,12 @@ void mali_soft_job_system_activate_job(struct mali_soft_job *job)
 	MALI_DEBUG_ASSERT_POINTER(job->system);
 	MALI_DEBUG_ASSERT_POINTER(job->system->session);
 
-	MALI_DEBUG_PRINT(4, ("Mali Soft Job: Timeline activation for soft job %u (0x%08X).\n", job->id, job));
+	MALI_DEBUG_PRINT(4, "Mali Soft Job: Timeline activation for soft job %u (0x%08X).\n", job->id, job);
 
 	mali_soft_job_system_lock(job->system);
 
 	if (unlikely(job->system->session->is_aborting)) {
-		MALI_DEBUG_PRINT(3, ("Mali Soft Job: Soft job %u (0x%08X) activated while session is aborting.\n", job->id, job));
+		MALI_DEBUG_PRINT(3, "Mali Soft Job: Soft job %u (0x%08X) activated while session is aborting.\n", job->id, job);
 
 		mali_soft_job_system_unlock(job->system);
 
@@ -343,7 +343,7 @@ mali_scheduler_mask mali_soft_job_system_timeout_job(struct mali_soft_job *job)
 	MALI_DEBUG_ASSERT_POINTER(job->system->session);
 	MALI_DEBUG_ASSERT(MALI_TRUE == job->activated);
 
-	MALI_DEBUG_PRINT(4, ("Mali Soft Job: Timeline timeout for soft job %u (0x%08X).\n", job->id, job));
+	MALI_DEBUG_PRINT(4, "Mali Soft Job: Timeline timeout for soft job %u (0x%08X).\n", job->id, job);
 
 	mali_soft_job_system_lock(job->system);
 
@@ -362,7 +362,7 @@ mali_scheduler_mask mali_soft_job_system_timeout_job(struct mali_soft_job *job)
 		MALI_DEBUG_ASSERT(MALI_SOFT_JOB_STATE_SIGNALED == job->state);
 
 		/* The job is about to be signaled, ignore timeout. */
-		MALI_DEBUG_PRINT(4, ("Mali Soft Job: Timeout on soft job %u (0x%08X) in signaled state.\n", job->id, job));
+		MALI_DEBUG_PRINT(4, "Mali Soft Job: Timeout on soft job %u (0x%08X) in signaled state.\n", job->id, job);
 		mali_soft_job_system_unlock(job->system);
 		return schedule_mask;
 	}
@@ -390,7 +390,7 @@ void mali_soft_job_system_abort(struct mali_soft_job_system *system)
 	MALI_DEBUG_ASSERT_POINTER(system->session);
 	MALI_DEBUG_ASSERT(system->session->is_aborting);
 
-	MALI_DEBUG_PRINT(3, ("Mali Soft Job: Aborting soft job system for session 0x%08X.\n", system->session));
+	MALI_DEBUG_PRINT(3, "Mali Soft Job: Aborting soft job system for session 0x%08X.\n", system->session);
 
 	mali_soft_job_system_lock(system);
 
@@ -403,13 +403,13 @@ void mali_soft_job_system_abort(struct mali_soft_job_system *system)
 			 * the job.  If not, the tracker will be released and the job destroyed when
 			 * it is activated. */
 			if (MALI_TRUE == job->activated) {
-				MALI_DEBUG_PRINT(3, ("Mali Soft Job: Aborting unsignaled soft job %u (0x%08X).\n", job->id, job));
+				MALI_DEBUG_PRINT(3, "Mali Soft Job: Aborting unsignaled soft job %u (0x%08X).\n", job->id, job);
 
 				job->state = MALI_SOFT_JOB_STATE_SIGNALED;
 				_mali_osk_list_move(&job->system_list, &jobs);
 			}
 		} else if (MALI_SOFT_JOB_STATE_TIMED_OUT == job->state) {
-			MALI_DEBUG_PRINT(3, ("Mali Soft Job: Aborting timed out soft job %u (0x%08X).\n", job->id, job));
+			MALI_DEBUG_PRINT(3, "Mali Soft Job: Aborting timed out soft job %u (0x%08X).\n", job->id, job);
 
 			/* We need to destroy this soft job. */
 			_mali_osk_list_move(&job->system_list, &jobs);

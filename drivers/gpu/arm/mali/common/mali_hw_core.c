@@ -28,7 +28,7 @@ _mali_osk_errcode_t mali_hw_core_create(struct mali_hw_core *core, const _mali_o
 	if (NULL != core->mapped_registers) {
 		return _MALI_OSK_ERR_OK;
 	} else {
-		MALI_PRINT_ERROR(("Failed to map memory region for core %s at phys_addr 0x%08X\n", core->description, core->phys_addr));
+		MALI_PRINT_ERROR("Failed to map memory region for core %s at phys_addr 0x%08X\n", core->description, core->phys_addr);
 	}
 
 	return _MALI_OSK_ERR_FAULT;

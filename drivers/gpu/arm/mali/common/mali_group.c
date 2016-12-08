@@ -59,7 +59,7 @@ struct mali_group *mali_group_create(struct mali_l2_cache_core *core,
 	struct mali_group *group = NULL;
 
 	if (mali_global_num_groups >= MALI_MAX_NUMBER_OF_GROUPS) {
-		MALI_PRINT_ERROR(("Mali group: Too many group objects created\n"));
+		MALI_PRINT_ERROR("Mali group: Too many group objects created\n");
 		return NULL;
 	}
 
@@ -95,8 +95,8 @@ void mali_group_delete(struct mali_group *group)
 {
 	u32 i;
 
-	MALI_DEBUG_PRINT(4, ("Deleting group %s\n",
-			     mali_group_core_description(group)));
+	MALI_DEBUG_PRINT(4, "Deleting group %s\n",
+			    mali_group_core_description(group));
 
 	MALI_DEBUG_ASSERT(NULL == group->parent_group);
 	MALI_DEBUG_ASSERT((MALI_GROUP_STATE_INACTIVE == group->state) || ((MALI_GROUP_STATE_ACTIVATION_PENDING == group->state)));
@@ -232,8 +232,8 @@ enum mali_group_state mali_group_activate(struct mali_group *group)
 	MALI_DEBUG_ASSERT_POINTER(group);
 	MALI_DEBUG_ASSERT_EXECUTOR_LOCK_HELD();
 
-	MALI_DEBUG_PRINT(4, ("Group: Activating group %s\n",
-			     mali_group_core_description(group)));
+	MALI_DEBUG_PRINT(4, "Group: Activating group %s\n",
+			    mali_group_core_description(group));
 
 	if (MALI_GROUP_STATE_INACTIVE == group->state) {
 		/* Group is inactive, get PM refs in order to power up */
@@ -335,10 +335,10 @@ enum mali_group_state mali_group_activate(struct mali_group *group)
 				  == group->state);
 	}
 
-	MALI_DEBUG_PRINT(4, ("Group: group %s activation result: %s\n",
-			     mali_group_core_description(group),
-			     MALI_GROUP_STATE_ACTIVE == group->state ?
-			     "ACTIVE" : "PENDING"));
+	MALI_DEBUG_PRINT(4, "Group: group %s activation result: %s\n",
+			    mali_group_core_description(group),
+			    MALI_GROUP_STATE_ACTIVE == group->state ?
+			    "ACTIVE" : "PENDING");
 
 	return group->state;
 }
@@ -350,8 +350,8 @@ mali_bool mali_group_set_active(struct mali_group *group)
 	MALI_DEBUG_ASSERT(MALI_GROUP_STATE_ACTIVATION_PENDING == group->state);
 	MALI_DEBUG_ASSERT(MALI_TRUE == group->power_is_on);
 
-	MALI_DEBUG_PRINT(4, ("Group: Activation completed for %s\n",
-			     mali_group_core_description(group)));
+	MALI_DEBUG_PRINT(4, "Group: Activation completed for %s\n",
+			    mali_group_core_description(group));
 
 	if (mali_group_is_virtual(group)) {
 		struct mali_group *child;
@@ -385,8 +385,8 @@ mali_bool mali_group_deactivate(struct mali_group *group)
 	MALI_DEBUG_ASSERT_EXECUTOR_LOCK_HELD();
 	MALI_DEBUG_ASSERT(MALI_GROUP_STATE_INACTIVE != group->state);
 
-	MALI_DEBUG_PRINT(3, ("Group: Deactivating group %s\n",
-			     mali_group_core_description(group)));
+	MALI_DEBUG_PRINT(3, "Group: Deactivating group %s\n",
+			    mali_group_core_description(group));
 
 	group->state = MALI_GROUP_STATE_INACTIVE;
 
@@ -454,8 +454,8 @@ void mali_group_power_up(struct mali_group *group)
 	MALI_DEBUG_ASSERT_POINTER(group);
 	MALI_DEBUG_ASSERT_EXECUTOR_LOCK_HELD();
 
-	MALI_DEBUG_PRINT(3, ("Group: Power up for %s\n",
-			     mali_group_core_description(group)));
+	MALI_DEBUG_PRINT(3, "Group: Power up for %s\n",
+			    mali_group_core_description(group));
 
 	group->power_is_on = MALI_TRUE;
 
@@ -482,8 +482,8 @@ void mali_group_power_down(struct mali_group *group)
 	MALI_DEBUG_ASSERT(MALI_TRUE == group->power_is_on);
 	MALI_DEBUG_ASSERT_EXECUTOR_LOCK_HELD();
 
-	MALI_DEBUG_PRINT(3, ("Group: Power down for %s\n",
-			     mali_group_core_description(group)));
+	MALI_DEBUG_PRINT(3, "Group: Power down for %s\n",
+			    mali_group_core_description(group));
 
 	group->power_is_on = MALI_FALSE;
 
@@ -505,17 +505,17 @@ MALI_DEBUG_CODE(static void mali_group_print_virtual(struct mali_group *vgroup)
 	struct mali_group *group;
 	struct mali_group *temp;
 
-	MALI_DEBUG_PRINT(4, ("Virtual group %s (%p)\n",
-			     mali_group_core_description(vgroup),
-			     vgroup));
-	MALI_DEBUG_PRINT(4, ("l2_cache_core[0] = %p, ref = %d\n", vgroup->l2_cache_core[0], vgroup->l2_cache_core_ref_count[0]));
-	MALI_DEBUG_PRINT(4, ("l2_cache_core[1] = %p, ref = %d\n", vgroup->l2_cache_core[1], vgroup->l2_cache_core_ref_count[1]));
+	MALI_DEBUG_PRINT(4, "Virtual group %s (%p)\n",
+			    mali_group_core_description(vgroup),
+			    vgroup);
+	MALI_DEBUG_PRINT(4, "l2_cache_core[0] = %p, ref = %d\n", vgroup->l2_cache_core[0], vgroup->l2_cache_core_ref_count[0]);
+	MALI_DEBUG_PRINT(4, "l2_cache_core[1] = %p, ref = %d\n", vgroup->l2_cache_core[1], vgroup->l2_cache_core_ref_count[1]);
 
 	i = 0;
 	_MALI_OSK_LIST_FOREACHENTRY(group, temp, &vgroup->group_list, struct mali_group, group_list) {
-		MALI_DEBUG_PRINT(4, ("[%d] %s (%p), l2_cache_core[0] = %p\n",
-				     i, mali_group_core_description(group),
-				     group, group->l2_cache_core[0]));
+		MALI_DEBUG_PRINT(4, "[%d] %s (%p), l2_cache_core[0] = %p\n",
+				    i, mali_group_core_description(group),
+				    group, group->l2_cache_core[0]);
 		i++;
 	}
 })
@@ -528,9 +528,9 @@ void mali_group_add_group(struct mali_group *parent, struct mali_group *child)
 	mali_bool found;
 	u32 i;
 
-	MALI_DEBUG_PRINT(3, ("Adding group %s to virtual group %s\n",
-			     mali_group_core_description(child),
-			     mali_group_core_description(parent)));
+	MALI_DEBUG_PRINT(3, "Adding group %s to virtual group %s\n",
+			    mali_group_core_description(child),
+			    mali_group_core_description(parent));
 
 	MALI_DEBUG_ASSERT_EXECUTOR_LOCK_HELD();
 	MALI_DEBUG_ASSERT(mali_group_is_virtual(parent));
@@ -543,8 +543,8 @@ void mali_group_add_group(struct mali_group *parent, struct mali_group *child)
 
 	MALI_DEBUG_ASSERT_POINTER(child->l2_cache_core[0]);
 
-	MALI_DEBUG_PRINT(4, ("parent->l2_cache_core: [0] = %p, [1] = %p\n", parent->l2_cache_core[0], parent->l2_cache_core[1]));
-	MALI_DEBUG_PRINT(4, ("child->l2_cache_core: [0] = %p, [1] = %p\n", child->l2_cache_core[0], child->l2_cache_core[1]));
+	MALI_DEBUG_PRINT(4, "parent->l2_cache_core: [0] = %p, [1] = %p\n", parent->l2_cache_core[0], parent->l2_cache_core[1]);
+	MALI_DEBUG_PRINT(4, "child->l2_cache_core: [0] = %p, [1] = %p\n", child->l2_cache_core[0], child->l2_cache_core[1]);
 
 	/* Keep track of the L2 cache cores of child groups */
 	found = MALI_FALSE;
@@ -560,7 +560,7 @@ void mali_group_add_group(struct mali_group *parent, struct mali_group *child)
 		/* First time we see this L2 cache, add it to our list */
 		i = (NULL == parent->l2_cache_core[0]) ? 0 : 1;
 
-		MALI_DEBUG_PRINT(4, ("First time we see l2_cache %p. Adding to [%d] = %p\n", child->l2_cache_core[0], i, parent->l2_cache_core[i]));
+		MALI_DEBUG_PRINT(4, "First time we see l2_cache %p. Adding to [%d] = %p\n", child->l2_cache_core[0], i, parent->l2_cache_core[i]);
 
 		MALI_DEBUG_ASSERT(NULL == parent->l2_cache_core[i]);
 
@@ -612,8 +612,8 @@ void mali_group_add_group(struct mali_group *parent, struct mali_group *child)
 	if (NULL != parent->pp_running_job) {
 		struct mali_pp_job *job = parent->pp_running_job;
 
-		MALI_DEBUG_PRINT(3, ("Group %x joining running job %d on virtual group %x\n",
-				     child, mali_pp_job_get_id(job), parent));
+		MALI_DEBUG_PRINT(3, "Group %x joining running job %d on virtual group %x\n",
+				    child, mali_pp_job_get_id(job), parent);
 
 		/* Only allowed to add active child to an active parent */
 		MALI_DEBUG_ASSERT(MALI_GROUP_STATE_ACTIVE == parent->state);
@@ -653,9 +653,9 @@ void mali_group_remove_group(struct mali_group *parent, struct mali_group *child
 {
 	u32 i;
 
-	MALI_DEBUG_PRINT(3, ("Removing group %s from virtual group %s\n",
-			     mali_group_core_description(child),
-			     mali_group_core_description(parent)));
+	MALI_DEBUG_PRINT(3, "Removing group %s from virtual group %s\n",
+			    mali_group_core_description(child),
+			    mali_group_core_description(parent));
 
 	MALI_DEBUG_ASSERT_EXECUTOR_LOCK_HELD();
 	MALI_DEBUG_ASSERT(mali_group_is_virtual(parent));
@@ -721,8 +721,8 @@ void mali_group_reset(struct mali_group *group)
 	MALI_DEBUG_ASSERT(NULL == group->pp_running_job);
 	MALI_DEBUG_ASSERT(NULL == group->session);
 
-	MALI_DEBUG_PRINT(3, ("Group: reset of %s\n",
-			     mali_group_core_description(group)));
+	MALI_DEBUG_PRINT(3, "Group: reset of %s\n",
+			    mali_group_core_description(group));
 
 	if (NULL != group->dlbu_core) {
 		mali_dlbu_reset(group->dlbu_core);
@@ -750,9 +750,9 @@ void mali_group_start_gp_job(struct mali_group *group, struct mali_gp_job *job)
 
 	MALI_DEBUG_ASSERT_EXECUTOR_LOCK_HELD();
 
-	MALI_DEBUG_PRINT(3, ("Group: Starting GP job 0x%08X on group %s\n",
-			     job,
-			     mali_group_core_description(group)));
+	MALI_DEBUG_PRINT(3, "Group: Starting GP job 0x%08X on group %s\n",
+			    job,
+			    mali_group_core_description(group));
 
 	session = mali_gp_job_get_session(job);
 
@@ -796,10 +796,10 @@ void mali_group_start_gp_job(struct mali_group *group, struct mali_gp_job *job)
 	group->start_time = _mali_osk_time_tickcount();
 	_mali_osk_timer_mod(group->timeout_timer, _mali_osk_time_mstoticks(mali_max_job_runtime));
 
-	MALI_DEBUG_PRINT(4, ("Group: Started GP job 0x%08X on group %s at %u\n",
-			     job,
-			     mali_group_core_description(group),
-			     group->start_time));
+	MALI_DEBUG_PRINT(4, "Group: Started GP job 0x%08X on group %s at %u\n",
+			    job,
+			    mali_group_core_description(group),
+			    group->start_time);
 }
 
 /* Used to set all the registers except frame renderer list address and fragment shader stack address
@@ -811,10 +811,10 @@ void mali_group_start_pp_job(struct mali_group *group, struct mali_pp_job *job, 
 
 	MALI_DEBUG_ASSERT_EXECUTOR_LOCK_HELD();
 
-	MALI_DEBUG_PRINT(3, ("Group: Starting PP job 0x%08X part %u/%u on group %s\n",
-			     job, sub_job + 1,
-			     mali_pp_job_get_sub_job_count(job),
-			     mali_group_core_description(group)));
+	MALI_DEBUG_PRINT(3, "Group: Starting PP job 0x%08X part %u/%u on group %s\n",
+			    job, sub_job + 1,
+			    mali_pp_job_get_sub_job_count(job),
+			    mali_group_core_description(group));
 
 	session = mali_pp_job_get_session(job);
 
@@ -925,11 +925,11 @@ void mali_group_start_pp_job(struct mali_group *group, struct mali_pp_job *job, 
 	group->start_time = _mali_osk_time_tickcount();
 	_mali_osk_timer_mod(group->timeout_timer, _mali_osk_time_mstoticks(mali_max_job_runtime));
 
-	MALI_DEBUG_PRINT(4, ("Group: Started PP job 0x%08X part %u/%u on group %s at %u\n",
-			     job, sub_job + 1,
-			     mali_pp_job_get_sub_job_count(job),
-			     mali_group_core_description(group),
-			     group->start_time));
+	MALI_DEBUG_PRINT(4, "Group: Started PP job 0x%08X part %u/%u on group %s at %u\n",
+			    job, sub_job + 1,
+			    mali_pp_job_get_sub_job_count(job),
+			    mali_group_core_description(group),
+			    group->start_time);
 
 }
 
@@ -1103,10 +1103,10 @@ struct mali_pp_job *mali_group_complete_pp(struct mali_group *group, mali_bool s
 	*sub_job = group->pp_running_sub_job;
 
 	if (!success) {
-		MALI_DEBUG_PRINT(2, ("Mali group: Executing recovery reset due to job failure\n"));
+		MALI_DEBUG_PRINT(2, "Mali group: Executing recovery reset due to job failure\n");
 		mali_group_recovery_reset(group);
 	} else if (_MALI_OSK_ERR_OK != mali_pp_reset_wait(group->pp_core)) {
-		MALI_PRINT_ERROR(("Mali group: Executing recovery reset due to reset failure\n"));
+		MALI_PRINT_ERROR("Mali group: Executing recovery reset due to reset failure\n");
 		mali_group_recovery_reset(group);
 	}
 
@@ -1167,10 +1167,10 @@ struct mali_gp_job *mali_group_complete_gp(struct mali_group *group, mali_bool s
 	group->is_working = MALI_FALSE;
 
 	if (!success) {
-		MALI_DEBUG_PRINT(2, ("Mali group: Executing recovery reset due to job failure\n"));
+		MALI_DEBUG_PRINT(2, "Mali group: Executing recovery reset due to job failure\n");
 		mali_group_recovery_reset(group);
 	} else if (_MALI_OSK_ERR_OK != mali_gp_reset_wait(group->gp_core)) {
-		MALI_PRINT_ERROR(("Mali group: Executing recovery reset due to reset failure\n"));
+		MALI_PRINT_ERROR("Mali group: Executing recovery reset due to reset failure\n");
 		mali_group_recovery_reset(group);
 	}
 
@@ -1193,24 +1193,24 @@ u32 mali_group_get_glob_num_groups(void)
 
 static void mali_group_activate_page_directory(struct mali_group *group, struct mali_session_data *session)
 {
-	MALI_DEBUG_PRINT(5, ("Mali group: Activating page directory 0x%08X from session 0x%08X on group %s\n",
-			     mali_session_get_page_directory(session), session,
-			     mali_group_core_description(group)));
+	MALI_DEBUG_PRINT(5, "Mali group: Activating page directory 0x%08X from session 0x%08X on group %s\n",
+			    mali_session_get_page_directory(session), session,
+			    mali_group_core_description(group));
 
 	MALI_DEBUG_ASSERT_EXECUTOR_LOCK_HELD();
 
 	if (group->session != session) {
 		/* Different session than last time, so we need to do some work */
-		MALI_DEBUG_PRINT(5, ("Mali group: Activate session: %08x previous: %08x on group %s\n",
-				     session, group->session,
-				     mali_group_core_description(group)));
+		MALI_DEBUG_PRINT(5, "Mali group: Activate session: %08x previous: %08x on group %s\n",
+				    session, group->session,
+				    mali_group_core_description(group));
 		mali_mmu_activate_page_directory(group->mmu, mali_session_get_page_directory(session));
 		group->session = session;
 	} else {
 		/* Same session as last time, so no work required */
-		MALI_DEBUG_PRINT(4, ("Mali group: Activate existing session 0x%08X on group %s\n",
-				     session->page_directory,
-				     mali_group_core_description(group)));
+		MALI_DEBUG_PRINT(4, "Mali group: Activate existing session 0x%08X on group %s\n",
+				    session->page_directory,
+				    mali_group_core_description(group));
 		mali_mmu_zap_tlb_without_stall(group->mmu);
 	}
 }
@@ -1454,9 +1454,9 @@ _mali_osk_errcode_t mali_group_upper_half_gp(void *data)
 				      MALI_PROFILING_MAKE_EVENT_DATA_CORE_GP(0),
 				      mali_gp_get_rawstat(group->gp_core), 0);
 
-	MALI_DEBUG_PRINT(4, ("Group: Interrupt 0x%08X from %s\n",
-			     mali_gp_get_rawstat(group->gp_core),
-			     mali_group_core_description(group)));
+	MALI_DEBUG_PRINT(4, "Group: Interrupt 0x%08X from %s\n",
+			    mali_gp_get_rawstat(group->gp_core),
+			    mali_group_core_description(group));
 
 	ret = mali_executor_interrupt_gp(group, MALI_TRUE);
 
@@ -1512,9 +1512,9 @@ _mali_osk_errcode_t mali_group_upper_half_pp(void *data)
 					      mali_pp_core_get_id(group->pp_core)),
 				      mali_pp_get_rawstat(group->pp_core), 0);
 
-	MALI_DEBUG_PRINT(4, ("Group: Interrupt 0x%08X from %s\n",
-			     mali_pp_get_rawstat(group->pp_core),
-			     mali_group_core_description(group)));
+	MALI_DEBUG_PRINT(4, "Group: Interrupt 0x%08X from %s\n",
+			    mali_pp_get_rawstat(group->pp_core),
+			    mali_group_core_description(group));
 
 	ret = mali_executor_interrupt_pp(group, MALI_TRUE);
 
@@ -1561,9 +1561,9 @@ static void mali_group_timeout(void *data)
 	struct mali_group *group = (struct mali_group *)data;
 	MALI_DEBUG_ASSERT_POINTER(group);
 
-	MALI_DEBUG_PRINT(2, ("Group: timeout handler for %s at %u\n",
-			     mali_group_core_description(group),
-			     _mali_osk_time_tickcount()));
+	MALI_DEBUG_PRINT(2, "Group: timeout handler for %s at %u\n",
+			    mali_group_core_description(group),
+			    _mali_osk_time_tickcount());
 
 	if (NULL != group->gp_core) {
 		mali_group_schedule_bottom_half_gp(group);

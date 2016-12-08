@@ -71,7 +71,7 @@ static _mali_osk_errcode_t test_interrupt(u32 irqnum,
 #endif /* defined(CONFIG_MALI_SHARED_INTERRUPTS) */
 
 	if (0 != request_irq(irqnum, test_interrupt_upper_half, irq_flags, description, &data)) {
-		MALI_DEBUG_PRINT(2, ("Unable to install test IRQ handler for core '%s'\n", description));
+		MALI_DEBUG_PRINT(2, "Unable to install test IRQ handler for core '%s'\n", description);
 		return _MALI_OSK_ERR_FAULT;
 	}
 
@@ -83,10 +83,10 @@ static _mali_osk_errcode_t test_interrupt(u32 irqnum,
 	free_irq(irqnum, &data);
 
 	if (data.interrupt_received) {
-		MALI_DEBUG_PRINT(3, ("%s: Interrupt test OK\n", description));
+		MALI_DEBUG_PRINT(3, "%s: Interrupt test OK\n", description);
 		return _MALI_OSK_ERR_OK;
 	} else {
-		MALI_PRINT_ERROR(("%s: Failed interrupt test on %u\n", description, irqnum));
+		MALI_PRINT_ERROR("%s: Failed interrupt test on %u\n", description, irqnum);
 		return _MALI_OSK_ERR_FAULT;
 	}
 }
@@ -114,7 +114,7 @@ _mali_osk_irq_t *_mali_osk_irq_init(u32 irqnum, _mali_osk_irq_uhandler_t uhandle
 			_mali_osk_errcode_t err;
 			int irq;
 
-			MALI_DEBUG_PRINT(2, ("Probing for irq\n"));
+			MALI_DEBUG_PRINT(2, "Probing for irq\n");
 
 			do {
 				unsigned long mask;
@@ -134,9 +134,9 @@ _mali_osk_irq_t *_mali_osk_irq_init(u32 irqnum, _mali_osk_irq_uhandler_t uhandle
 
 		if (-1 != irqnum) {
 			/* found an irq */
-			MALI_DEBUG_PRINT(2, ("Found irq %d\n", irqnum));
+			MALI_DEBUG_PRINT(2, "Found irq %d\n", irqnum);
 		} else {
-			MALI_DEBUG_PRINT(2, ("Probe for irq failed\n"));
+			MALI_DEBUG_PRINT(2, "Probe for irq failed\n");
 		}
 	}
 
@@ -145,7 +145,7 @@ _mali_osk_irq_t *_mali_osk_irq_init(u32 irqnum, _mali_osk_irq_uhandler_t uhandle
 	irq_object->data = int_data;
 
 	if (-1 == irqnum) {
-		MALI_DEBUG_PRINT(2, ("No IRQ for core '%s' found during probe\n", description));
+		MALI_DEBUG_PRINT(2, "No IRQ for core '%s' found during probe\n", description);
 		kfree(irq_object);
 		return NULL;
 	}
@@ -153,14 +153,14 @@ _mali_osk_irq_t *_mali_osk_irq_init(u32 irqnum, _mali_osk_irq_uhandler_t uhandle
 #if defined(DEBUG)
 	/* Verify that the configured interrupt settings are working */
 	if (_MALI_OSK_ERR_OK != test_interrupt(irqnum, trigger_func, ack_func, probe_data, description)) {
-		MALI_DEBUG_PRINT(2, ("Test of IRQ handler for core '%s' failed\n", description));
+		MALI_DEBUG_PRINT(2, "Test of IRQ handler for core '%s' failed\n", description);
 		kfree(irq_object);
 		return NULL;
 	}
 #endif
 
 	if (0 != request_irq(irqnum, irq_handler_upper_half, irq_flags, description, irq_object)) {
-		MALI_DEBUG_PRINT(2, ("Unable to install IRQ handler for core '%s'\n", description));
+		MALI_DEBUG_PRINT(2, "Unable to install IRQ handler for core '%s'\n", description);
 		kfree(irq_object);
 		return NULL;
 	}

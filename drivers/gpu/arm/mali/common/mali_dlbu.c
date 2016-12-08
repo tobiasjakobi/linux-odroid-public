@@ -81,7 +81,7 @@ struct mali_dlbu_core {
 
 _mali_osk_errcode_t mali_dlbu_initialize(void)
 {
-	MALI_DEBUG_PRINT(2, ("Mali DLBU: Initializing\n"));
+	MALI_DEBUG_PRINT(2, "Mali DLBU: Initializing\n");
 
 	if (_MALI_OSK_ERR_OK ==
 	    mali_mmu_get_table_page(&mali_dlbu_phys_addr,
@@ -94,7 +94,7 @@ _mali_osk_errcode_t mali_dlbu_initialize(void)
 
 void mali_dlbu_terminate(void)
 {
-	MALI_DEBUG_PRINT(3, ("Mali DLBU: terminating\n"));
+	MALI_DEBUG_PRINT(3, "Mali DLBU: terminating\n");
 
 	if (0 != mali_dlbu_phys_addr && 0 != mali_dlbu_cpu_addr) {
 		mali_mmu_release_table_page(mali_dlbu_phys_addr,
@@ -108,7 +108,7 @@ struct mali_dlbu_core *mali_dlbu_create(const _mali_osk_resource_t *resource)
 {
 	struct mali_dlbu_core *core = NULL;
 
-	MALI_DEBUG_PRINT(2, ("Mali DLBU: Creating Mali dynamic load balancing unit: %s\n", resource->description));
+	MALI_DEBUG_PRINT(2, "Mali DLBU: Creating Mali dynamic load balancing unit: %s\n", resource->description);
 
 	core = kmalloc(sizeof(struct mali_dlbu_core), GFP_KERNEL);
 	if (NULL != core) {
@@ -117,13 +117,13 @@ struct mali_dlbu_core *mali_dlbu_create(const _mali_osk_resource_t *resource)
 			if (_MALI_OSK_ERR_OK == mali_dlbu_reset(core)) {
 				return core;
 			}
-			MALI_PRINT_ERROR(("Failed to reset DLBU %s\n", core->hw_core.description));
+			MALI_PRINT_ERROR("Failed to reset DLBU %s\n", core->hw_core.description);
 			mali_hw_core_delete(&core->hw_core);
 		}
 
 		kfree(core);
 	} else {
-		MALI_PRINT_ERROR(("Mali DLBU: Failed to allocate memory for DLBU core\n"));
+		MALI_PRINT_ERROR("Mali DLBU: Failed to allocate memory for DLBU core\n");
 	}
 
 	return NULL;
@@ -142,7 +142,7 @@ _mali_osk_errcode_t mali_dlbu_reset(struct mali_dlbu_core *dlbu)
 	_mali_osk_errcode_t err = _MALI_OSK_ERR_FAULT;
 	MALI_DEBUG_ASSERT_POINTER(dlbu);
 
-	MALI_DEBUG_PRINT(4, ("Mali DLBU: mali_dlbu_reset: %s\n", dlbu->hw_core.description));
+	MALI_DEBUG_PRINT(4, "Mali DLBU: mali_dlbu_reset: %s\n", dlbu->hw_core.description);
 
 	dlbu_registers[0] = mali_dlbu_phys_addr | 1; /* bit 0 enables the whole core */
 	dlbu_registers[1] = MALI_DLBU_VIRT_ADDR;
@@ -179,7 +179,7 @@ void mali_dlbu_add_group(struct mali_dlbu_core *dlbu, struct mali_group *group)
 	bcast_id = mali_pp_core_get_bcast_id(pp_core);
 
 	dlbu->pp_cores_mask |= bcast_id;
-	MALI_DEBUG_PRINT(3, ("Mali DLBU: Adding core[%d] New mask= 0x%02x\n", bcast_id , dlbu->pp_cores_mask));
+	MALI_DEBUG_PRINT(3, "Mali DLBU: Adding core[%d] New mask= 0x%02x\n", bcast_id , dlbu->pp_cores_mask);
 }
 
 /* Remove a group from the DLBU */
@@ -195,7 +195,7 @@ void mali_dlbu_remove_group(struct mali_dlbu_core *dlbu, struct mali_group *grou
 	bcast_id = mali_pp_core_get_bcast_id(pp_core);
 
 	dlbu->pp_cores_mask &= ~bcast_id;
-	MALI_DEBUG_PRINT(3, ("Mali DLBU: Removing core[%d] New mask= 0x%02x\n", bcast_id, dlbu->pp_cores_mask));
+	MALI_DEBUG_PRINT(3, "Mali DLBU: Removing core[%d] New mask= 0x%02x\n", bcast_id, dlbu->pp_cores_mask);
 }
 
 /* Configure the DLBU for \a job. This needs to be done before the job is started on the groups in the DLBU. */
@@ -204,7 +204,7 @@ void mali_dlbu_config_job(struct mali_dlbu_core *dlbu, struct mali_pp_job *job)
 	u32 *registers;
 	MALI_DEBUG_ASSERT(job);
 	registers = mali_pp_job_get_dlbu_registers(job);
-	MALI_DEBUG_PRINT(4, ("Mali DLBU: Starting job\n"));
+	MALI_DEBUG_PRINT(4, "Mali DLBU: Starting job\n");
 
 	/* Writing 4 registers:
 	 * DLBU registers except the first two (written once at DLBU initialisation / reset) and the PP_ENABLE_MASK register */

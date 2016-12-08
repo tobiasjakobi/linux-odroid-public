@@ -26,7 +26,7 @@ u32 mali_allocate_empty_page(mali_io_address *virt_addr)
 
 	if (_MALI_OSK_ERR_OK != mali_mmu_get_table_page(&address, &mapping)) {
 		/* Allocation failed */
-		MALI_DEBUG_PRINT(2, ("Mali MMU: Failed to get table page for empty pgdir\n"));
+		MALI_DEBUG_PRINT(2, "Mali MMU: Failed to get table page for empty pgdir\n");
 		return 0;
 	}
 
@@ -35,7 +35,7 @@ u32 mali_allocate_empty_page(mali_io_address *virt_addr)
 	err = fill_page(mapping, 0);
 	if (_MALI_OSK_ERR_OK != err) {
 		mali_mmu_release_table_page(address, mapping);
-		MALI_DEBUG_PRINT(2, ("Mali MMU: Failed to zero page\n"));
+		MALI_DEBUG_PRINT(2, "Mali MMU: Failed to zero page\n");
 		return 0;
 	}
 
@@ -134,7 +134,7 @@ _mali_osk_errcode_t mali_mmu_pagedir_map(struct mali_page_directory *pagedir, u3
 
 			err = mali_mmu_get_table_page(&pde_phys, &pde_mapping);
 			if (_MALI_OSK_ERR_OK != err) {
-				MALI_PRINT_ERROR(("Failed to allocate page table page.\n"));
+				MALI_PRINT_ERROR("Failed to allocate page table page.\n");
 				return err;
 			}
 			pagedir->page_entries_mapped[i] = pde_mapping;
@@ -204,7 +204,7 @@ _mali_osk_errcode_t mali_mmu_pagedir_unmap(struct mali_page_directory *pagedir, 
 		if (0 == pagedir->page_entries_usage_count[i]) {
 			u32 page_phys;
 			void *page_virt;
-			MALI_DEBUG_PRINT(4, ("Releasing page table as this is the last reference\n"));
+			MALI_DEBUG_PRINT(4, "Releasing page table as this is the last reference\n");
 			/* last reference removed, no need to zero out each PTE  */
 
 			page_phys = MALI_MMU_ENTRY_ADDRESS(_mali_osk_mem_ioread32(pagedir->page_directory_mapped, i * sizeof(u32)));
@@ -337,14 +337,14 @@ void mali_mmu_pagedir_diag(struct mali_page_directory *pagedir, u32 fault_addr)
 		pte = _mali_osk_mem_ioread32(pagedir->page_entries_mapped[pde_index],
 					     pte_index * sizeof(u32));
 
-		MALI_DEBUG_PRINT(2, ("\tMMU: %08x: Page table present: %08x\n"
-				     "\t\tPTE: %08x, page %08x is %s\n",
-				     fault_addr, pte_addr, pte,
-				     MALI_MMU_ENTRY_ADDRESS(pte),
-				     pte & MALI_MMU_FLAGS_DEFAULT ? "rw" : "not present"));
+		MALI_DEBUG_PRINT(2, "\tMMU: %08x: Page table present: %08x\n"
+				    "\t\tPTE: %08x, page %08x is %s\n",
+				    fault_addr, pte_addr, pte,
+				    MALI_MMU_ENTRY_ADDRESS(pte),
+				    pte & MALI_MMU_FLAGS_DEFAULT ? "rw" : "not present");
 	} else {
-		MALI_DEBUG_PRINT(2, ("\tMMU: %08x: Page table not present: %08x\n",
-				     fault_addr, pde));
+		MALI_DEBUG_PRINT(2, "\tMMU: %08x: Page table not present: %08x\n",
+				    fault_addr, pde);
 	}
 #else
 	MALI_IGNORE(pagedir);

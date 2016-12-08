@@ -61,7 +61,7 @@ static void mali_timeline_sync_fence_callback(struct sync_fence *sync_fence, str
 
 	is_aborting = system->session->is_aborting;
 	if (!is_aborting && (0 > fence_status)) {
-		MALI_PRINT_ERROR(("Mali Timeline: sync fence fd %d signaled with error %d\n", tracker->fence.sync_fd, fence_status));
+		MALI_PRINT_ERROR("Mali Timeline: sync fence fd %d signaled with error %d\n", tracker->fence.sync_fd, fence_status);
 		tracker->activation_error |= MALI_TIMELINE_ACTIVATION_ERROR_SYNC_BIT;
 	}
 
@@ -130,7 +130,7 @@ static void mali_timeline_timer_callback(void *data)
 		schedule_mask = mali_timeline_tracker_time_out(tracker);
 		tracker->timer_active = MALI_FALSE;
 	} else {
-		MALI_PRINT_ERROR(("Mali Timeline: Soft job timer callback without a waiting tracker.\n"));
+		MALI_PRINT_ERROR("Mali Timeline: Soft job timer callback without a waiting tracker.\n");
 	}
 
 	mali_spinlock_reentrant_signal(system->spinlock, tid);
@@ -238,7 +238,7 @@ static struct mali_timeline *mali_timeline_create(struct mali_timeline_system *s
 			_mali_osk_snprintf(timeline_name, 32, "mali-%u-soft", _mali_osk_get_pid());
 			break;
 		default:
-			MALI_PRINT_ERROR(("Mali Timeline: Invalid timeline id %d\n", id));
+			MALI_PRINT_ERROR("Mali Timeline: Invalid timeline id %d\n", id);
 			mali_timeline_destroy(timeline);
 			return NULL;
 		}
@@ -486,7 +486,7 @@ mali_scheduler_mask mali_timeline_tracker_release(struct mali_timeline_tracker *
 	MALI_DEBUG_ASSERT(NULL == tracker->waiter_head);
 	MALI_DEBUG_ASSERT(NULL == tracker->waiter_tail);
 
-	MALI_DEBUG_PRINT(3, ("Mali Timeline: releasing tracker for job 0x%08X\n", tracker->job));
+	MALI_DEBUG_PRINT(3, "Mali Timeline: releasing tracker for job 0x%08X\n", tracker->job);
 
 	timeline = tracker->timeline;
 	if (NULL == timeline) {
@@ -610,11 +610,11 @@ static mali_scheduler_mask mali_timeline_tracker_activate(struct mali_timeline_t
 #if defined(CONFIG_SYNC)
 		mali_timeline_sync_fence_activate((struct mali_timeline_sync_fence_tracker *) tracker->job);
 #else
-		MALI_PRINT_ERROR(("Mali Timeline: sync tracker not supported\n", tracker->type));
+		MALI_PRINT_ERROR("Mali Timeline: sync tracker not supported\n", tracker->type);
 #endif /* defined(CONFIG_SYNC) */
 		break;
 	default:
-		MALI_PRINT_ERROR(("Mali Timeline - Illegal tracker type: %d\n", tracker->type));
+		MALI_PRINT_ERROR("Mali Timeline - Illegal tracker type: %d\n", tracker->type);
 		break;
 	}
 
@@ -681,7 +681,7 @@ struct mali_timeline_system *mali_timeline_system_create(struct mali_session_dat
 	struct mali_timeline_system *system;
 
 	MALI_DEBUG_ASSERT_POINTER(session);
-	MALI_DEBUG_PRINT(4, ("Mali Timeline: creating timeline system\n"));
+	MALI_DEBUG_PRINT(4, "Mali Timeline: creating timeline system\n");
 
 	system = (struct mali_timeline_system *) kcalloc(1, sizeof(struct mali_timeline_system), GFP_KERNEL);
 	if (NULL == system) {
@@ -775,7 +775,7 @@ static void mali_timeline_cancel_sync_fence_waiters(struct mali_timeline_system 
 
 			if (NULL == tracker->sync_fence) continue;
 
-			MALI_DEBUG_PRINT(3, ("Mali Timeline: Cancelling sync fence wait for tracker 0x%08X.\n", tracker));
+			MALI_DEBUG_PRINT(3, "Mali Timeline: Cancelling sync fence wait for tracker 0x%08X.\n", tracker);
 
 			/* Cancel sync fence waiter. */
 			if (0 == sync_fence_cancel_async(tracker->sync_fence, &tracker->sync_fence_waiter)) {
@@ -812,7 +812,7 @@ void mali_timeline_system_abort(struct mali_timeline_system *system)
 	MALI_DEBUG_ASSERT_POINTER(system->session);
 	MALI_DEBUG_ASSERT(system->session->is_aborting);
 
-	MALI_DEBUG_PRINT(3, ("Mali Timeline: Aborting timeline system for session 0x%08X.\n", system->session));
+	MALI_DEBUG_PRINT(3, "Mali Timeline: Aborting timeline system for session 0x%08X.\n", system->session);
 
 #if defined(CONFIG_SYNC)
 	mali_timeline_cancel_sync_fence_waiters(system);
@@ -844,7 +844,7 @@ void mali_timeline_system_destroy(struct mali_timeline_system *system)
 	MALI_DEBUG_ASSERT_POINTER(system);
 	MALI_DEBUG_ASSERT_POINTER(system->session);
 
-	MALI_DEBUG_PRINT(4, ("Mali Timeline: destroying timeline system\n"));
+	MALI_DEBUG_PRINT(4, "Mali Timeline: destroying timeline system\n");
 
 	if (NULL != system) {
 		/* There should be no waiters left on this queue. */
@@ -1017,8 +1017,8 @@ static void mali_timeline_system_create_waiters_and_unlock(struct mali_timeline_
 		MALI_DEBUG_ASSERT_POINTER(timeline);
 
 		if (unlikely(!mali_timeline_is_point_valid(timeline, point))) {
-			MALI_PRINT_ERROR(("Mali Timeline: point %d is not valid (oldest=%d, next=%d)\n",
-					  point, timeline->point_oldest, timeline->point_next));
+			MALI_PRINT_ERROR("Mali Timeline: point %d is not valid (oldest=%d, next=%d)\n",
+					 point, timeline->point_oldest, timeline->point_next);
 			continue;
 		}
 
@@ -1036,7 +1036,7 @@ static void mali_timeline_system_create_waiters_and_unlock(struct mali_timeline_
 			waiter = waiter_tail;
 			waiter_tail = waiter_tail->tracker_next;
 		} else {
-			MALI_PRINT_ERROR(("Mali Timeline: failed to allocate memory for waiter\n"));
+			MALI_PRINT_ERROR("Mali Timeline: failed to allocate memory for waiter\n");
 			continue;
 		}
 
@@ -1066,13 +1066,13 @@ static void mali_timeline_system_create_waiters_and_unlock(struct mali_timeline_
 
 		sync_fence = sync_fence_fdget(tracker->fence.sync_fd);
 		if (unlikely(NULL == sync_fence)) {
-			MALI_PRINT_ERROR(("Mali Timeline: failed to get sync fence from fd %d\n", tracker->fence.sync_fd));
+			MALI_PRINT_ERROR("Mali Timeline: failed to get sync fence from fd %d\n", tracker->fence.sync_fd);
 			goto exit;
 		}
 
 		/* Check if we have a zeroed waiter object available. */
 		if (unlikely(NULL == waiter_tail)) {
-			MALI_PRINT_ERROR(("Mali Timeline: failed to allocate memory for waiter\n"));
+			MALI_PRINT_ERROR("Mali Timeline: failed to allocate memory for waiter\n");
 			goto exit;
 		}
 
@@ -1084,7 +1084,7 @@ static void mali_timeline_system_create_waiters_and_unlock(struct mali_timeline_
 			tracker->fence.sync_fd = -1;
 			goto exit;
 		} else if (0 != ret) {
-			MALI_PRINT_ERROR(("Mali Timeline: sync fence fd %d signaled with error %d\n", tracker->fence.sync_fd, ret));
+			MALI_PRINT_ERROR("Mali Timeline: sync fence fd %d signaled with error %d\n", tracker->fence.sync_fd, ret);
 			tracker->activation_error |= MALI_TIMELINE_ACTIVATION_ERROR_SYNC_BIT;
 			goto exit;
 		}
@@ -1160,7 +1160,7 @@ mali_timeline_point mali_timeline_system_add_tracker(struct mali_timeline_system
 	MALI_DEBUG_ASSERT(MALI_TIMELINE_TRACKER_MAX > tracker->type);
 	MALI_DEBUG_ASSERT(MALI_TIMELINE_TRACKER_MAGIC == tracker->magic);
 
-	MALI_DEBUG_PRINT(4, ("Mali Timeline: adding tracker for job %p, timeline: %d\n", tracker->job, timeline_id));
+	MALI_DEBUG_PRINT(4, "Mali Timeline: adding tracker for job %p, timeline: %d\n", tracker->job, timeline_id);
 
 	MALI_DEBUG_ASSERT(0 < tracker->trigger_ref_count);
 	tracker->system = system;

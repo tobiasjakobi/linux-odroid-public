@@ -107,7 +107,7 @@ _mali_osk_errcode_t _mali_osk_resource_initialize(void)
 
 	/* We have to divide by 2, because we caculate twice for only one pp(pp_core and pp_mmu_core). */
 	if (0 != pp_core_num % 2) {
-		MALI_DEBUG_PRINT(2, ("The value of pp core number isn't normal."));
+		MALI_DEBUG_PRINT(2, "The value of pp core number isn't normal.");
 		return _MALI_OSK_ERR_FAULT;
 	}
 
@@ -191,7 +191,7 @@ void _mali_osk_device_data_pmu_config_get(u16 *domain_config_array, int array_si
 	}
 
 	if (array_size != length/sizeof(u32)) {
-		MALI_PRINT_ERROR(("Wrong pmu domain config in device tree."));
+		MALI_PRINT_ERROR("Wrong pmu domain config in device tree.");
 		return;
 	}
 
@@ -213,7 +213,7 @@ u32 _mali_osk_get_pmu_switch_delay(void)
 	if (0 == of_property_read_u32(node, "pmu_switch_delay", &switch_delay)) {
 		return switch_delay;
 	} else {
-		MALI_DEBUG_PRINT(2, ("Couldn't find pmu_switch_delay in device tree configuration.\n"));
+		MALI_DEBUG_PRINT(2, "Couldn't find pmu_switch_delay in device tree configuration.\n");
 	}
 
 	return 0;

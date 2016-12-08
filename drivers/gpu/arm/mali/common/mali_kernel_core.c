@@ -138,36 +138,36 @@ static _mali_osk_errcode_t mali_parse_product_info(void)
 				switch (pp_version >> 16) {
 				case MALI200_PP_PRODUCT_ID:
 					global_product_id = _MALI_PRODUCT_ID_MALI200;
-					MALI_DEBUG_PRINT(2, ("Found Mali GPU Mali-200 r%up%u\n", global_gpu_major_version, global_gpu_minor_version));
-					MALI_PRINT_ERROR(("Mali-200 is not supported by this driver.\n"));
+					MALI_DEBUG_PRINT(2, "Found Mali GPU Mali-200 r%up%u\n", global_gpu_major_version, global_gpu_minor_version);
+					MALI_PRINT_ERROR("Mali-200 is not supported by this driver.\n");
 					return _MALI_OSK_ERR_FAULT;
 					break;
 				case MALI300_PP_PRODUCT_ID:
 					global_product_id = _MALI_PRODUCT_ID_MALI300;
-					MALI_DEBUG_PRINT(2, ("Found Mali GPU Mali-300 r%up%u\n", global_gpu_major_version, global_gpu_minor_version));
+					MALI_DEBUG_PRINT(2, "Found Mali GPU Mali-300 r%up%u\n", global_gpu_major_version, global_gpu_minor_version);
 					break;
 				case MALI400_PP_PRODUCT_ID:
 					global_product_id = _MALI_PRODUCT_ID_MALI400;
-					MALI_DEBUG_PRINT(2, ("Found Mali GPU Mali-400 MP r%up%u\n", global_gpu_major_version, global_gpu_minor_version));
+					MALI_DEBUG_PRINT(2, "Found Mali GPU Mali-400 MP r%up%u\n", global_gpu_major_version, global_gpu_minor_version);
 					break;
 				case MALI450_PP_PRODUCT_ID:
 					global_product_id = _MALI_PRODUCT_ID_MALI450;
-					MALI_DEBUG_PRINT(2, ("Found Mali GPU Mali-450 MP r%up%u\n", global_gpu_major_version, global_gpu_minor_version));
+					MALI_DEBUG_PRINT(2, "Found Mali GPU Mali-450 MP r%up%u\n", global_gpu_major_version, global_gpu_minor_version);
 					break;
 				default:
-					MALI_DEBUG_PRINT(2, ("Found unknown Mali GPU (r%up%u)\n", global_gpu_major_version, global_gpu_minor_version));
+					MALI_DEBUG_PRINT(2, "Found unknown Mali GPU (r%up%u)\n", global_gpu_major_version, global_gpu_minor_version);
 					return _MALI_OSK_ERR_FAULT;
 				}
 
 				return _MALI_OSK_ERR_OK;
 			} else {
-				MALI_PRINT_ERROR(("Failed to create initial PP object\n"));
+				MALI_PRINT_ERROR("Failed to create initial PP object\n");
 			}
 		} else {
-			MALI_PRINT_ERROR(("Failed to create initial group object\n"));
+			MALI_PRINT_ERROR("Failed to create initial group object\n");
 		}
 	} else {
-		MALI_PRINT_ERROR(("First PP core not specified in config file\n"));
+		MALI_PRINT_ERROR("First PP core not specified in config file\n");
 	}
 
 	return _MALI_OSK_ERR_FAULT;
@@ -205,15 +205,15 @@ static struct mali_l2_cache_core *mali_create_l2_cache_core(_mali_osk_resource_t
 
 	if (NULL != resource) {
 
-		MALI_DEBUG_PRINT(3, ("Found L2 cache %s\n", resource->description));
+		MALI_DEBUG_PRINT(3, "Found L2 cache %s\n", resource->description);
 
 		l2_cache = mali_l2_cache_create(resource, domain_index);
 		if (NULL == l2_cache) {
-			MALI_PRINT_ERROR(("Failed to create L2 cache object\n"));
+			MALI_PRINT_ERROR("Failed to create L2 cache object\n");
 			return NULL;
 		}
 	}
-	MALI_DEBUG_PRINT(3, ("Created L2 cache core object\n"));
+	MALI_DEBUG_PRINT(3, "Created L2 cache core object\n");
 
 	return l2_cache;
 }
@@ -225,7 +225,7 @@ static _mali_osk_errcode_t mali_parse_config_l2_cache(void)
 	if (mali_is_mali400()) {
 		_mali_osk_resource_t l2_resource;
 		if (_MALI_OSK_ERR_OK != _mali_osk_resource_find(MALI400_OFFSET_L2_CACHE0, &l2_resource)) {
-			MALI_DEBUG_PRINT(3, ("Did not find required Mali L2 cache in config file\n"));
+			MALI_DEBUG_PRINT(3, "Did not find required Mali L2 cache in config file\n");
 			return _MALI_OSK_ERR_FAULT;
 		}
 
@@ -246,31 +246,31 @@ static _mali_osk_errcode_t mali_parse_config_l2_cache(void)
 
 		/* Make cluster for GP's L2 */
 		if (_MALI_OSK_ERR_OK == _mali_osk_resource_find(MALI450_OFFSET_L2_CACHE0, &l2_gp_resource)) {
-			MALI_DEBUG_PRINT(3, ("Creating Mali-450 L2 cache core for GP\n"));
+			MALI_DEBUG_PRINT(3, "Creating Mali-450 L2 cache core for GP\n");
 			l2_cache = mali_create_l2_cache_core(&l2_gp_resource, MALI_DOMAIN_INDEX_L20);
 			if (NULL == l2_cache) {
 				return _MALI_OSK_ERR_FAULT;
 			}
 		} else {
-			MALI_DEBUG_PRINT(3, ("Did not find required Mali L2 cache for GP in config file\n"));
+			MALI_DEBUG_PRINT(3, "Did not find required Mali L2 cache for GP in config file\n");
 			return _MALI_OSK_ERR_FAULT;
 		}
 
 		/* Find corresponding l2 domain */
 		if (_MALI_OSK_ERR_OK == _mali_osk_resource_find(MALI450_OFFSET_L2_CACHE1, &l2_pp_grp0_resource)) {
-			MALI_DEBUG_PRINT(3, ("Creating Mali-450 L2 cache core for PP group 0\n"));
+			MALI_DEBUG_PRINT(3, "Creating Mali-450 L2 cache core for PP group 0\n");
 			l2_cache = mali_create_l2_cache_core(&l2_pp_grp0_resource, MALI_DOMAIN_INDEX_L21);
 			if (NULL == l2_cache) {
 				return _MALI_OSK_ERR_FAULT;
 			}
 		} else {
-			MALI_DEBUG_PRINT(3, ("Did not find required Mali L2 cache for PP group 0 in config file\n"));
+			MALI_DEBUG_PRINT(3, "Did not find required Mali L2 cache for PP group 0 in config file\n");
 			return _MALI_OSK_ERR_FAULT;
 		}
 
 		/* Second PP core group is optional, don't fail if we don't find it */
 		if (_MALI_OSK_ERR_OK == _mali_osk_resource_find(MALI450_OFFSET_L2_CACHE2, &l2_pp_grp1_resource)) {
-			MALI_DEBUG_PRINT(3, ("Creating Mali-450 L2 cache core for PP group 1\n"));
+			MALI_DEBUG_PRINT(3, "Creating Mali-450 L2 cache core for PP group 1\n");
 			l2_cache = mali_create_l2_cache_core(&l2_pp_grp1_resource, MALI_DOMAIN_INDEX_L22);
 			if (NULL == l2_cache) {
 				return _MALI_OSK_ERR_FAULT;
@@ -290,19 +290,19 @@ static struct mali_group *mali_create_group(struct mali_l2_cache_core *cache,
 	struct mali_mmu_core *mmu;
 	struct mali_group *group;
 
-	MALI_DEBUG_PRINT(3, ("Starting new group for MMU %s\n", resource_mmu->description));
+	MALI_DEBUG_PRINT(3, "Starting new group for MMU %s\n", resource_mmu->description);
 
 	/* Create the group object */
 	group = mali_group_create(cache, NULL, NULL, domain_index);
 	if (NULL == group) {
-		MALI_PRINT_ERROR(("Failed to create group object for MMU %s\n", resource_mmu->description));
+		MALI_PRINT_ERROR("Failed to create group object for MMU %s\n", resource_mmu->description);
 		return NULL;
 	}
 
 	/* Create the MMU object inside group */
 	mmu = mali_mmu_create(resource_mmu, group, MALI_FALSE);
 	if (NULL == mmu) {
-		MALI_PRINT_ERROR(("Failed to create MMU object\n"));
+		MALI_PRINT_ERROR("Failed to create MMU object\n");
 		mali_group_delete(group);
 		return NULL;
 	}
@@ -312,7 +312,7 @@ static struct mali_group *mali_create_group(struct mali_l2_cache_core *cache,
 		struct mali_gp_core *gp_core = mali_gp_create(resource_gp, group);
 		if (NULL == gp_core) {
 			/* No need to clean up now, as we will clean up everything linked in from the cluster when we fail this function */
-			MALI_PRINT_ERROR(("Failed to create GP object\n"));
+			MALI_PRINT_ERROR("Failed to create GP object\n");
 			mali_group_delete(group);
 			return NULL;
 		}
@@ -325,7 +325,7 @@ static struct mali_group *mali_create_group(struct mali_l2_cache_core *cache,
 		pp_core = mali_pp_create(resource_pp, group, MALI_FALSE, mali_get_bcast_id(resource_pp));
 		if (NULL == pp_core) {
 			/* No need to clean up now, as we will clean up everything linked in from the cluster when we fail this function */
-			MALI_PRINT_ERROR(("Failed to create PP object\n"));
+			MALI_PRINT_ERROR("Failed to create PP object\n");
 			mali_group_delete(group);
 			return NULL;
 		}
@@ -345,19 +345,19 @@ static _mali_osk_errcode_t mali_create_virtual_group(_mali_osk_resource_t *resou
 	struct mali_bcast_unit *bcast_core;
 	struct mali_group *group;
 
-	MALI_DEBUG_PRINT(2, ("Starting new virtual group for MMU PP broadcast core %s\n", resource_mmu_pp_bcast->description));
+	MALI_DEBUG_PRINT(2, "Starting new virtual group for MMU PP broadcast core %s\n", resource_mmu_pp_bcast->description);
 
 	/* Create the DLBU core object */
 	dlbu_core = mali_dlbu_create(resource_dlbu);
 	if (NULL == dlbu_core) {
-		MALI_PRINT_ERROR(("Failed to create DLBU object \n"));
+		MALI_PRINT_ERROR("Failed to create DLBU object \n");
 		return _MALI_OSK_ERR_FAULT;
 	}
 
 	/* Create the Broadcast unit core */
 	bcast_core = mali_bcast_unit_create(resource_bcast);
 	if (NULL == bcast_core) {
-		MALI_PRINT_ERROR(("Failed to create Broadcast unit object!\n"));
+		MALI_PRINT_ERROR("Failed to create Broadcast unit object!\n");
 		mali_dlbu_delete(dlbu_core);
 		return _MALI_OSK_ERR_FAULT;
 	}
@@ -392,7 +392,7 @@ static _mali_osk_errcode_t mali_create_virtual_group(_mali_osk_resource_t *resou
 #endif /* DEBUG */
 	group = mali_group_create(NULL, dlbu_core, bcast_core, MALI_DOMAIN_INDEX_DUMMY);
 	if (NULL == group) {
-		MALI_PRINT_ERROR(("Failed to create group object for MMU PP broadcast core %s\n", resource_mmu_pp_bcast->description));
+		MALI_PRINT_ERROR("Failed to create group object for MMU PP broadcast core %s\n", resource_mmu_pp_bcast->description);
 		mali_bcast_unit_delete(bcast_core);
 		mali_dlbu_delete(dlbu_core);
 		return _MALI_OSK_ERR_FAULT;
@@ -401,7 +401,7 @@ static _mali_osk_errcode_t mali_create_virtual_group(_mali_osk_resource_t *resou
 	/* Create the MMU object inside group */
 	mmu_pp_bcast_core = mali_mmu_create(resource_mmu_pp_bcast, group, MALI_TRUE);
 	if (NULL == mmu_pp_bcast_core) {
-		MALI_PRINT_ERROR(("Failed to create MMU PP broadcast object\n"));
+		MALI_PRINT_ERROR("Failed to create MMU PP broadcast object\n");
 		mali_group_delete(group);
 		return _MALI_OSK_ERR_FAULT;
 	}
@@ -410,7 +410,7 @@ static _mali_osk_errcode_t mali_create_virtual_group(_mali_osk_resource_t *resou
 	pp_bcast_core = mali_pp_create(resource_pp_bcast, group, MALI_TRUE, 0);
 	if (NULL == pp_bcast_core) {
 		/* No need to clean up now, as we will clean up everything linked in from the cluster when we fail this function */
-		MALI_PRINT_ERROR(("Failed to create PP object\n"));
+		MALI_PRINT_ERROR("Failed to create PP object\n");
 		mali_group_delete(group);
 		return _MALI_OSK_ERR_FAULT;
 	}
@@ -497,7 +497,7 @@ static _mali_osk_errcode_t mali_parse_config_groups(void)
 		    _MALI_OSK_ERR_OK != resource_pp_mmu_bcast_found ||
 		    _MALI_OSK_ERR_OK != resource_pp_bcast_found) {
 			/* Missing mandatory core(s) for Mali-450 */
-			MALI_DEBUG_PRINT(2, ("Missing mandatory resources, Mali-450 needs DLBU, Broadcast unit, virtual PP core and virtual MMU\n"));
+			MALI_DEBUG_PRINT(2, "Missing mandatory resources, Mali-450 needs DLBU, Broadcast unit, virtual PP core and virtual MMU\n");
 			return _MALI_OSK_ERR_FAULT;
 		}
 	}
@@ -507,7 +507,7 @@ static _mali_osk_errcode_t mali_parse_config_groups(void)
 	    _MALI_OSK_ERR_OK != resource_pp_found[0] ||
 	    _MALI_OSK_ERR_OK != resource_pp_mmu_found[0]) {
 		/* Missing mandatory core(s) */
-		MALI_DEBUG_PRINT(2, ("Missing mandatory resource, need at least one GP and one PP, both with a separate MMU\n"));
+		MALI_DEBUG_PRINT(2, "Missing mandatory resource, need at least one GP and one PP, both with a separate MMU\n");
 		return _MALI_OSK_ERR_FAULT;
 	}
 
@@ -564,7 +564,7 @@ static _mali_osk_errcode_t mali_parse_config_groups(void)
 
 	mali_max_pp_cores_group_1 = mali_inited_pp_cores_group_1;
 	mali_max_pp_cores_group_2 = mali_inited_pp_cores_group_2;
-	MALI_DEBUG_PRINT(2, ("%d+%d PP cores initialized\n", mali_inited_pp_cores_group_1, mali_inited_pp_cores_group_2));
+	MALI_DEBUG_PRINT(2, "%d+%d PP cores initialized\n", mali_inited_pp_cores_group_1, mali_inited_pp_cores_group_2);
 
 	return _MALI_OSK_ERR_OK;
 }
@@ -573,7 +573,7 @@ static _mali_osk_errcode_t mali_check_shared_interrupts(void)
 {
 #if !defined(CONFIG_MALI_SHARED_INTERRUPTS)
 	if (MALI_TRUE == _mali_osk_shared_interrupts()) {
-		MALI_PRINT_ERROR(("Shared interrupts detected, but driver support is not enabled\n"));
+		MALI_PRINT_ERROR("Shared interrupts detected, but driver support is not enabled\n");
 		return _MALI_OSK_ERR_FAULT;
 	}
 #endif /* !defined(CONFIG_MALI_SHARED_INTERRUPTS) */
@@ -593,7 +593,7 @@ static _mali_osk_errcode_t mali_parse_config_pmu(void)
 
 		pmu = mali_pmu_create(&resource_pmu);
 		if (NULL == pmu) {
-			MALI_PRINT_ERROR(("Failed to create PMU\n"));
+			MALI_PRINT_ERROR("Failed to create PMU\n");
 			return _MALI_OSK_ERR_FAULT;
 		}
 	}
@@ -628,25 +628,25 @@ static _mali_osk_errcode_t mali_parse_config_memory(void)
 	}
 
 	if (0 < mali_dedicated_mem_size && 0 != mali_dedicated_mem_start) {
-		MALI_DEBUG_PRINT(2, ("Mali memory settings (dedicated: 0x%08X@0x%08X)\n",
-				     mali_dedicated_mem_size, mali_dedicated_mem_start));
+		MALI_DEBUG_PRINT(2, "Mali memory settings (dedicated: 0x%08X@0x%08X)\n",
+				    mali_dedicated_mem_size, mali_dedicated_mem_start);
 
 		/* Dedicated memory */
 		ret = mali_memory_core_resource_dedicated_memory(mali_dedicated_mem_start, mali_dedicated_mem_size);
 		if (_MALI_OSK_ERR_OK != ret) {
-			MALI_PRINT_ERROR(("Failed to register dedicated memory\n"));
+			MALI_PRINT_ERROR("Failed to register dedicated memory\n");
 			mali_memory_terminate();
 			return ret;
 		}
 	}
 
 	if (0 < mali_shared_mem_size) {
-		MALI_DEBUG_PRINT(2, ("Mali memory settings (shared: 0x%08X)\n", mali_shared_mem_size));
+		MALI_DEBUG_PRINT(2, "Mali memory settings (shared: 0x%08X)\n", mali_shared_mem_size);
 
 		/* Shared OS memory */
 		ret = mali_memory_core_resource_os_memory(mali_shared_mem_size);
 		if (_MALI_OSK_ERR_OK != ret) {
-			MALI_PRINT_ERROR(("Failed to register shared OS memory\n"));
+			MALI_PRINT_ERROR("Failed to register shared OS memory\n");
 			mali_memory_terminate();
 			return ret;
 		}
@@ -662,18 +662,18 @@ static _mali_osk_errcode_t mali_parse_config_memory(void)
 			mali_fb_size = data.fb_size;
 		}
 
-		MALI_DEBUG_PRINT(2, ("Using device defined frame buffer settings (0x%08X@0x%08X)\n",
-				     mali_fb_size, mali_fb_start));
+		MALI_DEBUG_PRINT(2, "Using device defined frame buffer settings (0x%08X@0x%08X)\n",
+				    mali_fb_size, mali_fb_start);
 	} else {
-		MALI_DEBUG_PRINT(2, ("Using module defined frame buffer settings (0x%08X@0x%08X)\n",
-				     mali_fb_size, mali_fb_start));
+		MALI_DEBUG_PRINT(2, "Using module defined frame buffer settings (0x%08X@0x%08X)\n",
+				    mali_fb_size, mali_fb_start);
 	}
 
 	if (0 != mali_fb_size) {
 		/* Register frame buffer */
 		ret = mali_mem_validation_add_range(mali_fb_start, mali_fb_size);
 		if (_MALI_OSK_ERR_OK != ret) {
-			MALI_PRINT_ERROR(("Failed to register frame buffer memory region\n"));
+			MALI_PRINT_ERROR("Failed to register frame buffer memory region\n");
 			mali_memory_terminate();
 			return ret;
 		}
@@ -702,7 +702,7 @@ static _mali_osk_errcode_t mali_init_hw_reset(void)
 
 		bcast_core = mali_bcast_unit_create(&resource_bcast);
 		if (NULL == bcast_core) {
-			MALI_PRINT_ERROR(("Failed to create Broadcast unit object!\n"));
+			MALI_PRINT_ERROR("Failed to create Broadcast unit object!\n");
 			return _MALI_OSK_ERR_FAULT;
 		}
 		mali_bcast_unit_delete(bcast_core);
@@ -716,7 +716,7 @@ _mali_osk_errcode_t mali_initialize_subsystems(void)
 {
 	_mali_osk_errcode_t err;
 
-	MALI_DEBUG_PRINT(2, ("initialize_subsystems() called\n"));
+	MALI_DEBUG_PRINT(2, "initialize_subsystems() called\n");
 
 	err = _mali_osk_resource_initialize();
 	if (_MALI_OSK_ERR_OK != err)
@@ -734,7 +734,7 @@ _mali_osk_errcode_t mali_initialize_subsystems(void)
 	err = _mali_osk_profiling_init(mali_boot_profiling ? MALI_TRUE : MALI_FALSE);
 	if (_MALI_OSK_ERR_OK != err) {
 		/* No biggie if we weren't able to initialize the profiling */
-		MALI_PRINT_ERROR(("Failed to initialize profiling, feature will be unavailable\n"));
+		MALI_PRINT_ERROR("Failed to initialize profiling, feature will be unavailable\n");
 	}
 #endif
 
@@ -787,7 +787,7 @@ _mali_osk_errcode_t mali_initialize_hardware(void)
 {
 	_mali_osk_errcode_t err;
 
-	MALI_DEBUG_PRINT(2, ("initialize_hardware() called\n"));
+	MALI_DEBUG_PRINT(2, "initialize_hardware() called\n");
 
 	/* Make sure the entire GPU stays on for the rest of this function */
 	mali_pm_init_begin();
@@ -863,7 +863,7 @@ void mali_terminate_subsystems(void)
 {
 	struct mali_pmu_core *pmu = mali_pmu_get_global_pmu_core();
 
-	MALI_DEBUG_PRINT(2, ("terminate_subsystems() called\n"));
+	MALI_DEBUG_PRINT(2, "terminate_subsystems() called\n");
 
 	mali_pm_terminate();
 
@@ -886,7 +886,7 @@ void mali_terminate_subsystems(void)
 
 void mali_terminate_hardware(void)
 {
-	MALI_DEBUG_PRINT(2, ("terminate_hardware() called\n"));
+	MALI_DEBUG_PRINT(2, "terminate_hardware() called\n");
 
 	mali_utilization_term();
 	mali_control_timer_term();
@@ -972,7 +972,7 @@ _mali_osk_errcode_t _mali_ukk_wait_for_notification(_mali_uk_wait_for_notificati
 
 	/* if the queue does not exist we're currently shutting down */
 	if (NULL == queue) {
-		MALI_DEBUG_PRINT(1, ("No notification queue registered with the session. Asking userspace to stop querying\n"));
+		MALI_DEBUG_PRINT(1, "No notification queue registered with the session. Asking userspace to stop querying\n");
 		args->type = _MALI_NOTIFICATION_CORE_SHUTDOWN_IN_PROGRESS;
 		return _MALI_OSK_ERR_OK;;
 	}
@@ -1008,13 +1008,13 @@ _mali_osk_errcode_t _mali_ukk_post_notification(_mali_uk_post_notification_s *ar
 
 	/* if the queue does not exist we're currently shutting down */
 	if (NULL == queue) {
-		MALI_DEBUG_PRINT(1, ("No notification queue registered with the session. Asking userspace to stop querying\n"));
+		MALI_DEBUG_PRINT(1, "No notification queue registered with the session. Asking userspace to stop querying\n");
 		return _MALI_OSK_ERR_OK;;
 	}
 
 	notification = _mali_osk_notification_create(args->type, 0);
 	if (NULL == notification) {
-		MALI_PRINT_ERROR(("Failed to create notification object\n"));
+		MALI_PRINT_ERROR("Failed to create notification object\n");
 		return _MALI_OSK_ERR_NOMEM;
 	}
 
@@ -1034,7 +1034,7 @@ _mali_osk_errcode_t _mali_ukk_request_high_priority(_mali_uk_request_high_priori
 
 	if (!session->use_high_priority_job_queue) {
 		session->use_high_priority_job_queue = MALI_TRUE;
-		MALI_DEBUG_PRINT(2, ("Session 0x%08X with pid %d was granted higher priority.\n", session, _mali_osk_get_pid()));
+		MALI_DEBUG_PRINT(2, "Session 0x%08X with pid %d was granted higher priority.\n", session, _mali_osk_get_pid());
 	}
 
 	return _MALI_OSK_ERR_OK;;
@@ -1049,7 +1049,7 @@ _mali_osk_errcode_t _mali_ukk_open(void **context)
 	session = (struct mali_session_data *)kcalloc(1, sizeof(struct mali_session_data), GFP_KERNEL);
 	MALI_CHECK_NON_NULL(session, _MALI_OSK_ERR_NOMEM);
 
-	MALI_DEBUG_PRINT(3, ("Session starting\n"));
+	MALI_DEBUG_PRINT(3, "Session starting\n");
 
 	/* create a response queue for this session */
 	session->ioctl_queue = _mali_osk_notification_queue_init();
@@ -1066,7 +1066,7 @@ _mali_osk_errcode_t _mali_ukk_open(void **context)
 	}
 
 	if (_MALI_OSK_ERR_OK != mali_mmu_pagedir_map(session->page_directory, MALI_DLBU_VIRT_ADDR, _MALI_OSK_MALI_PAGE_SIZE)) {
-		MALI_PRINT_ERROR(("Failed to map DLBU page into session\n"));
+		MALI_PRINT_ERROR("Failed to map DLBU page into session\n");
 		_mali_osk_notification_queue_term(session->ioctl_queue);
 		kfree(session);
 		MALI_ERROR(_MALI_OSK_ERR_NOMEM);
@@ -1128,7 +1128,7 @@ _mali_osk_errcode_t _mali_ukk_open(void **context)
 	/* Add session to the list of all sessions. */
 	mali_session_add(session);
 
-	MALI_DEBUG_PRINT(3, ("Session started\n"));
+	MALI_DEBUG_PRINT(3, "Session started\n");
 	return _MALI_OSK_ERR_OK;;
 }
 
@@ -1146,7 +1146,7 @@ _mali_osk_errcode_t _mali_ukk_close(void **context)
 	MALI_CHECK_NON_NULL(context, _MALI_OSK_ERR_INVALID_ARGS);
 	session = (struct mali_session_data *)*context;
 
-	MALI_DEBUG_PRINT(3, ("Session ending\n"));
+	MALI_DEBUG_PRINT(3, "Session ending\n");
 
 	MALI_DEBUG_ASSERT_POINTER(session->soft_job_system);
 	MALI_DEBUG_ASSERT_POINTER(session->timeline_system);
@@ -1216,11 +1216,11 @@ _mali_osk_errcode_t _mali_ukk_close(void **context)
 
 	*context = NULL;
 
-	MALI_DEBUG_PRINT(3, ("Session has ended\n"));
+	MALI_DEBUG_PRINT(3, "Session has ended\n");
 
 #if defined(DEBUG)
-	MALI_DEBUG_PRINT(3, ("Stats: # runtime resumes: %u\n", num_pm_runtime_resume));
-	MALI_DEBUG_PRINT(3, ("       # PM updates: .... %u (up %u, down %u)\n", num_pm_updates, num_pm_updates_up, num_pm_updates_down));
+	MALI_DEBUG_PRINT(3, "Stats: # runtime resumes: %u\n", num_pm_runtime_resume);
+	MALI_DEBUG_PRINT(3, "       # PM updates: .... %u (up %u, down %u)\n", num_pm_updates, num_pm_updates_up, num_pm_updates_down);
 
 	num_pm_runtime_resume = 0;
 	num_pm_updates = 0;
