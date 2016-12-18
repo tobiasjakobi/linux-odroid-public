@@ -18,6 +18,7 @@
 #include <linux/clk.h>
 #include <linux/cma.h>
 #include <linux/delay.h>
+#include <linux/devfreq.h>
 #include <linux/dma-contiguous.h>
 #include <linux/dma-mapping.h>
 #include <linux/err.h>
@@ -46,24 +47,27 @@ struct exynos4412_power_state {
 	 */
 	unsigned int down_threshold;
 	unsigned int up_threshold;
+
+	/* Enable turbo on leftbus DevFreq. */
+	bool leftbus_turbo;
 };
 
-#define POWER_STATE(f, d, u) \
-	{.freq = f, .down_threshold = d, .up_threshold = u}
+#define POWER_STATE(f, d, u, t) \
+	{.freq = f, .down_threshold = d, .up_threshold = u, .leftbus_turbo = t}
 
 static const struct exynos4412_power_state exynos4412_power_state_default[] = {
-	POWER_STATE(160,   0,  700),
-	POWER_STATE(266, 620,  900),
-	POWER_STATE(350, 850,  900),
-	POWER_STATE(440, 850, 1000),
+	POWER_STATE(160,   0,  700, false),
+	POWER_STATE(266, 620,  900, false),
+	POWER_STATE(350, 850,  900, false),
+	POWER_STATE(440, 850, 1000, true),
 };
 
 static const struct exynos4412_power_state exynos4412_power_state_prime[] = {
-	POWER_STATE(160,   0,  700),
-	POWER_STATE(266, 620,  900),
-	POWER_STATE(350, 850,  900),
-	POWER_STATE(440, 850,  900),
-	POWER_STATE(533, 950, 1000),
+	POWER_STATE(160,   0,  700, false),
+	POWER_STATE(266, 620,  900, false),
+	POWER_STATE(350, 850,  900, false),
+	POWER_STATE(440, 850,  900, true),
+	POWER_STATE(533, 950, 1000, true),
 };
 
 #undef POWER_STATE
@@ -71,6 +75,7 @@ static const struct exynos4412_power_state exynos4412_power_state_prime[] = {
 enum exynos4412_flag_bits {
 	exynos4412_runpm_suspended,
 	exynos4412_power_cycle,
+	exynos4412_leftbus_turbo,
 };
 
 enum opp_update_mode {
@@ -91,6 +96,7 @@ struct exynos4412_drvdata {
 	struct clk *sclk;
 	struct clk *clk;
 	struct regulator *regulator;
+	struct devfreq *leftbus_devfreq;
 
 	unsigned int load;
 	unsigned long cur_volt;
@@ -105,14 +111,15 @@ struct exynos4412_drvdata {
 
 static int exynos4412_opp_update(struct exynos4412_drvdata *data,
 				 enum opp_update_mode mode,
-				 unsigned long freq)
+				 int index)
 {
 	struct device *dev;
 	struct dev_pm_opp *opp;
 
 	int ret;
-	unsigned long volt;
+	unsigned long volt, freq;
 	bool volt_first = true;
+	bool leftbus_turbo;
 
 	dev = data->dev;
 
@@ -122,19 +129,25 @@ static int exynos4412_opp_update(struct exynos4412_drvdata *data,
 	 */
 	switch (mode) {
 	case opp_update_default:
+	default:
+		freq = data->states[index].freq;
+		leftbus_turbo = data->states[index].leftbus_turbo;
 		break;
 
 	case opp_update_init:
 		freq = data->states[0].freq;
+		leftbus_turbo = data->states[0].leftbus_turbo;
 		dev_info(dev, MSG_PREFIX "initial G3D core clock rate = %lu MHz\n", freq);
 		break;
 
 	case opp_update_low:
 		freq = data->states[0].freq;
+		leftbus_turbo = data->states[0].leftbus_turbo;
 		break;
 
 	case opp_update_perf:
 		freq = data->states[data->num_states - 1].freq;
+		leftbus_turbo = data->states[data->num_states - 1].leftbus_turbo;
 		break;
 	}
 
@@ -152,23 +165,41 @@ static int exynos4412_opp_update(struct exynos4412_drvdata *data,
 	if (data->cur_volt && volt < data->cur_volt)
 		volt_first = false;
 
-	ret = 0;
+	if (leftbus_turbo && !test_bit(exynos4412_leftbus_turbo, &data->flags)) {
+		ret = devfreq_turbo_get(data->leftbus_devfreq);
 
-	if (volt_first)
+		if (ret < 0)
+			goto out;
+
+		set_bit(exynos4412_leftbus_turbo, &data->flags);
+	}
+
+	if (volt_first) {
 		ret = regulator_set_voltage(data->regulator, volt, volt);
 
-	if (ret < 0)
-		goto out;
+		if (ret < 0)
+			goto out;
+	}
 
 	ret = clk_set_rate(data->sclk, freq);
 	if (ret < 0)
 		goto out;
 
-	if (!volt_first)
+	if (!volt_first) {
 		ret = regulator_set_voltage(data->regulator, volt, volt);
 
-	if (ret < 0)
-		goto out;
+		if (ret < 0)
+			goto out;
+	}
+
+	if (!leftbus_turbo && test_bit(exynos4412_leftbus_turbo, &data->flags)) {
+		ret = devfreq_turbo_put(data->leftbus_devfreq);
+
+		if (ret < 0)
+			goto out;
+
+		clear_bit(exynos4412_leftbus_turbo, &data->flags);
+	}
 
 	data->cur_volt = volt;
 
@@ -220,13 +251,27 @@ static int exynos4412_opp_init(struct device *dev, struct exynos4412_drvdata *da
 	if (ret < 0)
 		return ret;
 
-	ret = exynos4412_opp_update(data, opp_update_init, 0);
+	ret = exynos4412_opp_update(data, opp_update_init, -1);
+	if (ret < 0)
+		goto fail_update;
+
+	data->leftbus_devfreq = devfreq_get_devfreq_by_phandle(dev, 0);
+	if (IS_ERR(data->leftbus_devfreq)) {
+		ret = PTR_ERR(data->leftbus_devfreq);
+		goto fail_update;
+	}
+
+	return 0;
+
+fail_update:
+	dev_pm_opp_of_remove_table(dev);
 
 	return ret;
 }
 
 static void exynos4412_opp_deinit(struct device *dev, struct exynos4412_drvdata *data)
 {
+	exynos4412_opp_update(data, opp_update_low, -1);
 	dev_pm_opp_of_remove_table(dev);
 }
 
@@ -395,8 +440,7 @@ static void exynos4412_power_work(struct work_struct *work)
 	if (index == data->cur_state)
 		return;
 
-	ret = exynos4412_opp_update(data, opp_update_default,
-				    data->states[index].freq);
+	ret = exynos4412_opp_update(data, opp_update_default, index);
 
 	if (ret < 0)
 		dev_err(data->dev, MSG_PREFIX "failed to update OPP\n");
@@ -438,7 +482,7 @@ int mali_platform_runtime_suspend(struct device *dev)
 	 * This way we avoid restoring a high G3D core clock on resume.
 	 */
 	flush_work(&data->power_work);
-	ret = exynos4412_opp_update(data, opp_update_low, 0);
+	ret = exynos4412_opp_update(data, opp_update_low, -1);
 
 	if (ret < 0)
 		return ret;
@@ -470,7 +514,7 @@ int mali_platform_runtime_resume(struct device *dev)
 	 * If no power management mode is selected, we just transition
 	 * to the highest power state and don't change it anymore.
 	 */
-	ret = exynos4412_opp_update(data, opp_update_perf, 0);
+	ret = exynos4412_opp_update(data, opp_update_perf, -1);
 #endif
 
 out:
