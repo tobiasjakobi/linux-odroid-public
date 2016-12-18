@@ -156,6 +156,8 @@ struct devfreq {
 	struct notifier_block nb;
 	struct delayed_work work;
 
+	unsigned int turbo_refcount;
+
 	unsigned long previous_freq;
 	struct devfreq_dev_status last_status;
 
@@ -197,6 +199,9 @@ extern struct devfreq *devm_devfreq_add_device(struct device *dev,
 				  void *data);
 extern void devm_devfreq_remove_device(struct device *dev,
 				  struct devfreq *devfreq);
+
+extern int devfreq_turbo_get(struct devfreq *devfreq);
+extern int devfreq_turbo_put(struct devfreq *devfreq);
 
 /* Supposed to be called by PM callbacks */
 extern int devfreq_suspend_device(struct devfreq *devfreq);
@@ -319,6 +324,16 @@ static inline struct devfreq *devm_devfreq_add_device(struct device *dev,
 static inline void devm_devfreq_remove_device(struct device *dev,
 					struct devfreq *devfreq)
 {
+}
+
+static inline int devfreq_turbo_get(struct devfreq *devfreq)
+{
+	return 0;
+}
+
+static inline int devfreq_turbo_put(struct devfreq *devfreq)
+{
+	return 0;
 }
 
 static inline int devfreq_suspend_device(struct devfreq *devfreq)

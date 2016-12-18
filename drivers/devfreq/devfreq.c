@@ -353,6 +353,13 @@ int update_devfreq(struct devfreq *devfreq)
 		return err;
 
 	/*
+	 * If turbo is enabled, transition to maximum freq, i.e. behave
+	 * like under the performance governor.
+	 */
+	if (devfreq->turbo_refcount)
+		freq = UINT_MAX;
+
+	/*
 	 * Adjust the frequency with user freq, QoS and available freq.
 	 *
 	 * List from the highest priority
@@ -875,6 +882,65 @@ void devm_devfreq_remove_device(struct device *dev, struct devfreq *devfreq)
 			       devm_devfreq_dev_match, devfreq));
 }
 EXPORT_SYMBOL(devm_devfreq_remove_device);
+
+/**
+ * devfreq_turbo_get() - Increment the turbo usage counter
+ * @devfreq:	the devfreq instance for which turbo should be enabled
+ *
+ * If turbo usage count is non-zero, the DevFreq devices transitions
+ * into its highest OPP state.
+ */
+int devfreq_turbo_get(struct devfreq *devfreq)
+{
+	int ret;
+
+	if (!devfreq)
+		return -EINVAL;
+
+	mutex_lock(&devfreq->lock);
+
+	devfreq->turbo_refcount += 1;
+	if (devfreq->turbo_refcount >= 2) {
+		ret = 0;
+		goto out;
+	}
+
+	ret = update_devfreq(devfreq);
+
+out:
+	mutex_unlock(&devfreq->lock);
+	return ret;
+}
+EXPORT_SYMBOL(devfreq_turbo_get);
+
+/**
+ * devfreq_turbo_put() - Decrement the turbo usage counter
+ * @devfreq:	the devfreq instance for which turbo should be disabled
+ *
+ * Counterpart to devfreq_turbo_get().
+ */
+int devfreq_turbo_put(struct devfreq *devfreq)
+{
+	int ret;
+
+	if (!devfreq)
+		return -EINVAL;
+
+	mutex_lock(&devfreq->lock);
+
+	devfreq->turbo_refcount -= 1;
+	if (devfreq->turbo_refcount >= 1) {
+		ret = 0;
+		goto out;
+	}
+
+	ret = update_devfreq(devfreq);
+
+out:
+	mutex_unlock(&devfreq->lock);
+	return ret;
+}
+EXPORT_SYMBOL(devfreq_turbo_put);
 
 /**
  * devfreq_suspend_device() - Suspend devfreq of a device.
