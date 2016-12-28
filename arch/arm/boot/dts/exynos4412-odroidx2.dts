@@ -65,3 +65,11 @@
 		};
 	};
 };
+
+&uart1_data {
+	samsung,pin-pud = <EXYNOS_PIN_PULL_UP>;
+};
+
+&uart1_fctl {
+	samsung,pin-pud = <EXYNOS_PIN_PULL_UP>;
+};
