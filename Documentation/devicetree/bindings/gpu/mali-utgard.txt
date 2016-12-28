@@ -42,6 +42,9 @@ Optional properties:
 		network. This value is the number of Mali clock cycles it takes to
 		enable the power gates and turn on the power mesh. This value will
 		have no effect if a daisy chain implementation is used.
+- regulator-microvolt-offset: Additional offset applied to the G3D regulator (in uV).
+- regulator-microsecs-delay: Additional delay when changing voltage of the G3D
+	regulator (in uS).
 
 Platform related properties:
 - clocks: Phandle to clock for Mali utgard device.
