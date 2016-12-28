@@ -98,6 +98,9 @@ struct exynos4412_drvdata {
 	struct regulator *regulator;
 	struct devfreq *leftbus_devfreq;
 
+	unsigned long regulator_offset;
+	unsigned long regulator_delay;
+
 	unsigned int load;
 	unsigned long cur_volt;
 
@@ -159,6 +162,7 @@ static int exynos4412_opp_update(struct exynos4412_drvdata *data,
 	BUG_ON(opp == NULL);
 
 	volt = dev_pm_opp_get_voltage(opp);
+	volt += data->regulator_offset;
 
 	rcu_read_unlock();
 
@@ -176,6 +180,7 @@ static int exynos4412_opp_update(struct exynos4412_drvdata *data,
 
 	if (volt_first) {
 		ret = regulator_set_voltage(data->regulator, volt, volt);
+		udelay(data->regulator_delay);
 
 		if (ret < 0)
 			goto out;
@@ -552,6 +557,7 @@ int mali_platform_device_disable(struct device *dev)
 int mali_platform_device_init(struct platform_device *pdev)
 {
 	int ret;
+	u32 pval;
 	struct device *dev;
 	struct exynos4412_drvdata *data;
 
@@ -571,6 +577,12 @@ int mali_platform_device_init(struct platform_device *pdev)
 
 	if (of_property_read_bool(dev->of_node, "regulator-power-cycle"))
 		set_bit(exynos4412_power_cycle, &data->flags);
+
+	if (!of_property_read_u32(dev->of_node, "regulator-microvolt-offset", &pval))
+		data->regulator_offset = pval;
+
+	if (!of_property_read_u32(dev->of_node, "regulator-microsecs-delay", &pval))
+		data->regulator_delay = pval;
 
 	data->dev = dev;
 	set_bit(exynos4412_runpm_suspended, &data->flags);
