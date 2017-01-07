@@ -80,6 +80,20 @@
 	needs-hpd;
 };
 
+&exynos_usbphy {
+	/* Port 0 is HSIC for LAN9730 */
+
+	/* buck8 enable pin, use it for power sequence */
+	reset-gpios = <&gpa1 1 GPIO_ACTIVE_LOW>;
+	/*
+	 * Reset duration of 500 us was chosen experimentally.
+	 * Minimal working value was 400 us. Add some safe margin.
+	 */
+	reset-duration-us = <500>;
+
+	status = "okay";
+};
+
 /* On the Odroid-U2/U3 this buck regulator supplies the core of the eMMC. */
 &ldo22_reg {
 	regulator-name = "vddf_emmc_2.85V";
@@ -87,8 +101,21 @@
 	regulator-max-microvolt = <2850000>;
 };
 
+&max77686 {
+	pinctrl-0 = <&max77686_irq &max77686_enb8>;
+};
+
 &mshc_0 {
 	vqmmc-supply = <&ldo22_reg>;
+};
+
+&pinctrl_0 {
+	max77686_enb8: max77686-enb8 {
+		samsung,pins = "gpa1-1";
+		samsung,pin-function = <EXYNOS_PIN_FUNC_OUTPUT>;
+		samsung,pin-pud = <EXYNOS_PIN_PULL_DOWN>;
+		samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
+	};
 };
 
 &pwm {
