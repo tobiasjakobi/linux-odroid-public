@@ -106,10 +106,8 @@ static void mali_mem_vma_close(struct vm_area_struct *vma)
 
 static int mali_kernel_memory_cpu_page_fault_handler(struct vm_area_struct *vma, struct vm_fault *vmf)
 {
-	void __user *address;
 	mali_mem_allocation *descriptor;
 
-	address = vmf->virtual_address;
 	descriptor = (mali_mem_allocation *)vma->vm_private_data;
 
 	MALI_DEBUG_ASSERT(MALI_MEM_ALLOCATION_VALID_MAGIC == descriptor->magic);
@@ -120,9 +118,8 @@ static int mali_kernel_memory_cpu_page_fault_handler(struct vm_area_struct *vma,
 	*/
 
 	MALI_DEBUG_PRINT(1, ("Page-fault in Mali memory region caused by the CPU.\n"));
-	MALI_DEBUG_PRINT(1, ("Tried to access %p (process local virtual address) which is not currently mapped to any Mali memory.\n", (void *)address));
+	MALI_DEBUG_PRINT(1, ("Tried to access 0x%lx (process local virtual address) which is not currently mapped to any Mali memory.\n", vmf->address));
 
-	MALI_IGNORE(address);
 	MALI_IGNORE(descriptor);
 
 	return VM_FAULT_SIGBUS;
