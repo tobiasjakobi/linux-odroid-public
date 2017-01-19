@@ -21,6 +21,8 @@
 
 #include "exynos-ppmu.h"
 
+#define DISABLE_EXYNOS_PPMU_CYCLE_DEBUG
+
 enum exynos_ppmu_type {
 	EXYNOS_TYPE_PPMU,
 	EXYNOS_TYPE_PPMU_V2,
@@ -101,6 +103,68 @@ static struct __exynos_ppmu_events {
 	PPMU_EVENT(dmc1_1),
 };
 
+#if !defined(DISABLE_EXYNOS_PPMU_CYCLE_DEBUG)
+static unsigned int _cc_init = 0;
+static unsigned int _cc_overhead = 0;
+
+static inline unsigned int _get_cyclecount(void)
+{
+	unsigned int value;
+	/* read CCNT register */
+	asm volatile ("MRC p15, 0, %0, c9, c13, 0\t\n": "=r"(value));
+	return value;
+}
+
+static inline void _init_perfcounters(void *info)
+{
+	unsigned int *args = info;
+
+	const bool do_reset = (args[0] != 0);
+	const bool enable_divider = (args[1] != 0);
+
+	/* enable all counters (including cycle counter) */
+	unsigned int value = BIT(0);
+
+	if (do_reset) {
+		value |= BIT(1); /* reset all counters to zero */
+		value |= BIT(2); /* reset cycle counter to zero */
+	}
+
+	if (enable_divider)
+		value |= BIT(3); /* enable "by 64" divider for CCNT */
+
+	value |= BIT(4);
+
+	/* program the performance-counter control-register */
+	asm volatile ("MCR p15, 0, %0, c9, c12, 0\t\n" :: "r"(value));
+
+	/* enable all counters */
+	asm volatile ("MCR p15, 0, %0, c9, c12, 1\t\n" :: "r"(0x8000000f));
+
+	/* clear overflows */
+	asm volatile ("MCR p15, 0, %0, c9, c12, 3\t\n" :: "r"(0x8000000f));
+}
+
+static inline void _init_perfcounters_smp(void)
+{
+	unsigned int args[2] = {1, 0};
+
+	if (_cc_init)
+		return;
+
+	/* enable perf counters on all CPUs */
+	on_each_cpu(_init_perfcounters, (void*)args, 1);
+
+	/* measure overhead of retrieving cycle count */
+	_cc_overhead = _get_cyclecount();
+	_cc_overhead = _get_cyclecount() - _cc_overhead;
+
+	printk("DEBUG: _init_perfcounters_smp: overhead = %u\n", _cc_overhead);
+
+	_cc_init = 1;
+}
+#endif
+
 static int __exynos_ppmu_find_ppmu_id(const char *edev_name)
 {
 	int i;
@@ -155,9 +219,15 @@ static int exynos_ppmu_set_event(struct devfreq_event_dev *edev)
 	int id = exynos_ppmu_find_ppmu_id(edev);
 	int ret;
 	u32 pmnc, cntens;
+	unsigned int _cc;
 
 	if (id < 0)
 		return id;
+
+#if !defined(DISABLE_EXYNOS_PPMU_CYCLE_DEBUG)
+	_init_perfcounters_smp();
+	_cc = _get_cyclecount();
+#endif
 
 	/* Enable specific counter */
 	ret = regmap_read(info->regmap, PPMU_CNTENS, &cntens);
@@ -190,6 +260,11 @@ static int exynos_ppmu_set_event(struct devfreq_event_dev *edev)
 	if (ret < 0)
 		return ret;
 
+#if !defined(DISABLE_EXYNOS_PPMU_CYCLE_DEBUG)
+	_cc = _get_cyclecount() - (_cc + _cc_overhead);
+	printk("set:%u\n", _cc);
+#endif
+
 	return 0;
 }
 
@@ -202,9 +277,15 @@ static int exynos_ppmu_get_event(struct devfreq_event_dev *edev,
 	unsigned int pmcnt3_high, pmcnt3_low;
 	unsigned int pmnc, cntenc;
 	int ret;
+	unsigned int _cc;
 
 	if (id < 0)
 		return -EINVAL;
+
+#if !defined(DISABLE_EXYNOS_PPMU_CYCLE_DEBUG)
+	_init_perfcounters_smp();
+	_cc = _get_cyclecount();
+#endif
 
 	/* Disable PPMU */
 	ret = regmap_read(info->regmap, PPMU_PMNC, &pmnc);
@@ -256,6 +337,11 @@ static int exynos_ppmu_get_event(struct devfreq_event_dev *edev,
 	ret = regmap_write(info->regmap, PPMU_CNTENC, cntenc);
 	if (ret < 0)
 		return ret;
+
+#if !defined(DISABLE_EXYNOS_PPMU_CYCLE_DEBUG)
+	_cc = _get_cyclecount() - (_cc + _cc_overhead);
+	printk("get:%u\n", _cc);
+#endif
 
 	dev_dbg(&edev->dev, "%s (event: %ld/%ld)\n", edev->desc->name,
 					edata->load_count, edata->total_count);
