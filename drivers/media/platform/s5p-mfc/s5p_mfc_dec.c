@@ -888,6 +888,15 @@ static int s5p_mfc_queue_setup(struct vb2_queue *vq,
 	struct s5p_mfc_ctx *ctx = fh_to_ctx(vq->drv_priv);
 	struct s5p_mfc_dev *dev = ctx->dev;
 
+	/*
+	 * The MFC hardware writes temporary decoding data into the unused part
+	 * of the source buffers. Hence we need to map the source as bidirectional.
+	 */
+	if (vq->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE &&
+	    vq->memory == V4L2_MEMORY_DMABUF) {
+		vq->bidirectional = 1;
+	}
+
 	/* Video output for decoding (source)
 	 * this can be set after getting an instance */
 	if (ctx->state == MFCINST_INIT &&
