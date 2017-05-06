@@ -245,8 +245,7 @@ static int framebuffer_check(struct drm_device *dev,
 			 * out that no hw has this restriction:
 			 */
 			if (r->pixel_format != DRM_FORMAT_NV12 ||
-					width % 128 || height % 32 ||
-					r->pitches[i] % 128) {
+					width % 128 || r->pitches[i] % 128) {
 				DRM_DEBUG_KMS("bad modifier data for plane %d\n", i);
 				return -EINVAL;
 			}
