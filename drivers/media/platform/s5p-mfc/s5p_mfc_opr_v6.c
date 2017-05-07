@@ -248,7 +248,7 @@ static int s5p_mfc_alloc_codec_buffers_v6(struct s5p_mfc_ctx *ctx)
 				S5P_FIMV_SCRATCH_BUFFER_ALIGN_V6);
 		ctx->bank1.size =
 			ctx->scratch_buf_size + ctx->tmv_buffer_size +
-			(ctx->pb_count * (ctx->luma_dpb_size +
+			(ctx->dpb_count * (ctx->luma_dpb_size +
 			ctx->chroma_dpb_size + ctx->me_buffer_size));
 		ctx->bank2.size = 0;
 		break;
@@ -268,7 +268,7 @@ static int s5p_mfc_alloc_codec_buffers_v6(struct s5p_mfc_ctx *ctx)
 				S5P_FIMV_SCRATCH_BUFFER_ALIGN_V6);
 		ctx->bank1.size =
 			ctx->scratch_buf_size + ctx->tmv_buffer_size +
-			(ctx->pb_count * (ctx->luma_dpb_size +
+			(ctx->dpb_count * (ctx->luma_dpb_size +
 			ctx->chroma_dpb_size + ctx->me_buffer_size));
 		ctx->bank2.size = 0;
 		break;
@@ -292,7 +292,7 @@ static int s5p_mfc_alloc_codec_buffers_v6(struct s5p_mfc_ctx *ctx)
 				S5P_FIMV_SCRATCH_BUFFER_ALIGN_V6);
 		ctx->bank1.size =
 			ctx->scratch_buf_size + ctx->tmv_buffer_size +
-			(ctx->pb_count * (ctx->luma_dpb_size +
+			(ctx->dpb_count * (ctx->luma_dpb_size +
 			ctx->chroma_dpb_size + ctx->me_buffer_size));
 		ctx->bank2.size = 0;
 		break;
@@ -303,7 +303,7 @@ static int s5p_mfc_alloc_codec_buffers_v6(struct s5p_mfc_ctx *ctx)
 		ctx->scratch_buf_size = ALIGN(ctx->scratch_buf_size, 256);
 		ctx->bank1.size =
 			ctx->scratch_buf_size + ctx->tmv_buffer_size +
-			(ctx->pb_count * (ctx->luma_dpb_size +
+			(ctx->dpb_count * (ctx->luma_dpb_size +
 			ctx->chroma_dpb_size + ctx->me_buffer_size));
 		ctx->bank2.size = 0;
 		break;
@@ -670,23 +670,23 @@ static int s5p_mfc_set_enc_ref_buffer_v6(struct s5p_mfc_ctx *ctx)
 
 	if (IS_MFCV10(dev)) {
 		/* start address of per buffer is aligned */
-		for (i = 0; i < ctx->pb_count; i++) {
+		for (i = 0; i < ctx->dpb_count; i++) {
 			writel(buf_addr1, mfc_regs->e_luma_dpb + (4 * i));
 			buf_addr1 += ctx->luma_dpb_size;
 			buf_size1 -= ctx->luma_dpb_size;
 		}
-		for (i = 0; i < ctx->pb_count; i++) {
+		for (i = 0; i < ctx->dpb_count; i++) {
 			writel(buf_addr1, mfc_regs->e_chroma_dpb + (4 * i));
 			buf_addr1 += ctx->chroma_dpb_size;
 			buf_size1 -= ctx->chroma_dpb_size;
 		}
-		for (i = 0; i < ctx->pb_count; i++) {
+		for (i = 0; i < ctx->dpb_count; i++) {
 			writel(buf_addr1, mfc_regs->e_me_buffer + (4 * i));
 			buf_addr1 += ctx->me_buffer_size;
 			buf_size1 -= ctx->me_buffer_size;
 		}
 	} else {
-		for (i = 0; i < ctx->pb_count; i++) {
+		for (i = 0; i < ctx->dpb_count; i++) {
 			writel(buf_addr1, mfc_regs->e_luma_dpb + (4 * i));
 			buf_addr1 += ctx->luma_dpb_size;
 			writel(buf_addr1, mfc_regs->e_chroma_dpb + (4 * i));
@@ -710,7 +710,7 @@ static int s5p_mfc_set_enc_ref_buffer_v6(struct s5p_mfc_ctx *ctx)
 	buf_size1 -= ctx->tmv_buffer_size;
 
 	mfc_debug(2, "Buf1: %zu, buf_size1: %d (ref frames %d)\n",
-			buf_addr1, buf_size1, ctx->pb_count);
+			buf_addr1, buf_size1, ctx->dpb_count);
 	if (buf_size1 < 0) {
 		mfc_debug(2, "Not enough memory has been allocated.\n");
 		return -ENOMEM;
@@ -1987,7 +1987,7 @@ static void s5p_mfc_try_run_v6(struct s5p_mfc_dev *dev)
 	mfc_debug(1, "Setting new context to %p\n", ctx);
 	/* Got context to run in ctx */
 	mfc_debug(1, "ctx->dst_queue_cnt=%d ctx->dpb_count=%d ctx->src_queue_cnt=%d\n",
-		ctx->dst_queue_cnt, ctx->pb_count, ctx->src_queue_cnt);
+		ctx->dst_queue_cnt, ctx->dpb_count, ctx->src_queue_cnt);
 	mfc_debug(1, "ctx->state=%d\n", ctx->state);
 	/* Last frame has already been sent to MFC
 	 * Now obtaining frames from MFC buffer */
