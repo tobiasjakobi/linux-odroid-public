@@ -678,7 +678,7 @@ struct s5p_mfc_ctx {
 	int after_packed_pb;
 	int sei_fp_parse;
 
-	int pb_count;
+	int dpb_count;
 	int total_dpb_count;
 	int mv_count;
 	/* Buffers */

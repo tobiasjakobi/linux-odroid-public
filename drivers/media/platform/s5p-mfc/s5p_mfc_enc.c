@@ -1168,8 +1168,8 @@ static int enc_post_seq_start(struct s5p_mfc_ctx *ctx)
 	} else {
 		enc_pb_count = s5p_mfc_hw_call(dev->mfc_ops,
 				get_enc_dpb_count, dev);
-		if (ctx->pb_count < enc_pb_count)
-			ctx->pb_count = enc_pb_count;
+		if (ctx->dpb_count < enc_pb_count)
+			ctx->dpb_count = enc_pb_count;
 		if (FW_HAS_E_MIN_SCRATCH_BUF(dev)) {
 			ctx->scratch_buf_size = s5p_mfc_hw_call(dev->mfc_ops,
 					get_e_min_scratch_buf_size, dev);
@@ -1527,13 +1527,13 @@ static int vidioc_reqbufs(struct file *file, void *priv,
 
 		if (IS_MFCV6_PLUS(dev)) {
 			/* Check for min encoder buffers */
-			if (ctx->pb_count &&
-				(reqbufs->count < ctx->pb_count)) {
-				reqbufs->count = ctx->pb_count;
+			if (ctx->dpb_count &&
+				(reqbufs->count < ctx->dpb_count)) {
+				reqbufs->count = ctx->dpb_count;
 				mfc_debug(2, "Minimum %d output buffers needed\n",
-						ctx->pb_count);
+						ctx->dpb_count);
 			} else {
-				ctx->pb_count = reqbufs->count;
+				ctx->dpb_count = reqbufs->count;
 			}
 		}
 
@@ -2205,7 +2205,7 @@ static int s5p_mfc_enc_g_v_ctrl(struct v4l2_ctrl *ctrl)
 	case V4L2_CID_MIN_BUFFERS_FOR_OUTPUT:
 		if (ctx->state >= MFCINST_HEAD_PARSED &&
 		    ctx->state < MFCINST_ABORT) {
-			ctrl->val = ctx->pb_count;
+			ctrl->val = ctx->dpb_count;
 			break;
 		} else if (ctx->state != MFCINST_INIT) {
 			v4l2_err(&dev->v4l2_dev, "Encoding not initialised\n");
@@ -2216,7 +2216,7 @@ static int s5p_mfc_enc_g_v_ctrl(struct v4l2_ctrl *ctrl)
 				S5P_MFC_R2H_CMD_SEQ_DONE_RET, 0);
 		if (ctx->state >= MFCINST_HEAD_PARSED &&
 		    ctx->state < MFCINST_ABORT) {
-			ctrl->val = ctx->pb_count;
+			ctrl->val = ctx->dpb_count;
 		} else {
 			v4l2_err(&dev->v4l2_dev, "Encoding not initialised\n");
 			return -EINVAL;
@@ -2501,9 +2501,9 @@ static int s5p_mfc_start_streaming(struct vb2_queue *q, unsigned int count)
 						0);
 		}
 
-		if (ctx->src_bufs_cnt < ctx->pb_count) {
+		if (ctx->src_bufs_cnt < ctx->dpb_count) {
 			mfc_err("Need minimum %d OUTPUT buffers\n",
-					ctx->pb_count);
+					ctx->dpb_count);
 			return -ENOBUFS;
 		}
 	}
