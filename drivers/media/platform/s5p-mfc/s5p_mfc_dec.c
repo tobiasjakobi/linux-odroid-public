@@ -1000,6 +1000,28 @@ static int s5p_mfc_buf_init(struct vb2_buffer *vb)
 	return 0;
 }
 
+static void s5p_mfc_buf_cleanup(struct vb2_buffer *vb)
+{
+	struct vb2_queue *vq = vb->vb2_queue;
+	struct s5p_mfc_ctx *ctx = fh_to_ctx(vq->drv_priv);
+
+	switch (vq->type) {
+	case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
+		ctx->dst_bufs[vb->index].b = NULL;
+		ctx->dst_bufs_cnt--;
+		break;
+
+	case V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE:
+		ctx->src_bufs[vb->index].b = NULL;
+		ctx->src_bufs_cnt--;
+		break;
+
+	default:
+		mfc_err("s5p_mfc_buf_cleanup: unknown queue type\n");
+		break;
+	}
+}
+
 static int s5p_mfc_start_streaming(struct vb2_queue *q, unsigned int count)
 {
 	struct s5p_mfc_ctx *ctx = fh_to_ctx(q->drv_priv);
@@ -1098,6 +1120,7 @@ static struct vb2_ops s5p_mfc_dec_qops = {
 	.wait_prepare		= vb2_ops_wait_prepare,
 	.wait_finish		= vb2_ops_wait_finish,
 	.buf_init		= s5p_mfc_buf_init,
+	.buf_cleanup		= s5p_mfc_buf_cleanup,
 	.start_streaming	= s5p_mfc_start_streaming,
 	.stop_streaming		= s5p_mfc_stop_streaming,
 	.buf_queue		= s5p_mfc_buf_queue,
