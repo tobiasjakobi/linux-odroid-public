@@ -558,13 +558,11 @@ static int s5p_mfc_set_dec_frame_buffer_v6(struct s5p_mfc_ctx *ctx)
 
 	for (i = 0; i < ctx->total_dpb_count; i++) {
 		/* Bank2 */
-		mfc_debug(2, "Luma %d: %zx\n", i,
-					ctx->dst_bufs[i].cookie.raw.luma);
-		writel(ctx->dst_bufs[i].cookie.raw.luma,
+		mfc_debug(2, "Luma %d: %zx\n", i, ctx->dst_bufs[i].luma);
+		writel(ctx->dst_bufs[i].luma,
 				mfc_regs->d_first_plane_dpb + i * 4);
-		mfc_debug(2, "\tChroma %d: %zx\n", i,
-					ctx->dst_bufs[i].cookie.raw.chroma);
-		writel(ctx->dst_bufs[i].cookie.raw.chroma,
+		mfc_debug(2, "\tChroma %d: %zx\n", i, ctx->dst_bufs[i].chroma);
+		writel(ctx->dst_bufs[i].chroma,
 				mfc_regs->d_second_plane_dpb + i * 4);
 	}
 	if (ctx->codec_mode == S5P_MFC_CODEC_H264_DEC ||
