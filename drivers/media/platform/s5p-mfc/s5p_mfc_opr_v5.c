@@ -470,13 +470,11 @@ static int s5p_mfc_set_dec_frame_buffer_v5(struct s5p_mfc_ctx *ctx)
 								frame_size_mv);
 	for (i = 0; i < ctx->total_dpb_count; i++) {
 		/* Bank2 */
-		mfc_debug(2, "Luma %d: %zx\n", i,
-					ctx->dst_bufs[i].cookie.raw.luma);
-		mfc_write(dev, OFFSETB(ctx->dst_bufs[i].cookie.raw.luma),
+		mfc_debug(2, "Luma %d: %zx\n", i, ctx->dst_bufs[i].luma);
+		mfc_write(dev, OFFSETB(ctx->dst_bufs[i].luma),
 						S5P_FIMV_DEC_LUMA_ADR + i * 4);
-		mfc_debug(2, "\tChroma %d: %zx\n", i,
-					ctx->dst_bufs[i].cookie.raw.chroma);
-		mfc_write(dev, OFFSETA(ctx->dst_bufs[i].cookie.raw.chroma),
+		mfc_debug(2, "\tChroma %d: %zx\n", i, ctx->dst_bufs[i].chroma);
+		mfc_write(dev, OFFSETA(ctx->dst_bufs[i].chroma),
 					       S5P_FIMV_DEC_CHROMA_ADR + i * 4);
 		if (ctx->codec_mode == S5P_MFC_CODEC_H264_DEC) {
 			mfc_debug(2, "\tBuf2: %zx, size: %d\n",

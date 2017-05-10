@@ -177,13 +177,8 @@ struct s5p_mfc_ctx;
 struct s5p_mfc_buf {
 	struct vb2_v4l2_buffer *b;
 	struct list_head list;
-	union {
-		struct {
-			size_t luma;
-			size_t chroma;
-		} raw;
-		size_t stream;
-	} cookie;
+	size_t luma;
+	size_t chroma;
 	int flags;
 };
 
