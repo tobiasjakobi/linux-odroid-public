@@ -13712,6 +13712,15 @@ F:	drivers/firmware/psci/
 F:	include/linux/psci.h
 F:	include/uapi/linux/psci.h
 
+POWER SEQUENCE LIBRARY
+M:	Peter Chen <Peter.Chen@nxp.com>
+T:	git git://git.kernel.org/pub/scm/linux/kernel/git/peter.chen/usb.git
+L:	linux-pm@vger.kernel.org
+S:	Maintained
+F:	Documentation/devicetree/bindings/power/pwrseq/
+F:	drivers/power/pwrseq/
+F:	include/linux/power/pwrseq.h
+
 POWER SUPPLY CLASS/SUBSYSTEM and DRIVERS
 M:	Sebastian Reichel <sre@kernel.org>
 L:	linux-pm@vger.kernel.org

@@ -1,0 +1,20 @@
+#
+# Power Sequence library
+#
+
+menuconfig POWER_SEQUENCE
+	bool "Power sequence control"
+	help
+	   It is used for drivers which needs to do power sequence
+	   (eg, turn on clock, toggle reset gpio) before the related
+	   devices can be found by hardware, eg, USB bus.
+
+if POWER_SEQUENCE
+
+config PWRSEQ_GENERIC
+	bool "Generic power sequence control"
+	depends on OF
+	help
+	   This is the generic power sequence control library, and is
+	   supposed to support common power sequence usage.
+endif
