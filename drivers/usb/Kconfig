@@ -46,6 +46,7 @@ config USB
 	depends on USB_ARCH_HAS_HCD
 	select GENERIC_ALLOCATOR
 	select USB_COMMON
+	select POWER_SEQUENCE
 	select NLS  # for UTF-8 strings
 	help
 	  Universal Serial Bus (USB) is a specification for a serial bus
