@@ -36,7 +36,7 @@ int soft_job_start_wrapper(struct mali_session_data *session, _mali_uk_soft_job_
 
 	MALI_DEBUG_ASSERT_POINTER(session->soft_job_system);
 
-	if (0 != copy_from_user(&kargs, uargs, sizeof(kargs))) {
+	if (0 != raw_copy_from_user(&kargs, uargs, sizeof(kargs))) {
 		return -EFAULT;
 	}
 

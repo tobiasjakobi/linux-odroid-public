@@ -24,7 +24,7 @@ int profiling_add_event_wrapper(struct mali_session_data *session_data, _mali_uk
 
 	MALI_CHECK_NON_NULL(uargs, -EINVAL);
 
-	if (0 != copy_from_user(&kargs, uargs, sizeof(_mali_uk_profiling_add_event_s))) {
+	if (0 != raw_copy_from_user(&kargs, uargs, sizeof(_mali_uk_profiling_add_event_s))) {
 		return -EFAULT;
 	}
 
@@ -52,7 +52,7 @@ int profiling_memory_usage_get_wrapper(struct mali_session_data *session_data, _
 	}
 
 	kargs.ctx = (uintptr_t)NULL; /* prevent kernel address to be returned to user space */
-	if (0 != copy_to_user(uargs, &kargs, sizeof(_mali_uk_profiling_memory_usage_get_s))) {
+	if (0 != raw_copy_to_user(uargs, &kargs, sizeof(_mali_uk_profiling_memory_usage_get_s))) {
 		return -EFAULT;
 	}
 
@@ -68,7 +68,7 @@ int profiling_report_sw_counters_wrapper(struct mali_session_data *session_data,
 
 	MALI_CHECK_NON_NULL(uargs, -EINVAL);
 
-	if (0 != copy_from_user(&kargs, uargs, sizeof(_mali_uk_sw_counters_report_s))) {
+	if (0 != raw_copy_from_user(&kargs, uargs, sizeof(_mali_uk_sw_counters_report_s))) {
 		return -EFAULT;
 	}
 
@@ -85,7 +85,7 @@ int profiling_report_sw_counters_wrapper(struct mali_session_data *session_data,
 
 	counters = (u32 *)(uintptr_t)kargs.counters;
 
-	if (0 != copy_from_user(counter_buffer, counters, sizeof(u32) * kargs.num_counters)) {
+	if (0 != raw_copy_from_user(counter_buffer, counters, sizeof(u32) * kargs.num_counters)) {
 		kfree(counter_buffer);
 		return -EFAULT;
 	}

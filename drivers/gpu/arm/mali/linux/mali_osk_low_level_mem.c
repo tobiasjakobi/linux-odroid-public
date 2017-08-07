@@ -57,10 +57,10 @@ u32 _mali_osk_mem_write_safe(void __user *dest, const void __user *src, u32 size
 				size_to_copy = bytes_left_to_copy;
 			}
 
-			bytes_left = copy_from_user(temp_buf, ((char *)src) + i, size_to_copy);
+			bytes_left = raw_copy_from_user(temp_buf, ((char *)src) + i, size_to_copy);
 			size_copied = size_to_copy - bytes_left;
 
-			bytes_left = copy_to_user(((char *)dest) + i, temp_buf, size_copied);
+			bytes_left = raw_copy_to_user(((char *)dest) + i, temp_buf, size_copied);
 			size_copied -= bytes_left;
 
 			bytes_left_to_copy -= size_copied;

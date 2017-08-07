@@ -68,7 +68,7 @@ int wait_for_notification_wrapper(struct mali_session_data *session_data, _mali_
 
 	if (_MALI_NOTIFICATION_CORE_SHUTDOWN_IN_PROGRESS != kargs.type) {
 		kargs.ctx = (uintptr_t)NULL; /* prevent kernel address to be returned to user space */
-		if (0 != copy_to_user(uargs, &kargs, sizeof(_mali_uk_wait_for_notification_s))) return -EFAULT;
+		if (0 != raw_copy_to_user(uargs, &kargs, sizeof(_mali_uk_wait_for_notification_s))) return -EFAULT;
 	} else {
 		if (0 != put_user(kargs.type, &uargs->type)) return -EFAULT;
 	}
@@ -111,7 +111,7 @@ int get_user_settings_wrapper(struct mali_session_data *session_data, _mali_uk_g
 	}
 
 	kargs.ctx = 0; /* prevent kernel address to be returned to user space */
-	if (0 != copy_to_user(uargs, &kargs, sizeof(_mali_uk_get_user_settings_s))) return -EFAULT;
+	if (0 != raw_copy_to_user(uargs, &kargs, sizeof(_mali_uk_get_user_settings_s))) return -EFAULT;
 
 	return 0;
 }

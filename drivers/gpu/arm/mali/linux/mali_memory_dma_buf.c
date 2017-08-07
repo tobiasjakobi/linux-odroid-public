@@ -264,8 +264,8 @@ int mali_attach_dma_buf(struct mali_session_data *session, _mali_uk_attach_dma_b
 	int md;
 	int fd;
 
-	/* Get call arguments from user space. copy_from_user returns how many bytes which where NOT copied */
-	if (0 != copy_from_user(&args, (void __user *)user_arg, sizeof(_mali_uk_attach_dma_buf_s))) {
+	/* Get call arguments from user space. raw_copy_from_user returns how many bytes which where NOT copied */
+	if (0 != raw_copy_from_user(&args, (void __user *)user_arg, sizeof(_mali_uk_attach_dma_buf_s))) {
 		return -EFAULT;
 	}
 
@@ -394,8 +394,8 @@ int mali_release_dma_buf(struct mali_session_data *session, _mali_uk_release_dma
 	_mali_uk_release_dma_buf_s args;
 	mali_mem_allocation *descriptor;
 
-	/* get call arguments from user space. copy_from_user returns how many bytes which where NOT copied */
-	if (0 != copy_from_user(&args, (void __user *)user_arg, sizeof(_mali_uk_release_dma_buf_s))) {
+	/* get call arguments from user space. raw_copy_from_user returns how many bytes which where NOT copied */
+	if (0 != raw_copy_from_user(&args, (void __user *)user_arg, sizeof(_mali_uk_release_dma_buf_s))) {
 		return -EFAULT;
 	}
 
@@ -430,8 +430,8 @@ int mali_dma_buf_get_size(struct mali_session_data *session, _mali_uk_dma_buf_ge
 	int fd;
 	struct dma_buf *buf;
 
-	/* get call arguments from user space. copy_from_user returns how many bytes which where NOT copied */
-	if (0 != copy_from_user(&args, (void __user *)user_arg, sizeof(_mali_uk_dma_buf_get_size_s))) {
+	/* get call arguments from user space. raw_copy_from_user returns how many bytes which where NOT copied */
+	if (0 != raw_copy_from_user(&args, (void __user *)user_arg, sizeof(_mali_uk_dma_buf_get_size_s))) {
 		return -EFAULT;
 	}
 

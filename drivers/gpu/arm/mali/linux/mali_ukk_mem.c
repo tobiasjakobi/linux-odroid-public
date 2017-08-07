@@ -26,7 +26,7 @@ int mem_write_safe_wrapper(struct mali_session_data *session_data, _mali_uk_mem_
 	MALI_CHECK_NON_NULL(uargs, -EINVAL);
 	MALI_CHECK_NON_NULL(session_data, -EINVAL);
 
-	if (0 != copy_from_user(&kargs, uargs, sizeof(_mali_uk_mem_write_safe_s))) {
+	if (0 != raw_copy_from_user(&kargs, uargs, sizeof(_mali_uk_mem_write_safe_s))) {
 		return -EFAULT;
 	}
 
@@ -65,8 +65,8 @@ int mem_map_ext_wrapper(struct mali_session_data *session_data, _mali_uk_map_ext
 	/* the session_data pointer was validated by caller */
 	MALI_CHECK_NON_NULL(argument, -EINVAL);
 
-	/* get call arguments from user space. copy_from_user returns how many bytes which where NOT copied */
-	if (0 != copy_from_user(&uk_args, (void __user *)argument, sizeof(_mali_uk_map_external_mem_s))) {
+	/* get call arguments from user space. raw_copy_from_user returns how many bytes which where NOT copied */
+	if (0 != raw_copy_from_user(&uk_args, (void __user *)argument, sizeof(_mali_uk_map_external_mem_s))) {
 		return -EFAULT;
 	}
 
@@ -101,8 +101,8 @@ int mem_unmap_ext_wrapper(struct mali_session_data *session_data, _mali_uk_unmap
 	/* the session_data pointer was validated by caller */
 	MALI_CHECK_NON_NULL(argument, -EINVAL);
 
-	/* get call arguments from user space. copy_from_user returns how many bytes which where NOT copied */
-	if (0 != copy_from_user(&uk_args, (void __user *)argument, sizeof(_mali_uk_unmap_external_mem_s))) {
+	/* get call arguments from user space. raw_copy_from_user returns how many bytes which where NOT copied */
+	if (0 != raw_copy_from_user(&uk_args, (void __user *)argument, sizeof(_mali_uk_unmap_external_mem_s))) {
 		return -EFAULT;
 	}
 
@@ -143,7 +143,7 @@ int mem_dump_mmu_page_table_wrapper(struct mali_session_data *session_data, _mal
 	MALI_CHECK_NON_NULL(uargs, -EINVAL);
 	/* the session_data pointer was validated by caller */
 
-	if (0 != copy_from_user(&kargs, uargs, sizeof(_mali_uk_dump_mmu_page_table_s)))
+	if (0 != raw_copy_from_user(&kargs, uargs, sizeof(_mali_uk_dump_mmu_page_table_s)))
 		goto err_exit;
 
 	user_buffer = (void __user *)(uintptr_t)kargs.buffer;
@@ -173,7 +173,7 @@ int mem_dump_mmu_page_table_wrapper(struct mali_session_data *session_data, _mal
 	}
 
 	/* copy mmu page table info back to user space and update pointers */
-	if (0 != copy_to_user(user_buffer, buffer, kargs.size))
+	if (0 != raw_copy_to_user(user_buffer, buffer, kargs.size))
 		goto err_exit;
 
 	kargs.register_writes = kargs.register_writes -
@@ -181,7 +181,7 @@ int mem_dump_mmu_page_table_wrapper(struct mali_session_data *session_data, _mal
 	kargs.page_table_dump = kargs.page_table_dump -
 				(uintptr_t)buffer + (uintptr_t)user_buffer;
 
-	if (0 != copy_to_user(uargs, &kargs, sizeof(kargs)))
+	if (0 != raw_copy_to_user(uargs, &kargs, sizeof(kargs)))
 		goto err_exit;
 
 	rc = 0;

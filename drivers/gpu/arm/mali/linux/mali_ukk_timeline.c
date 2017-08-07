@@ -52,7 +52,7 @@ int timeline_wait_wrapper(struct mali_session_data *session, _mali_uk_timeline_w
 
 	MALI_DEBUG_ASSERT_POINTER(session);
 
-	if (0 != copy_from_user(&uk_fence, &uargs->fence, sizeof(_mali_uk_fence_t))) return -EFAULT;
+	if (0 != raw_copy_from_user(&uk_fence, &uargs->fence, sizeof(_mali_uk_fence_t))) return -EFAULT;
 	if (0 != get_user(timeout, &uargs->timeout)) return -EFAULT;
 
 	mali_timeline_fence_copy_uk_fence(&fence, &uk_fence);
@@ -73,7 +73,7 @@ int timeline_create_sync_fence_wrapper(struct mali_session_data *session, _mali_
 
 	MALI_DEBUG_ASSERT_POINTER(session);
 
-	if (0 != copy_from_user(&uk_fence, &uargs->fence, sizeof(_mali_uk_fence_t))) return -EFAULT;
+	if (0 != raw_copy_from_user(&uk_fence, &uargs->fence, sizeof(_mali_uk_fence_t))) return -EFAULT;
 	mali_timeline_fence_copy_uk_fence(&fence, &uk_fence);
 
 #if defined(CONFIG_SYNC)

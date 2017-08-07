@@ -111,7 +111,7 @@ static ssize_t group_enabled_write(struct file *filp, const char __user *buf, si
 		return -ENOMEM;
 	}
 
-	if (copy_from_user(&buffer[0], buf, count)) {
+	if (raw_copy_from_user(&buffer[0], buf, count)) {
 		return -EFAULT;
 	}
 	buffer[count] = '\0';
@@ -223,7 +223,7 @@ static ssize_t profiling_counter_src_write(struct file *filp, const char __user 
 		return -EINVAL;
 	}
 
-	if (copy_from_user(&buf, ubuf, cnt)) {
+	if (raw_copy_from_user(&buf, ubuf, cnt)) {
 		return -EFAULT;
 	}
 
@@ -308,7 +308,7 @@ static ssize_t l2_l2x_counter_srcx_write(struct file *filp, const char __user *u
 		return -EINVAL;
 	}
 
-	if (copy_from_user(&buf, ubuf, cnt)) {
+	if (raw_copy_from_user(&buf, ubuf, cnt)) {
 		return -EFAULT;
 	}
 
@@ -342,7 +342,7 @@ static ssize_t l2_all_counter_srcx_write(struct file *filp, const char __user *u
 		return -EINVAL;
 	}
 
-	if (copy_from_user(&buf, ubuf, cnt)) {
+	if (raw_copy_from_user(&buf, ubuf, cnt)) {
 		return -EFAULT;
 	}
 
@@ -483,7 +483,7 @@ static ssize_t power_always_on_write(struct file *filp, const char __user *ubuf,
 	char buf[32];
 
 	cnt = min(cnt, sizeof(buf) - 1);
-	if (copy_from_user(buf, ubuf, cnt)) {
+	if (raw_copy_from_user(buf, ubuf, cnt)) {
 		return -EFAULT;
 	}
 	buf[cnt] = '\0';
@@ -605,7 +605,7 @@ static ssize_t profiling_record_write(struct file *filp, const char __user *ubuf
 		return -EINVAL;
 	}
 
-	if (copy_from_user(&buf, ubuf, cnt)) {
+	if (raw_copy_from_user(&buf, ubuf, cnt)) {
 		return -EFAULT;
 	}
 
@@ -951,7 +951,7 @@ static ssize_t user_settings_write(struct file *filp, const char __user *ubuf, s
 	char buf[32];
 
 	cnt = min(cnt, sizeof(buf) - 1);
-	if (copy_from_user(buf, ubuf, cnt)) {
+	if (raw_copy_from_user(buf, ubuf, cnt)) {
 		return -EFAULT;
 	}
 	buf[cnt] = '\0';
@@ -1016,7 +1016,7 @@ static ssize_t pp_num_cores_enabled_write(struct file *filp, const char __user *
 		return -ENOMEM;
 	}
 
-	if (copy_from_user(&buffer[0], buf, count)) {
+	if (raw_copy_from_user(&buffer[0], buf, count)) {
 		return -EFAULT;
 	}
 	buffer[count] = '\0';
@@ -1077,7 +1077,7 @@ static ssize_t pp_core_scaling_enabled_write(struct file *filp, const char __use
 		return -ENOMEM;
 	}
 
-	if (copy_from_user(&buffer[0], buf, count)) {
+	if (raw_copy_from_user(&buffer[0], buf, count)) {
 		return -EFAULT;
 	}
 	buffer[count] = '\0';

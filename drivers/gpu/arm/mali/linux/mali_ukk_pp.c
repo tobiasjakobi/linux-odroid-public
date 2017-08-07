@@ -65,7 +65,7 @@ int pp_get_number_of_cores_wrapper(struct mali_session_data *session_data, _mali
 	}
 
 	kargs.ctx = (uintptr_t)NULL; /* prevent kernel address to be returned to user space */
-	if (0 != copy_to_user(uargs, &kargs, sizeof(_mali_uk_get_pp_number_of_cores_s))) {
+	if (0 != raw_copy_to_user(uargs, &kargs, sizeof(_mali_uk_get_pp_number_of_cores_s))) {
 		return -EFAULT;
 	}
 
@@ -96,7 +96,7 @@ int pp_disable_wb_wrapper(struct mali_session_data *session_data, _mali_uk_pp_di
 	MALI_CHECK_NON_NULL(uargs, -EINVAL);
 	MALI_CHECK_NON_NULL(session_data, -EINVAL);
 
-	if (0 != copy_from_user(&kargs, uargs, sizeof(_mali_uk_pp_disable_wb_s))) return -EFAULT;
+	if (0 != raw_copy_from_user(&kargs, uargs, sizeof(_mali_uk_pp_disable_wb_s))) return -EFAULT;
 
 	kargs.ctx = (uintptr_t)session_data;
 	_mali_ukk_pp_job_disable_wb(&kargs);

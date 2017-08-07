@@ -24,7 +24,7 @@ int vsync_event_report_wrapper(struct mali_session_data *session_data, _mali_uk_
 
 	MALI_CHECK_NON_NULL(uargs, -EINVAL);
 
-	if (0 != copy_from_user(&kargs, uargs, sizeof(_mali_uk_vsync_event_report_s))) {
+	if (0 != raw_copy_from_user(&kargs, uargs, sizeof(_mali_uk_vsync_event_report_s))) {
 		return -EFAULT;
 	}
 
