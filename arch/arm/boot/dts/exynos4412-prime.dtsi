@@ -17,6 +17,28 @@
 };
 
 &cpu0_opp_table {
+	opp-900000000 {
+		opp-microvolt = <1012500>;
+	};
+	opp-1000000000 {
+		opp-microvolt = <1037500>;
+	};
+	opp-1100000000 {
+		opp-microvolt = <1075000>;
+	};
+	opp-1200000000 {
+		opp-microvolt = <1125000>;
+	};
+	opp-1300000000 {
+		opp-microvolt = <1175000>;
+	};
+	opp-1400000000 {
+		opp-microvolt = <1225000>;
+	};
+	opp-1500000000 {
+		opp-microvolt = <1300000>;
+	};
+
 	opp-1600000000 {
 		opp-hz = /bits/ 64 <1600000000>;
 		opp-microvolt = <1350000>;
@@ -24,19 +46,46 @@
 	};
 	opp-1704000000 {
 		opp-hz = /bits/ 64 <1704000000>;
-		opp-microvolt = <1350000>;
+		opp-microvolt = <1375000>;
 		clock-latency-ns = <200000>;
+	};
+	opp-1800000000 {
+		opp-hz = /bits/ 64 <1800000000>;
+		opp-microvolt = <1400000>;
+		clock-latency-ns = <200000>;
+		turbo-mode;
 	};
 };
 
 &cooling_map0 {
-	cooling-device = <&cpu0 9 9>, <&cpu1 9 9>,
-			 <&cpu2 9 9>, <&cpu3 9 9>;
+	cooling-device = <&cpu0 10 10>, <&cpu1 10 10>,
+			 <&cpu2 10 10>, <&cpu3 10 10>;
 };
 
 &cooling_map1 {
-	cooling-device = <&cpu0 15 15>, <&cpu1 15 15>,
-			 <&cpu2 15 15>, <&cpu3 15 15>;
+	cooling-device = <&cpu0 16 16>, <&cpu1 16 16>,
+			 <&cpu2 16 16>, <&cpu3 16 16>;
+};
+
+&bus_dmc_opp_table {
+	opp-160000000 {
+		opp-microvolt = <950000>;
+	};
+	opp-267000000 {
+		opp-microvolt = <1000000>;
+	};
+	opp-400000000 {
+		opp-microvolt = <1100000>;
+	};
+};
+
+&bus_leftbus_opp_table {
+	opp-160000000 {
+		opp-microvolt = <975000>;
+	};
+	opp-200000000 {
+		opp-microvolt = <1150000>;
+	};
 };
 
 &gpu_opp_table {
