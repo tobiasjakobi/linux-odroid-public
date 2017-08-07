@@ -104,11 +104,11 @@ static void mali_mem_vma_close(struct vm_area_struct *vma)
 	mali_mem_descriptor_destroy(descriptor);
 }
 
-static int mali_kernel_memory_cpu_page_fault_handler(struct vm_area_struct *vma, struct vm_fault *vmf)
+static int mali_kernel_memory_cpu_page_fault_handler(struct vm_fault *vmf)
 {
 	mali_mem_allocation *descriptor;
 
-	descriptor = (mali_mem_allocation *)vma->vm_private_data;
+	descriptor = (mali_mem_allocation *)vmf->vma->vm_private_data;
 
 	MALI_DEBUG_ASSERT(MALI_MEM_ALLOCATION_VALID_MAGIC == descriptor->magic);
 
