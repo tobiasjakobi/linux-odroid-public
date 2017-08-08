@@ -156,15 +156,13 @@ static int exynos4412_opp_update(struct exynos4412_drvdata *data,
 
 	freq *= 1000000;
 
-	rcu_read_lock();
-
 	opp = dev_pm_opp_find_freq_exact(dev, freq, true);
 	BUG_ON(opp == NULL);
 
 	volt = dev_pm_opp_get_voltage(opp);
 	volt += data->regulator_offset;
 
-	rcu_read_unlock();
+	dev_pm_opp_put(opp);
 
 	if (data->cur_volt && volt < data->cur_volt)
 		volt_first = false;
@@ -220,8 +218,6 @@ static int exynos4412_opp_check(struct device *dev, struct exynos4412_drvdata *d
 	const struct exynos4412_power_state *s;
 	struct dev_pm_opp *opp;
 
-	rcu_read_lock();
-
 	for (i = 0; i < data->num_states; i++) {
 		s = &data->states[i];
 
@@ -239,12 +235,13 @@ static int exynos4412_opp_check(struct device *dev, struct exynos4412_drvdata *d
 			ret = -EFAULT;
 			goto out;
 		}
+
+		dev_pm_opp_put(opp);
 	}
 
 	ret = 0;
 
 out:
-	rcu_read_unlock();
 	return ret;
 }
 
