@@ -1,3 +1,4 @@
 [PATCH v6 0/6] hwmon: thermal: Odroid U3: Provide support for Odroid U3 fan
 [PATCH] gpu/mali: integration of r5p0 for Exynos4412/Mali-400MP4
 [PATCH] drm/exynos: g2d: various improvements for the G2D driver
+[PATCH v16 0/7] power: add power sequence library
