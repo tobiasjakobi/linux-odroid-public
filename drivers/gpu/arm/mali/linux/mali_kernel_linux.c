@@ -421,9 +421,9 @@ static int mali_probe(struct platform_device *pdev)
 
 	/* If we use DT to initialize our DDK, we have to prepare somethings. */
 	err = mali_platform_device_init(mali_platform_device);
-	if (0 != err) {
+	if (err < 0) {
 		MALI_PRINT_ERROR("mali_probe(): Failed to initialize platform device.");
-		return -EFAULT;
+		return err;
 	}
 
 	err = _mali_osk_wq_init();
