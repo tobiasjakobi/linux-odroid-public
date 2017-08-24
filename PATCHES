@@ -3,3 +3,4 @@
 [PATCH] drm/exynos: g2d: various improvements for the G2D driver
 [PATCH v16 0/7] power: add power sequence library
 [PATCH 0/4] ARM: exynos: Fix Odroid U3 USB/LAN when TFTP booting (power sequence)
+[PATCH] media/s5p-mfc: support dmabuf import with the MFC
