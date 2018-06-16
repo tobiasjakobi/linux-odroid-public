@@ -20,14 +20,32 @@
 
 struct _mali_osk_timer_t_struct {
 	struct timer_list timer;
+
+	_mali_osk_timer_callback_t callback;
+	void *data;
 };
 
 typedef void (*timer_timeout_function_t)(unsigned long);
 
+static void timer_cb_handler(struct timer_list *tl)
+{
+	_mali_osk_timer_t *t = (_mali_osk_timer_t *)tl;
+
+	if (t->callback)
+		t->callback(t->data);
+}
+
 _mali_osk_timer_t *_mali_osk_timer_init(void)
 {
 	_mali_osk_timer_t *t = (_mali_osk_timer_t *)kmalloc(sizeof(_mali_osk_timer_t), GFP_KERNEL);
-	if (NULL != t) init_timer(&t->timer);
+
+	if (NULL != t) {
+		t->callback = NULL;
+		t->data = NULL;
+
+		timer_setup(&t->timer, timer_cb_handler, 0);
+	}
+
 	return t;
 }
 
@@ -65,8 +83,8 @@ mali_bool _mali_osk_timer_pending(_mali_osk_timer_t *tim)
 void _mali_osk_timer_setcallback(_mali_osk_timer_t *tim, _mali_osk_timer_callback_t callback, void *data)
 {
 	MALI_DEBUG_ASSERT_POINTER(tim);
-	tim->timer.data = (unsigned long)data;
-	tim->timer.function = (timer_timeout_function_t)callback;
+	tim->data = data;
+	tim->callback = callback;
 }
 
 void _mali_osk_timer_term(_mali_osk_timer_t *tim)
