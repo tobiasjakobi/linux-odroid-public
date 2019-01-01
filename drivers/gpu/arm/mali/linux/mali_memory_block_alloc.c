@@ -116,9 +116,9 @@ static int mali_mem_block_cpu_map(mali_mem_allocation *descriptor, struct vm_are
 	int ret;
 
 	while (size) {
-		ret = vm_insert_pfn(vma, virt + offset, __phys_to_pfn(cpu_phys + offset));
+		ret = vmf_insert_pfn(vma, virt + offset, __phys_to_pfn(cpu_phys + offset));
 
-		if (unlikely(ret)) {
+		if (unlikely(ret != VM_FAULT_NOPAGE || (ret & VM_FAULT_ERROR))) {
 			MALI_DEBUG_PRINT(1, "Block allocator: Failed to insert pfn into vma\n");
 			return 1;
 		}
