@@ -14,8 +14,7 @@
  */
 
 #include "mali_osk.h"
-#include <linux/jiffies.h>
-#include <linux/time.h>
+#include <linux/timekeeping.h>
 #include <asm/delay.h>
 
 mali_bool _mali_osk_time_after_eq(unsigned long ticka, unsigned long tickb)
@@ -46,14 +45,10 @@ void _mali_osk_time_ubusydelay(u32 usecs)
 
 u64 _mali_osk_time_get_ns(void)
 {
-	struct timespec tsval;
-	getnstimeofday(&tsval);
-	return (u64)timespec_to_ns(&tsval);
+	return ktime_get_ns();
 }
 
 u64 _mali_osk_boot_time_get_ns(void)
 {
-	struct timespec tsval;
-	get_monotonic_boottime(&tsval);
-	return (u64)timespec_to_ns(&tsval);
+	return ktime_get_boot_ns();
 }
