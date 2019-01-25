@@ -21,6 +21,7 @@
 #include <linux/devfreq.h>
 #include <linux/workqueue.h>
 #include <linux/platform_device.h>
+#include <linux/syscore_ops.h>
 #include <linux/list.h>
 #include <linux/printk.h>
 #include <linux/hrtimer.h>
@@ -1778,6 +1779,10 @@ static int devfreq_summary_show(struct seq_file *s, void *data)
 }
 DEFINE_SHOW_ATTRIBUTE(devfreq_summary);
 
+static struct syscore_ops devfreq_syscore_ops = {
+	.shutdown = devfreq_suspend,
+};
+
 static int __init devfreq_init(void)
 {
 	devfreq_class = class_create(THIS_MODULE, "devfreq");
@@ -1798,6 +1803,8 @@ static int __init devfreq_init(void)
 	debugfs_create_file("devfreq_summary", 0444,
 				devfreq_debugfs, NULL,
 				&devfreq_summary_fops);
+
+	register_syscore_ops(&devfreq_syscore_ops);
 
 	return 0;
 }
