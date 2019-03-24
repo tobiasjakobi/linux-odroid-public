@@ -104,7 +104,7 @@ static void mali_mem_vma_close(struct vm_area_struct *vma)
 	mali_mem_descriptor_destroy(descriptor);
 }
 
-static int mali_kernel_memory_cpu_page_fault_handler(struct vm_fault *vmf)
+static vm_fault_t mali_kernel_memory_cpu_page_fault_handler(struct vm_fault *vmf)
 {
 	mali_mem_allocation *descriptor;
 
