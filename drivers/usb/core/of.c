@@ -30,6 +30,12 @@ struct device_node *usb_of_get_device_node(struct usb_device *hub, int port1)
 	for_each_child_of_node(hub->dev.of_node, node) {
 		if (of_property_read_u32(node, "reg", &reg))
 			continue;
+		/*
+		 * idVendor and idProduct are not yet known, so check only
+		 * a presence of the compatible property.
+		 */
+		if (!of_find_property(node, "compatible", NULL))
+			continue;
 
 		if (reg == port1)
 			return node;
@@ -38,6 +44,31 @@ struct device_node *usb_of_get_device_node(struct usb_device *hub, int port1)
 	return NULL;
 }
 EXPORT_SYMBOL_GPL(usb_of_get_device_node);
+
+/**
+ * usb_of_validate_device_node() - validate dt node of the probed USB device
+ * @udev: USB device
+ *
+ * Validate devicetree node for the USB device. Compatible string must match
+ * device's idVendor and idProduct, otherwise the of_node will be put and set
+ * to NULL.
+ */
+void usb_of_validate_device_node(struct usb_device *udev)
+{
+	char compatible[13];
+
+	if (!udev->dev.of_node)
+		return;
+
+	snprintf(compatible, sizeof(compatible), "usb%x,%x",
+		 le16_to_cpu(udev->descriptor.idVendor),
+		 le16_to_cpu(udev->descriptor.idProduct));
+
+	if (of_device_is_compatible(udev->dev.of_node, compatible) == 0) {
+		of_node_put(udev->dev.of_node);
+		udev->dev.of_node = NULL;
+	}
+}
 
 /**
  * usb_of_has_combined_node() - determine whether a device has a combined node

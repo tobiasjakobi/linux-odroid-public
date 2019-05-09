@@ -22,6 +22,7 @@
 #include <linux/usb.h>
 #include <linux/usbdevice_fs.h>
 #include <linux/usb/hcd.h>
+#include <linux/usb/of.h>
 #include <linux/usb/otg.h>
 #include <linux/usb/quirks.h>
 #include <linux/workqueue.h>
@@ -5096,6 +5097,8 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
 		usb_unlock_port(port_dev);
 		if (status < 0)
 			goto loop;
+
+		usb_of_validate_device_node(udev);
 
 		if (udev->quirks & USB_QUIRK_DELAY_INIT)
 			msleep(2000);
