@@ -927,7 +927,7 @@ static void g2d_userptr_free_all(struct g2d_data *g2d, struct drm_file *filp)
 	mutex_unlock(&g2d->userptr_mutex);
 }
 
-static enum g2d_buf_type g2d_get_buf_type(struct g2d_data *g2d, unsigned int reg_offset)
+static enum g2d_buf_type g2d_get_buf_type(unsigned int reg_offset)
 {
 	enum g2d_buf_type buf_type;
 
@@ -1617,7 +1617,7 @@ static int g2d_validate_base_cmds(struct g2d_data *g2d,
 		case G2D_DST_PLANE2_BASE_ADDR:
 		case G2D_PAT_BASE_ADDR:
 		case G2D_MSK_BASE_ADDR:
-			buf_type = g2d_get_buf_type(g2d, reg_offset);
+			buf_type = g2d_get_buf_type(reg_offset);
 			buf_info = &node->buf_info[buf_type];
 
 			/* check userptr buffer type. */
@@ -1637,7 +1637,7 @@ static int g2d_validate_base_cmds(struct g2d_data *g2d,
 		case G2D_DST_STRIDE:
 		case G2D_PAT_STRIDE:
 		case G2D_MSK_STRIDE:
-			buf_type = g2d_get_buf_type(g2d, reg_offset);
+			buf_type = g2d_get_buf_type(reg_offset);
 			buf_info = &node->buf_info[buf_type];
 
 			/*
@@ -1653,7 +1653,7 @@ static int g2d_validate_base_cmds(struct g2d_data *g2d,
 
 		case G2D_SRC_COLOR_MODE:
 		case G2D_DST_COLOR_MODE:
-			buf_type = g2d_get_buf_type(g2d, reg_offset);
+			buf_type = g2d_get_buf_type(reg_offset);
 			buf_info = &node->buf_info[buf_type];
 
 			buf_info->format = cmdlist->data[index + 1];
