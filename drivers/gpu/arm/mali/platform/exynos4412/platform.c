@@ -57,14 +57,14 @@ struct exynos4412_power_state {
 
 static const struct exynos4412_power_state exynos4412_power_state_default[] = {
 	POWER_STATE(160,   0,  700, false),
-	POWER_STATE(266, 620,  900, false),
+	POWER_STATE(267, 620,  900, false),
 	POWER_STATE(350, 850,  900, false),
 	POWER_STATE(440, 850, 1000, true),
 };
 
 static const struct exynos4412_power_state exynos4412_power_state_prime[] = {
 	POWER_STATE(160,   0,  700, false),
-	POWER_STATE(266, 620,  900, false),
+	POWER_STATE(267, 620,  900, false),
 	POWER_STATE(350, 850,  900, false),
 	POWER_STATE(440, 850,  900, true),
 	POWER_STATE(533, 950, 1000, true),
