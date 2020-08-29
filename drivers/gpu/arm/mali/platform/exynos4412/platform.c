@@ -93,8 +93,8 @@ struct exynos4412_drvdata {
 
 	unsigned long flags;
 
-	struct clk *sclk;
-	struct clk *clk;
+	struct clk *clk_core;
+	struct clk *clk_bus;
 	struct regulator *regulator;
 	struct devfreq *leftbus_devfreq;
 
@@ -184,7 +184,7 @@ static int exynos4412_opp_update(struct exynos4412_drvdata *data,
 			goto out;
 	}
 
-	ret = clk_set_rate(data->sclk, freq);
+	ret = clk_set_rate(data->clk_core, freq);
 	if (ret < 0)
 		goto out;
 
@@ -293,64 +293,64 @@ static int exynos4412_power_init(struct device *dev, struct exynos4412_drvdata *
 static int exynos4412_clock_init(struct device *dev, struct exynos4412_drvdata *data)
 {
 	struct device_node *np;
-	struct clk *sclk;
-	struct clk *clk;
+	struct clk *core;
+	struct clk *bus;
 
 	unsigned long rate;
 
 	np = dev->of_node;
 
-	sclk = of_clk_get_by_name(np, "sclk_g3d");
-	if (IS_ERR(sclk)) {
-		dev_err(dev, MSG_PREFIX "failed to get G3D core clock\n");
-		goto fail_sclk;
+	core = of_clk_get_by_name(np, "core");
+	if (IS_ERR(core)) {
+		dev_err(dev, MSG_PREFIX "failed to get GPU core clock\n");
+		goto fail_core;
 	}
 
-	clk = of_clk_get_by_name(np, "g3d");
-	if (IS_ERR(clk)) {
-		dev_err(dev, MSG_PREFIX "failed to get G3D clock\n");
-		goto fail_clk;
+	bus = of_clk_get_by_name(np, "bus");
+	if (IS_ERR(bus)) {
+		dev_err(dev, MSG_PREFIX "failed to get GPU bus clock\n");
+		goto fail_bus;
 	}
 
-	if (clk_prepare(sclk) < 0) {
-		dev_err(dev, MSG_PREFIX "failed to prepare G3D core clock\n");
-		goto fail_prepare_sclk;
+	if (clk_prepare(core) < 0) {
+		dev_err(dev, MSG_PREFIX "failed to prepare GPU core clock\n");
+		goto fail_prepare_core;
 	}
 
-	if (clk_prepare(clk) < 0) {
-		dev_err(dev, MSG_PREFIX "failed to prepare G3D clock\n");
-		goto fail_prepare_clk;
+	if (clk_prepare(bus) < 0) {
+		dev_err(dev, MSG_PREFIX "failed to prepare GPU bus clock\n");
+		goto fail_prepare_bus;
 	}
 
-	rate = clk_get_rate(clk);
+	rate = clk_get_rate(bus);
 
-	dev_info(dev, MSG_PREFIX "G3D clock rate = %lu MHz\n", rate / 1000000);
+	dev_info(dev, MSG_PREFIX "GPU bus clock rate = %lu MHz\n", rate / 1000000);
 
-	data->sclk = sclk;
-	data->clk = clk;
+	data->clk_core = core;
+	data->clk_bus = bus;
 
 	return 0;
 
-fail_prepare_clk:
-	clk_unprepare(sclk);
+fail_prepare_bus:
+	clk_unprepare(core);
 
-fail_prepare_sclk:
-	clk_put(clk);
+fail_prepare_core:
+	clk_put(bus);
 
-fail_clk:
-	clk_put(sclk);
+fail_bus:
+	clk_put(core);
 
-fail_sclk:
+fail_core:
 	return -EFAULT;
 }
 
 static void exynos4412_clock_deinit(struct device *dev, struct exynos4412_drvdata *data)
 {
-	clk_unprepare(data->clk);
-	clk_put(data->clk);
+	clk_unprepare(data->clk_bus);
+	clk_put(data->clk_bus);
 
-	clk_unprepare(data->sclk);
-	clk_put(data->sclk);
+	clk_unprepare(data->clk_core);
+	clk_put(data->clk_core);
 }
 
 #ifdef CONFIG_REGULATOR
@@ -492,8 +492,8 @@ int mali_platform_runtime_suspend(struct device *dev)
 
 	data->cur_state = 0;
 
-	clk_disable(data->clk);
-	clk_disable(data->sclk);
+	clk_disable(data->clk_bus);
+	clk_disable(data->clk_core);
 
 	return 0;
 }
@@ -503,11 +503,11 @@ int mali_platform_runtime_resume(struct device *dev)
 	int ret;
 	struct exynos4412_drvdata *data = dev_get_drvdata(dev);
 
-	ret = clk_enable(data->sclk);
+	ret = clk_enable(data->clk_core);
 	if (ret < 0)
 		goto out;
 
-	ret = clk_enable(data->clk);
+	ret = clk_enable(data->clk_bus);
 
 #if defined(CONFIG_MALI_PM_NONE)
 	if (ret < 0)
