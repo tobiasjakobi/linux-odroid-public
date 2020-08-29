@@ -157,7 +157,7 @@ static int exynos4412_opp_update(struct exynos4412_drvdata *data,
 	freq *= 1000000;
 
 	opp = dev_pm_opp_find_freq_exact(dev, freq, true);
-	BUG_ON(opp == NULL);
+	BUG_ON(IS_ERR_OR_NULL(opp));
 
 	volt = dev_pm_opp_get_voltage(opp);
 	volt += data->regulator_offset;
@@ -228,15 +228,15 @@ static int exynos4412_opp_check(struct device *dev, struct exynos4412_drvdata *d
 		freq *= 1000000;
 
 		opp = dev_pm_opp_find_freq_exact(dev, freq, true);
-		if (!opp) {
+		if (IS_ERR_OR_NULL(opp)) {
 			dev_err(dev, MSG_PREFIX "failed to find OPP for freq %lu\n",
 				freq);
 
 			ret = -EFAULT;
 			goto out;
+		} else {
+			dev_pm_opp_put(opp);
 		}
-
-		dev_pm_opp_put(opp);
 	}
 
 	ret = 0;
