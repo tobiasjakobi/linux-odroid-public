@@ -266,14 +266,17 @@ static void insert_hole_addr(struct rb_root *root, struct drm_mm_node *node)
 	rb_insert_augmented(&node->rb_hole_addr, root, &augment_callbacks);
 }
 
-static void add_hole(struct drm_mm_node *node)
+static void add_hole(struct drm_mm_node *node, bool empty)
 {
 	struct drm_mm *mm = node->mm;
 
-	node->hole_size =
-		__drm_mm_hole_node_end(node) - __drm_mm_hole_node_start(node);
-	node->subtree_max_hole = node->hole_size;
-	DRM_MM_BUG_ON(!drm_mm_hole_follows(node));
+	if (!empty)
+	{
+		node->hole_size =
+			__drm_mm_hole_node_end(node) - __drm_mm_hole_node_start(node);
+		node->subtree_max_hole = node->hole_size;
+		DRM_MM_BUG_ON(!drm_mm_hole_follows(node));
+	}
 
 	insert_hole_size(&mm->holes_size, node);
 	insert_hole_addr(&mm->holes_addr, node);
@@ -526,9 +529,9 @@ int drm_mm_reserve_node(struct drm_mm *mm, struct drm_mm_node *node)
 
 	rm_hole(hole);
 	if (node->start > hole_start)
-		add_hole(hole);
+		add_hole(hole, false);
 	if (end < hole_end)
-		add_hole(node);
+		add_hole(node, false);
 
 	save_stack(node);
 	return 0;
@@ -644,9 +647,9 @@ int drm_mm_insert_node_in_range(struct drm_mm * const mm,
 
 		rm_hole(hole);
 		if (adj_start > hole_start)
-			add_hole(hole);
+			add_hole(hole, false);
 		if (adj_start + size < hole_end)
-			add_hole(node);
+			add_hole(node, false);
 
 		save_stack(node);
 		return 0;
@@ -687,7 +690,7 @@ void drm_mm_remove_node(struct drm_mm_node *node)
 
 	if (drm_mm_hole_follows(prev_node))
 		rm_hole(prev_node);
-	add_hole(prev_node);
+	add_hole(prev_node, false);
 
 	clear_bit_unlock(DRM_MM_NODE_ALLOCATED_BIT, &node->flags);
 }
@@ -1007,7 +1010,7 @@ EXPORT_SYMBOL(drm_mm_scan_color_evict);
  */
 void drm_mm_init(struct drm_mm *mm, u64 start, u64 size)
 {
-	DRM_MM_BUG_ON(start + size <= start);
+	DRM_MM_BUG_ON(start + size < start);
 
 	mm->color_adjust = NULL;
 
@@ -1022,7 +1025,7 @@ void drm_mm_init(struct drm_mm *mm, u64 start, u64 size)
 	mm->head_node.mm = mm;
 	mm->head_node.start = start + size;
 	mm->head_node.size = -size;
-	add_hole(&mm->head_node);
+	add_hole(&mm->head_node, size == 0);
 
 	mm->scan_active = 0;
 }
