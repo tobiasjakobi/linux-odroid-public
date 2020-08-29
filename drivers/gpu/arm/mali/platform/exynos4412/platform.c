@@ -360,7 +360,7 @@ static int exynos4412_regulator_init(struct device *dev, struct exynos4412_drvda
 	unsigned int i;
 	int ret;
 
-	regulator = regulator_get(dev, "gpu");
+	regulator = regulator_get(dev, "mali");
 
 	if (IS_ERR(regulator)) {
 		if (PTR_ERR(regulator) != -EPROBE_DEFER)
